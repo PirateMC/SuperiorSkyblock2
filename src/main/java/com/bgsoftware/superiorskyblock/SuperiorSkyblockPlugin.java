@@ -492,6 +492,7 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
         IslandFlag.register("NATURAL_ANIMALS_SPAWN");
         IslandFlag.register("NATURAL_MONSTER_SPAWN");
         IslandFlag.register("PVP");
+        IslandFlag.register("RAIDING");
         IslandFlag.register("SPAWNER_ANIMALS_SPAWN");
         IslandFlag.register("SPAWNER_MONSTER_SPAWN");
         IslandFlag.register("TNT_EXPLOSION");

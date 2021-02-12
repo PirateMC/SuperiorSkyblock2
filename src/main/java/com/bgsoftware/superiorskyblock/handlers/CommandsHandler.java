@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.handlers;
 
+import com.bgsoftware.superiorskyblock.commands.CmdRaid;
 import com.bgsoftware.superiorskyblock.api.commands.SuperiorCommand;
 import com.bgsoftware.superiorskyblock.api.handlers.CommandsManager;
 import com.bgsoftware.superiorskyblock.api.island.Island;
@@ -173,6 +174,7 @@ public final class CommandsHandler extends AbstractHandler implements CommandsMa
         registerCommand(new CmdWarp(), false);
         registerCommand(new CmdWarps(), false);
         registerCommand(new CmdWithdraw(), false);
+        registerCommand(new CmdRaid(), false);
 
         loadCommands();
     }

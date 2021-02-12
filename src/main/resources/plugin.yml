@@ -134,6 +134,8 @@ permissions:
             description: List of island warps.
           superior.island.withdraw:
             description: Withdraw money from your island's bank into your personal account.
+          superior.island.raid:
+            description: Initiate a raid against another island.
       superior.admin.*:
         description: Permission for all admin commands
         default: op

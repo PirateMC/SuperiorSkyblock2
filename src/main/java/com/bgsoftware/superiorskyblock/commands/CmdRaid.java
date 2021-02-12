@@ -17,7 +17,7 @@ public class CmdRaid implements ISuperiorCommand {
 
     @Override
     public List<String> getAliases() {
-        return Collections.singletonList("withdraw");
+        return Collections.singletonList("raid");
     }
 
     @Override
@@ -37,12 +37,12 @@ public class CmdRaid implements ISuperiorCommand {
 
     @Override
     public int getMinArgs() {
-        return 1;
+        return 2;
     }
 
     @Override
     public int getMaxArgs() {
-        return 1;
+        return 2;
     }
 
     @Override

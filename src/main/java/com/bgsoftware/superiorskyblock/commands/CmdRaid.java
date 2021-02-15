@@ -2,16 +2,17 @@ package com.bgsoftware.superiorskyblock.commands;
 
 import com.bgsoftware.superiorskyblock.Locale;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
-import com.bgsoftware.superiorskyblock.api.island.Island;
-import com.bgsoftware.superiorskyblock.api.objects.Pair;
-import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
-import com.bgsoftware.superiorskyblock.commands.ISuperiorCommand;
-import com.bgsoftware.superiorskyblock.utils.commands.CommandArguments;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class CmdRaid implements ISuperiorCommand {
 
@@ -27,7 +28,7 @@ public class CmdRaid implements ISuperiorCommand {
 
     @Override
     public String getUsage(java.util.Locale locale) {
-        return "raid < " + Locale.COMMAND_ARGUMENT_AMOUNT.getMessage(locale) + ">";
+        return "raid <" + Locale.COMMAND_ARGUMENT_ISLAND_NAME.getMessage(locale) + ">";
     }
 
     @Override
@@ -52,6 +53,26 @@ public class CmdRaid implements ISuperiorCommand {
 
     @Override
     public void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, String[] args) {
+        String inviteeName = args[1];
+        Player invitee = Bukkit.getPlayer(inviteeName);
+        if (invitee == null) {
+            sender.sendMessage("Couldn't find player with name " + inviteeName + ".");
+            return;
+        }
+        RaidInvitation invitation = new RaidInvitation(((Player) sender).getUniqueId(), invitee.getUniqueId());
+        RaidInvitationHandler.addInvitation(invitation);
+        sender.sendMessage("Invitation sent.");
+
+        // Create the message
+        TextComponent msg = new TextComponent(sender.getName() + " has invited you to a raid.");
+        msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("This text is shown on hover!").create()));
+        TextComponent optionAccept = new TextComponent("Accept");
+        optionAccept.setColor(ChatColor.GREEN);
+        TextComponent optionDecline = new TextComponent("Decline");
+        optionDecline.setColor(ChatColor.RED);
+
+//        invitee.sendMessage(new ComponentBuilder()
+//        )
 
     }
 

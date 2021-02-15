@@ -8,31 +8,13 @@ import com.bgsoftware.superiorskyblock.utils.reflections.ReflectField;
 import com.bgsoftware.superiorskyblock.utils.tags.CompoundTag;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-
-import net.minecraft.server.v1_8_R3.Block;
-import net.minecraft.server.v1_8_R3.BlockPosition;
 import net.minecraft.server.v1_8_R3.Chunk;
-import net.minecraft.server.v1_8_R3.Entity;
-import net.minecraft.server.v1_8_R3.EntityPlayer;
-import net.minecraft.server.v1_8_R3.EnumParticle;
-import net.minecraft.server.v1_8_R3.Item;
-import net.minecraft.server.v1_8_R3.MinecraftKey;
-import net.minecraft.server.v1_8_R3.MinecraftServer;
-import net.minecraft.server.v1_8_R3.NBTTagCompound;
-import net.minecraft.server.v1_8_R3.PacketPlayOutChat;
-import net.minecraft.server.v1_8_R3.PacketPlayOutTitle;
-import net.minecraft.server.v1_8_R3.PacketPlayOutWorldBorder;
-import net.minecraft.server.v1_8_R3.PlayerConnection;
-import net.minecraft.server.v1_8_R3.PlayerInteractManager;
-import net.minecraft.server.v1_8_R3.TileEntityMobSpawner;
 import net.minecraft.server.v1_8_R3.World;
 import net.minecraft.server.v1_8_R3.WorldBorder;
-import net.minecraft.server.v1_8_R3.WorldServer;
-import org.bukkit.Bukkit;
+import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.ChunkSnapshot;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.craftbukkit.v1_8_R3.CraftChunk;
@@ -59,6 +41,11 @@ public final class NMSAdapter_v1_8_R3 implements NMSAdapter {
     private static final ReflectField<Integer> PORTAL_TICKS = new ReflectField<>(Entity.class, int.class, "al");
 
     private final SuperiorSkyblockPlugin plugin = SuperiorSkyblockPlugin.getPlugin();
+
+    @Override
+    public void copyChunk(org.bukkit.Chunk fromChunk, org.bukkit.World toWorld) {
+
+    }
 
     @Override
     public void registerCommand(BukkitCommand command) {

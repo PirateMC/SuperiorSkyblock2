@@ -8,31 +8,13 @@ import com.bgsoftware.superiorskyblock.utils.reflections.ReflectField;
 import com.bgsoftware.superiorskyblock.utils.tags.CompoundTag;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-
-import net.minecraft.server.v1_8_R2.Block;
-import net.minecraft.server.v1_8_R2.BlockPosition;
 import net.minecraft.server.v1_8_R2.Chunk;
-import net.minecraft.server.v1_8_R2.Entity;
-import net.minecraft.server.v1_8_R2.EntityPlayer;
-import net.minecraft.server.v1_8_R2.EnumParticle;
-import net.minecraft.server.v1_8_R2.Item;
-import net.minecraft.server.v1_8_R2.MinecraftKey;
-import net.minecraft.server.v1_8_R2.MinecraftServer;
-import net.minecraft.server.v1_8_R2.NBTTagCompound;
-import net.minecraft.server.v1_8_R2.PacketPlayOutChat;
-import net.minecraft.server.v1_8_R2.PacketPlayOutTitle;
-import net.minecraft.server.v1_8_R2.PacketPlayOutWorldBorder;
-import net.minecraft.server.v1_8_R2.PlayerConnection;
-import net.minecraft.server.v1_8_R2.PlayerInteractManager;
-import net.minecraft.server.v1_8_R2.TileEntityMobSpawner;
 import net.minecraft.server.v1_8_R2.World;
 import net.minecraft.server.v1_8_R2.WorldBorder;
-import net.minecraft.server.v1_8_R2.WorldServer;
-import org.bukkit.Bukkit;
+import net.minecraft.server.v1_8_R2.*;
 import org.bukkit.ChunkSnapshot;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.craftbukkit.v1_8_R2.CraftChunk;
@@ -59,6 +41,16 @@ public final class NMSAdapter_v1_8_R2 implements NMSAdapter {
     private static final ReflectField<Integer> PORTAL_TICKS = new ReflectField<>(Entity.class, int.class, "al");
 
     private final SuperiorSkyblockPlugin plugin = SuperiorSkyblockPlugin.getPlugin();
+
+    @Override
+    public void copyChunk(org.bukkit.Chunk fromChunk, org.bukkit.World toWorld) {
+        CraftChunk fromCraftChunk = (CraftChunk) fromChunk;
+        CraftChunk toCraftChunk = (CraftChunk) toWorld.getChunkAt(fromChunk.getX(), fromChunk.getZ());
+        Chunk fromChunkHandle = fromCraftChunk.getHandle();
+        ChunkSection[] fromChunkSections = fromChunkHandle.getSections();
+        ChunkSection[] toChunkSections = toCraftChunk.getHandle().getSections();
+        System.arraycopy(fromChunkSections, 0, toChunkSections, 0, fromChunkSections.length);
+    }
 
     @Override
     public void registerCommand(BukkitCommand command) {

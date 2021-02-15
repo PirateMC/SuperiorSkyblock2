@@ -10,33 +10,13 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.minecraft.server.v1_16_R3.BiomeBase;
-import net.minecraft.server.v1_16_R3.BiomeStorage;
-import net.minecraft.server.v1_16_R3.Block;
-import net.minecraft.server.v1_16_R3.BlockPosition;
-import net.minecraft.server.v1_16_R3.ChatMessage;
 import net.minecraft.server.v1_16_R3.Chunk;
-import net.minecraft.server.v1_16_R3.Entity;
-import net.minecraft.server.v1_16_R3.EntityPlayer;
-import net.minecraft.server.v1_16_R3.IBlockData;
-import net.minecraft.server.v1_16_R3.IRegistry;
-import net.minecraft.server.v1_16_R3.MinecraftServer;
-import net.minecraft.server.v1_16_R3.NBTTagCompound;
-import net.minecraft.server.v1_16_R3.PacketPlayOutWorldBorder;
-import net.minecraft.server.v1_16_R3.PlayerInteractManager;
 import net.minecraft.server.v1_16_R3.SoundCategory;
-import net.minecraft.server.v1_16_R3.SoundEffectType;
-import net.minecraft.server.v1_16_R3.TileEntityHopper;
-import net.minecraft.server.v1_16_R3.TileEntityMobSpawner;
 import net.minecraft.server.v1_16_R3.World;
 import net.minecraft.server.v1_16_R3.WorldBorder;
-import net.minecraft.server.v1_16_R3.WorldServer;
-import org.bukkit.Bukkit;
-import org.bukkit.ChunkSnapshot;
-import org.bukkit.Location;
+import net.minecraft.server.v1_16_R3.*;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.command.defaults.BukkitCommand;
@@ -72,6 +52,16 @@ public final class NMSAdapter_v1_16_R3 implements NMSAdapter {
     private static final ReflectField<BiomeBase[]> BIOME_BASE_ARRAY = new ReflectField<>(BiomeStorage.class, BiomeBase[].class, "h");
     private static final ReflectField<BiomeStorage> BIOME_STORAGE = new ReflectField<>("org.bukkit.craftbukkit.VERSION.generator.CustomChunkGenerator$CustomBiomeGrid", BiomeStorage.class, "biome");
     private static final ReflectField<Integer> PORTAL_TICKS = new ReflectField<>(Entity.class, int.class, "portalTicks");
+
+    @Override
+    public void copyChunk(org.bukkit.Chunk fromChunk, org.bukkit.World toWorld) {
+        CraftChunk fromCraftChunk = (CraftChunk) fromChunk;
+        CraftChunk toCraftChunk = (CraftChunk) toWorld.getChunkAt(fromChunk.getX(), fromChunk.getZ());
+        Chunk fromChunkHandle = fromCraftChunk.getHandle();
+        ChunkSection[] fromChunkSections = fromChunkHandle.getSections();
+        ChunkSection[] toChunkSections = toCraftChunk.getHandle().getSections();
+        System.arraycopy(fromChunkSections, 0, toChunkSections, 0, fromChunkSections.length);
+    }
 
     @Override
     public void registerCommand(BukkitCommand command) {

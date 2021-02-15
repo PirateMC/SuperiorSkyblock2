@@ -8,33 +8,13 @@ import com.bgsoftware.superiorskyblock.utils.reflections.ReflectField;
 import com.bgsoftware.superiorskyblock.utils.tags.CompoundTag;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import net.minecraft.server.v1_9_R1.Block;
-import net.minecraft.server.v1_9_R1.BlockPosition;
 import net.minecraft.server.v1_9_R1.Chunk;
-import net.minecraft.server.v1_9_R1.Entity;
-import net.minecraft.server.v1_9_R1.EntityPlayer;
-import net.minecraft.server.v1_9_R1.EnumParticle;
-import net.minecraft.server.v1_9_R1.Item;
-import net.minecraft.server.v1_9_R1.MinecraftKey;
-import net.minecraft.server.v1_9_R1.MinecraftServer;
-import net.minecraft.server.v1_9_R1.NBTTagCompound;
-import net.minecraft.server.v1_9_R1.PacketPlayOutChat;
-import net.minecraft.server.v1_9_R1.PacketPlayOutTitle;
-import net.minecraft.server.v1_9_R1.PacketPlayOutWorldBorder;
-import net.minecraft.server.v1_9_R1.PlayerConnection;
-import net.minecraft.server.v1_9_R1.PlayerInteractManager;
-import net.minecraft.server.v1_9_R1.SoundCategory;
-import net.minecraft.server.v1_9_R1.SoundEffectType;
-import net.minecraft.server.v1_9_R1.SoundEffects;
-import net.minecraft.server.v1_9_R1.TileEntityMobSpawner;
 import net.minecraft.server.v1_9_R1.World;
 import net.minecraft.server.v1_9_R1.WorldBorder;
-import net.minecraft.server.v1_9_R1.WorldServer;
-import org.bukkit.Bukkit;
+import net.minecraft.server.v1_9_R1.*;
 import org.bukkit.ChunkSnapshot;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.craftbukkit.v1_9_R1.CraftChunk;
@@ -61,6 +41,11 @@ public final class NMSAdapter_v1_9_R1 implements NMSAdapter {
     private static final ReflectField<Integer> PORTAL_TICKS = new ReflectField<>(Entity.class, int.class, "al");
 
     private final SuperiorSkyblockPlugin plugin = SuperiorSkyblockPlugin.getPlugin();
+
+    @Override
+    public void copyChunk(org.bukkit.Chunk fromChunk, org.bukkit.World toWorld) {
+
+    }
 
     @Override
     public void registerCommand(BukkitCommand command) {

@@ -1,7 +1,8 @@
-package com.bgsoftware.superiorskyblock.commands;
+package com.bgsoftware.superiorskyblock.commands.raiding;
 
 import com.bgsoftware.superiorskyblock.Locale;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.commands.ISuperiorCommand;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;

@@ -33,6 +33,9 @@ repositories {
     maven { url 'https://repo.bg-software.com/repository/api/' }
     maven { url 'https://repo.bg-software.com/repository/common/' }
     maven { url 'https://repo.bg-software.com/repository/public-libs/' }
+    maven {
+        url 'https://repo.onarandombox.com/content/repositories/multiverse/'
+    }
 
     String mavenUsername = project.hasProperty('mavenUsername') ? project.mavenUsername : System.getenv('mavenUsername');
     String mavenPassword = project.hasProperty('mavenPassword') ? project.mavenPassword : System.getenv('mavenPassword');
@@ -89,6 +92,8 @@ dependencies {
     compileOnly 'org.kitteh:VanishNoPacket:latest'
     compileOnly 'net.milkbowl:Vault:latest'
     compileOnly 'com.bgsoftware:WildStackerAPI:latest'
+
+    compileOnly "com.onarandombox.multiversecore:Multiverse-Core:4.2.2"
 }
 
 jar {

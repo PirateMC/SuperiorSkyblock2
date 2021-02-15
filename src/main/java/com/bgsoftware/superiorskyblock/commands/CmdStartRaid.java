@@ -2,7 +2,10 @@ package com.bgsoftware.superiorskyblock.commands;
 
 import com.bgsoftware.superiorskyblock.Locale;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.island.Island;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
@@ -46,8 +49,21 @@ public final class CmdStartRaid implements ISuperiorCommand {
 
     @Override
     public void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, String[] args) {
-        String teamOneLeader = args[1];
-        String teamTwoLeader = args[2];
+        Player teamOneLeader = Bukkit.getPlayer(args[1]);
+        Player teamTwoLeader = Bukkit.getPlayer(args[2]);
+
+        if (teamOneLeader == null) {
+            sender.sendMessage("Could not find player " + args[1] + ".");
+            return;
+        }
+
+        if (teamTwoLeader == null) {
+            sender.sendMessage("Could not find player " + args[2] + ".");
+            return;
+        }
+
+        Island teamOneIsland = plugin.getGrid().getIsland(teamOneLeader.getUniqueId());
+        Island teamTwoIsland = plugin.getGrid().getIsland(teamTwoLeader.getUniqueId());
     }
 
     @Override

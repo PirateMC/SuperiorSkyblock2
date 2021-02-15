@@ -10,7 +10,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 
@@ -71,9 +70,7 @@ public class CmdRaid implements ISuperiorCommand {
         TextComponent optionDecline = new TextComponent("Decline");
         optionDecline.setColor(ChatColor.RED);
 
-//        invitee.sendMessage(new ComponentBuilder()
-//        )
-
+        invitee.spigot().sendMessage(msg, optionAccept, optionDecline);
     }
 
     @Override

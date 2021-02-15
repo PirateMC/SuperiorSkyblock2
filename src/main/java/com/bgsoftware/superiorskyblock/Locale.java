@@ -17,12 +17,7 @@ import org.bukkit.entity.Player;
 import java.io.File;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public enum Locale {
 
@@ -287,6 +282,7 @@ public enum Locale {
     COMMAND_DESCRIPTION_WARPS,
     COMMAND_DESCRIPTION_WITHDRAW,
     COMMAND_DESCRIPTION_RAID,
+    COMMAND_DESCRIPTION_START_RAID,
     COMMAND_USAGE,
     COOP_ANNOUNCEMENT,
     COOP_BANNED_PLAYER,

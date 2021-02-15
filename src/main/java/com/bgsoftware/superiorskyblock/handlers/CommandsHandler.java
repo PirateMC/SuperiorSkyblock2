@@ -1,72 +1,12 @@
 package com.bgsoftware.superiorskyblock.handlers;
 
-import com.bgsoftware.superiorskyblock.commands.CmdRaid;
+import com.bgsoftware.superiorskyblock.Locale;
+import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.commands.SuperiorCommand;
 import com.bgsoftware.superiorskyblock.api.handlers.CommandsManager;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
-import com.bgsoftware.superiorskyblock.commands.CmdAccept;
-import com.bgsoftware.superiorskyblock.commands.CmdAdmin;
-import com.bgsoftware.superiorskyblock.commands.CmdBalance;
-import com.bgsoftware.superiorskyblock.commands.CmdBan;
-import com.bgsoftware.superiorskyblock.commands.CmdBank;
-import com.bgsoftware.superiorskyblock.commands.CmdBiome;
-import com.bgsoftware.superiorskyblock.commands.CmdBorder;
-import com.bgsoftware.superiorskyblock.commands.CmdChest;
-import com.bgsoftware.superiorskyblock.commands.CmdClose;
-import com.bgsoftware.superiorskyblock.commands.CmdCoop;
-import com.bgsoftware.superiorskyblock.commands.CmdCoops;
-import com.bgsoftware.superiorskyblock.commands.CmdCounts;
-import com.bgsoftware.superiorskyblock.commands.CmdCreate;
-import com.bgsoftware.superiorskyblock.commands.CmdDelWarp;
-import com.bgsoftware.superiorskyblock.commands.CmdDemote;
-import com.bgsoftware.superiorskyblock.commands.CmdDeposit;
-import com.bgsoftware.superiorskyblock.commands.CmdDisband;
-import com.bgsoftware.superiorskyblock.commands.CmdExpel;
-import com.bgsoftware.superiorskyblock.commands.CmdFly;
-import com.bgsoftware.superiorskyblock.commands.CmdHelp;
-import com.bgsoftware.superiorskyblock.commands.CmdInvite;
-import com.bgsoftware.superiorskyblock.commands.CmdKick;
-import com.bgsoftware.superiorskyblock.commands.CmdLang;
-import com.bgsoftware.superiorskyblock.commands.CmdLeave;
-import com.bgsoftware.superiorskyblock.commands.CmdMembers;
-import com.bgsoftware.superiorskyblock.commands.CmdMission;
-import com.bgsoftware.superiorskyblock.commands.CmdMissions;
-import com.bgsoftware.superiorskyblock.commands.CmdName;
-import com.bgsoftware.superiorskyblock.commands.CmdOpen;
-import com.bgsoftware.superiorskyblock.commands.CmdPanel;
-import com.bgsoftware.superiorskyblock.commands.CmdPardon;
-import com.bgsoftware.superiorskyblock.commands.CmdPermissions;
-import com.bgsoftware.superiorskyblock.commands.CmdPromote;
-import com.bgsoftware.superiorskyblock.commands.CmdRankup;
-import com.bgsoftware.superiorskyblock.commands.CmdRate;
-import com.bgsoftware.superiorskyblock.commands.CmdRatings;
-import com.bgsoftware.superiorskyblock.commands.CmdRecalc;
-import com.bgsoftware.superiorskyblock.commands.CmdSetDiscord;
-import com.bgsoftware.superiorskyblock.commands.CmdSetPaypal;
-import com.bgsoftware.superiorskyblock.commands.CmdSetRole;
-import com.bgsoftware.superiorskyblock.commands.CmdSetTeleport;
-import com.bgsoftware.superiorskyblock.commands.CmdSetWarp;
-import com.bgsoftware.superiorskyblock.commands.CmdSettings;
-import com.bgsoftware.superiorskyblock.commands.CmdShow;
-import com.bgsoftware.superiorskyblock.commands.CmdTeam;
-import com.bgsoftware.superiorskyblock.commands.CmdTeamChat;
-import com.bgsoftware.superiorskyblock.commands.CmdTeleport;
-import com.bgsoftware.superiorskyblock.commands.CmdToggle;
-import com.bgsoftware.superiorskyblock.commands.CmdTop;
-import com.bgsoftware.superiorskyblock.commands.CmdTransfer;
-import com.bgsoftware.superiorskyblock.commands.CmdUncoop;
-import com.bgsoftware.superiorskyblock.commands.CmdUpgrade;
-import com.bgsoftware.superiorskyblock.commands.CmdValue;
-import com.bgsoftware.superiorskyblock.commands.CmdValues;
-import com.bgsoftware.superiorskyblock.commands.CmdVisit;
-import com.bgsoftware.superiorskyblock.commands.CmdVisitors;
-import com.bgsoftware.superiorskyblock.commands.CmdWarp;
-import com.bgsoftware.superiorskyblock.commands.CmdWarps;
-import com.bgsoftware.superiorskyblock.commands.CmdWithdraw;
-import com.bgsoftware.superiorskyblock.Locale;
-import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
-
+import com.bgsoftware.superiorskyblock.commands.*;
 import com.bgsoftware.superiorskyblock.utils.FileUtils;
 import com.bgsoftware.superiorskyblock.utils.LocaleUtils;
 import com.bgsoftware.superiorskyblock.utils.StringUtils;
@@ -79,13 +19,7 @@ import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public final class CommandsHandler extends AbstractHandler implements CommandsManager {
 
@@ -175,6 +109,7 @@ public final class CommandsHandler extends AbstractHandler implements CommandsMa
         registerCommand(new CmdWarps(), false);
         registerCommand(new CmdWithdraw(), false);
         registerCommand(new CmdRaid(), false);
+        registerCommand(new CmdStartRaid(), false);
 
         loadCommands();
     }

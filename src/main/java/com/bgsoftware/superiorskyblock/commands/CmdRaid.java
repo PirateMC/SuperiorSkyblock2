@@ -12,9 +12,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.*;
-import java.util.List;
 
-public class CmdRaid implements ISuperiorCommand {
+public final class CmdRaid implements ISuperiorCommand {
 
     @Override
     public List<String> getAliases() {
@@ -74,13 +73,13 @@ public class CmdRaid implements ISuperiorCommand {
         mainComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("This text is shown on hover!").create()));
 
         TextComponent optionAccept = new TextComponent("Accept");
-        optionAccept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"island startraid " + senderName + " " + inviteeName));
+        optionAccept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "island startraid " + senderName + " " + inviteeName));
         optionAccept.setColor(ChatColor.GREEN);
 
         TextComponent optionDecline = new TextComponent("Decline");
         optionDecline.setColor(ChatColor.RED);
 
-        return new TextComponent[] {mainComponent, optionAccept, optionDecline};
+        return new TextComponent[]{mainComponent, optionAccept, optionDecline};
     }
 
     @Override

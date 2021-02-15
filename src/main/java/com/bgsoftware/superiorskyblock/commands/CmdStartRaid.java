@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender;
 import java.util.Collections;
 import java.util.List;
 
-public class CmdStartRaid implements ISuperiorCommand {
+public final class CmdStartRaid implements ISuperiorCommand {
 
     @Override
     public List<String> getAliases() {

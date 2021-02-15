@@ -3,6 +3,7 @@ package com.bgsoftware.superiorskyblock.commands;
 import com.bgsoftware.superiorskyblock.Locale;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -54,23 +55,32 @@ public class CmdRaid implements ISuperiorCommand {
     public void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, String[] args) {
         String inviteeName = args[1];
         Player invitee = Bukkit.getPlayer(inviteeName);
+
         if (invitee == null) {
             sender.sendMessage("Couldn't find player with name " + inviteeName + ".");
             return;
         }
+
         RaidInvitation invitation = new RaidInvitation(((Player) sender).getUniqueId(), invitee.getUniqueId());
         RaidInvitationHandler.addInvitation(invitation);
         sender.sendMessage("Invitation sent.");
 
-        // Create the message
-        TextComponent msg = new TextComponent(sender.getName() + " has invited you to a raid.");
-        msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("This text is shown on hover!").create()));
+        TextComponent[] messageComponents = createInvitationMessageComponents(sender.getName(), inviteeName);
+        invitee.spigot().sendMessage(messageComponents);
+    }
+
+    private TextComponent[] createInvitationMessageComponents(String senderName, String inviteeName) {
+        TextComponent mainComponent = new TextComponent(senderName + " has invited you to a raid.");
+        mainComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("This text is shown on hover!").create()));
+
         TextComponent optionAccept = new TextComponent("Accept");
+        optionAccept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"island startraid " + senderName + " " + inviteeName));
         optionAccept.setColor(ChatColor.GREEN);
+
         TextComponent optionDecline = new TextComponent("Decline");
         optionDecline.setColor(ChatColor.RED);
 
-        invitee.spigot().sendMessage(msg, optionAccept, optionDecline);
+        return new TextComponent[] {mainComponent, optionAccept, optionDecline};
     }
 
     @Override

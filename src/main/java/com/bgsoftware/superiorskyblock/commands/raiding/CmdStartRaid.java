@@ -6,7 +6,6 @@ import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.commands.ISuperiorCommand;
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -80,40 +79,40 @@ public final class CmdStartRaid implements ISuperiorCommand {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Island teamOneIsland = plugin.getGrid().getIsland(teamOneLeader.getUniqueId());
             Island teamTwoIsland = plugin.getGrid().getIsland(teamTwoLeader.getUniqueId());
-            List<Chunk> teamOneIslandChunks = teamOneIsland.getAllChunks();
-            List<Chunk> teamTwoIslandChunks = teamTwoIsland.getAllChunks();
-            copyIsland(teamOneIslandChunks, raidWorld, plugin);
-            copyIsland(teamTwoIslandChunks, raidWorld, plugin);
+            int destX = (int) (Math.random() * 100);
+            int destZ = (int) (Math.random() * 100);
+            copyIsland(teamOneIsland, raidWorld, destX, destZ, plugin);
+            copyIsland(teamTwoIsland, raidWorld, destX, destZ + 3, plugin);
             Bukkit.getScheduler().runTask(plugin, () -> {
                 List<SuperiorPlayer> teamOneMembers = teamOneIsland.getIslandMembers(true);
                 List<SuperiorPlayer> teamTwoMembers = teamTwoIsland.getIslandMembers(true);
                 teamOneMembers.forEach(member -> {
                     if (member.isOnline()) {
                         Location center = teamOneIsland.getCenter(World.Environment.NORMAL).add(0, 3, 0);
-                        member.teleport(new Location(raidWorld, center.getX(), center.getY(), center.getZ()));
+                        member.teleport(new Location(raidWorld, destX * 16, center.getY(), destZ * 16));
                     }
                 });
                 teamTwoMembers.forEach(member -> {
                     if (member.isOnline()) {
                         Location center = teamTwoIsland.getCenter(World.Environment.NORMAL).add(0, 3, 0);
-                        member.teleport(new Location(raidWorld, center.getX(), center.getY(), center.getZ()));
+                        member.teleport(new Location(raidWorld, destX * 16, center.getY(), destZ + 3 * 16));
                     }
                 });
             });
         });
     }
 
-    private void copyIsland(List<Chunk> chunks, World toWorld, SuperiorSkyblockPlugin plugin) {
-        chunks.forEach(chunk -> {
+    private void copyIsland(Island island, World destWorld, int toChunkX, int toChunkZ, SuperiorSkyblockPlugin plugin) {
+        island.getAllChunks().forEach(chunk -> {
             for (int x = 0; x < 16; x++)
                 for (int z = 0; z < 16; z++)
                     for (int y = 0; y < chunk.getChunkSnapshot().getHighestBlockYAt(x, z); y++) {
                         Block block = chunk.getBlock(x, y, z);
-                        int destX = chunk.getX() * 16 + x;
-                        int destZ = chunk.getZ() * 16 + z;
+                        int destX = toChunkX * 16 + x;
+                        int destZ = toChunkZ * 16 + z;
                         int finalY = y;
                         Bukkit.getScheduler().runTask(plugin, () -> {
-                            toWorld.getBlockAt(destX, finalY + 3, destZ).setType(block.getType());
+                            destWorld.getBlockAt(destX, finalY + 3, destZ).setType(block.getType());
                         });
                     }
         });

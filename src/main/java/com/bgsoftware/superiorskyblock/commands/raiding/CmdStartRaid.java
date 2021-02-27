@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public final class CmdStartRaid implements ISuperiorCommand {
 
@@ -67,8 +68,6 @@ public final class CmdStartRaid implements ISuperiorCommand {
             return;
         }
 
-        SuperiorSkyblockPlugin.raidDebug("Generating new test world");
-
         World raidWorld = Bukkit.getWorld("RaidWorld");
 
         if (raidWorld == null) {
@@ -95,7 +94,7 @@ public final class CmdStartRaid implements ISuperiorCommand {
                 teamTwoMembers.forEach(member -> {
                     if (member.isOnline()) {
                         Location center = teamTwoIsland.getCenter(World.Environment.NORMAL).add(0, 3, 0);
-                        member.teleport(new Location(raidWorld, destX * 16, center.getY(), destZ + 3 * 16));
+                        member.teleport(new Location(raidWorld, destX * 16, center.getY(), (destZ + 3) * 16));
                     }
                 });
             });
@@ -103,18 +102,32 @@ public final class CmdStartRaid implements ISuperiorCommand {
     }
 
     private void copyIsland(Island island, World destWorld, int toChunkX, int toChunkZ, SuperiorSkyblockPlugin plugin) {
+        final AtomicInteger chunkXOffset = new AtomicInteger(0);
+        final AtomicInteger chunkZOffset = new AtomicInteger(0);
+        final int[] initialChunkX = new int[2];
+        final int[] initialChunkZ = new int[2];
         island.getAllChunks().forEach(chunk -> {
+            if (initialChunkX[0] == 0 || initialChunkZ[0] == 0) {
+                initialChunkX[1] = chunk.getX();
+                initialChunkZ[1] = chunk.getZ();
+                initialChunkX[0] = 1;
+                initialChunkZ[0] = 1;
+            }
             for (int x = 0; x < 16; x++)
                 for (int z = 0; z < 16; z++)
                     for (int y = 0; y < chunk.getChunkSnapshot().getHighestBlockYAt(x, z); y++) {
                         Block block = chunk.getBlock(x, y, z);
-                        int destX = toChunkX * 16 + x;
-                        int destZ = toChunkZ * 16 + z;
+                        int destX = (initialChunkX[1] > chunk.getX() ? initialChunkX[1] - chunk.getX() : -(chunk.getX() - initialChunkX[1]) + toChunkX) * 16 + x;
+                        int destZ = (initialChunkZ[1] > chunk.getZ() ? initialChunkZ[1] - chunk.getZ() : -(chunk.getZ() - initialChunkZ[1]) + toChunkZ) * 16 + z;
                         int finalY = y;
                         Bukkit.getScheduler().runTask(plugin, () -> {
                             destWorld.getBlockAt(destX, finalY + 3, destZ).setType(block.getType());
                         });
                     }
+            if (chunkXOffset.getAndIncrement() >= 3) {
+                chunkXOffset.set(0);
+                chunkZOffset.getAndIncrement();
+            }
         });
     }
 

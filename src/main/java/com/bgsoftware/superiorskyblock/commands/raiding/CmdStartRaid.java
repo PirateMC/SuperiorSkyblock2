@@ -117,8 +117,8 @@ public final class CmdStartRaid implements ISuperiorCommand {
                 for (int z = 0; z < 16; z++)
                     for (int y = 0; y < chunk.getChunkSnapshot().getHighestBlockYAt(x, z); y++) {
                         Block block = chunk.getBlock(x, y, z);
-                        int destX = (initialChunkX[1] > chunk.getX() ? initialChunkX[1] - chunk.getX() : -(chunk.getX() - initialChunkX[1]) + toChunkX) * 16 + x;
-                        int destZ = (initialChunkZ[1] > chunk.getZ() ? initialChunkZ[1] - chunk.getZ() : -(chunk.getZ() - initialChunkZ[1]) + toChunkZ) * 16 + z;
+                        int destX = (initialChunkX[1] > chunk.getX() ? -(initialChunkX[1] - chunk.getX()) : (chunk.getX() - initialChunkX[1]) + toChunkX) * 16 + x;
+                        int destZ = (initialChunkZ[1] > chunk.getZ() ? -(initialChunkZ[1] - chunk.getZ()) : (chunk.getZ() - initialChunkZ[1]) + toChunkZ) * 16 + z;
                         int finalY = y;
                         Bukkit.getScheduler().runTask(plugin, () -> {
                             destWorld.getBlockAt(destX, finalY + 3, destZ).setType(block.getType());

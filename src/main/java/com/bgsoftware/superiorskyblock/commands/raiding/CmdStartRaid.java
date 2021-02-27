@@ -14,7 +14,6 @@ import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public final class CmdStartRaid implements ISuperiorCommand {
 
@@ -102,8 +101,6 @@ public final class CmdStartRaid implements ISuperiorCommand {
     }
 
     private void copyIsland(Island island, World destWorld, int toChunkX, int toChunkZ, SuperiorSkyblockPlugin plugin) {
-        final AtomicInteger chunkXOffset = new AtomicInteger(0);
-        final AtomicInteger chunkZOffset = new AtomicInteger(0);
         final int[] initialChunkX = new int[2];
         final int[] initialChunkZ = new int[2];
         island.getAllChunks().forEach(chunk -> {
@@ -124,10 +121,6 @@ public final class CmdStartRaid implements ISuperiorCommand {
                             destWorld.getBlockAt(destX, finalY + 3, destZ).setType(block.getType());
                         });
                     }
-            if (chunkXOffset.getAndIncrement() >= 3) {
-                chunkXOffset.set(0);
-                chunkZOffset.getAndIncrement();
-            }
         });
     }
 

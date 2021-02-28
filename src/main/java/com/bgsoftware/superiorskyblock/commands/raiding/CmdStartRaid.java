@@ -7,10 +7,14 @@ import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.commands.ISuperiorCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Collections;
 import java.util.List;
@@ -86,14 +90,25 @@ public final class CmdStartRaid implements ISuperiorCommand {
                 List<SuperiorPlayer> teamTwoMembers = teamTwoIsland.getIslandMembers(true);
                 teamOneMembers.forEach(member -> {
                     if (member.isOnline()) {
-                        Location center = teamOneIsland.getCenter(World.Environment.NORMAL).add(0, 3, 0);
-                        member.teleport(new Location(raidWorld, destX * 16, center.getY(), destZ * 16));
+                        int y = (int) teamOneIsland.getCenter(World.Environment.NORMAL).getY() + 3;
+                        Location teleportLocation = new Location(
+                                raidWorld,
+                                (destX + 13) * 16,
+                                y,
+                                (destZ + 13) * 16
+                        );
+                        member.teleport(teleportLocation);
                     }
                 });
                 teamTwoMembers.forEach(member -> {
                     if (member.isOnline()) {
-                        Location center = teamTwoIsland.getCenter(World.Environment.NORMAL).add(0, 3, 0);
-                        member.teleport(new Location(raidWorld, destX * 16, center.getY(), (destZ + 3) * 16));
+                        int y = (int) teamTwoIsland.getCenter(World.Environment.NORMAL).getY() + 3;
+                        member.teleport(new Location(
+                                raidWorld,
+                                (destX + 13) * 16,
+                                y,
+                                (destZ + 13 + 3) * 16
+                        ));
                     }
                 });
             });
@@ -117,7 +132,18 @@ public final class CmdStartRaid implements ISuperiorCommand {
                         int destX = (initialChunkX[1] > chunk.getX() ? -(initialChunkX[1] - chunk.getX()) : (chunk.getX() - initialChunkX[1]) + toChunkX) * 16 + x;
                         int destZ = (initialChunkZ[1] > chunk.getZ() ? -(initialChunkZ[1] - chunk.getZ()) : (chunk.getZ() - initialChunkZ[1]) + toChunkZ) * 16 + z;
                         int finalY = y;
-                        Bukkit.getScheduler().runTask(plugin, () -> destWorld.getBlockAt(destX, finalY + 3, destZ).setType(block.getType()));
+                        Bukkit.getScheduler().runTask(plugin, () -> {
+                            Block targetBlock = destWorld.getBlockAt(destX, finalY + 3, destZ);
+                            targetBlock.setType(block.getType());
+                            if (targetBlock.getType() == Material.CHEST) {
+                                Chest fromChest = (Chest) block.getState();
+                                BlockState blockState = targetBlock.getState();
+                                Chest toChest = (Chest) blockState;
+                                for (ItemStack item : fromChest.getBlockInventory().getContents()) {
+                                    toChest.getBlockInventory().addItem(item != null ? item : new ItemStack(Material.AIR));
+                                }
+                            }
+                        });
                     }
         });
     }

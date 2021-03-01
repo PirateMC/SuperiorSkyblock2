@@ -12,6 +12,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
+import org.bukkit.block.Sign;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -134,13 +135,18 @@ public final class CmdStartRaid implements ISuperiorCommand {
                         int finalY = y;
                         Bukkit.getScheduler().runTask(plugin, () -> {
                             Block targetBlock = destWorld.getBlockAt(destX, finalY + 3, destZ);
+                            BlockState originalBlockState = block.getState();
+                            BlockState targetBlockState = targetBlock.getState();
                             targetBlock.setType(block.getType());
                             if (targetBlock.getType() == Material.CHEST) {
-                                Chest fromChest = (Chest) block.getState();
-                                BlockState blockState = targetBlock.getState();
-                                Chest toChest = (Chest) blockState;
-                                for (ItemStack item : fromChest.getBlockInventory().getContents()) {
-                                    toChest.getBlockInventory().addItem(item != null ? item : new ItemStack(Material.AIR));
+                                Chest targetChest = (Chest) targetBlockState;
+                                for (ItemStack item : ((Chest) originalBlockState).getBlockInventory().getContents()) {
+                                    targetChest.getBlockInventory().addItem(item != null ? item : new ItemStack(Material.AIR));
+                                }
+                            } else if (targetBlock.getType() == Material.WALL_SIGN) {
+                                Sign sign = (Sign) targetBlockState;
+                                for (int i = 0; i < ((Sign) originalBlockState).getLines().length; i++) {
+                                    sign.setLine(i, ((Sign) originalBlockState).getLine(i));
                                 }
                             }
                         });

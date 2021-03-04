@@ -104,12 +104,16 @@ public final class CmdStartRaid implements ISuperiorCommand {
         final int[] initialChunkX = new int[2];
         final int[] initialChunkZ = new int[2];
         island.getAllChunks().forEach(chunk -> {
+            // This is so the island chunks are placed in the correct
+            // order instead of in a jumbled manner
             if (initialChunkX[0] == 0 || initialChunkZ[0] == 0) {
                 initialChunkX[1] = chunk.getX();
                 initialChunkZ[1] = chunk.getZ();
                 initialChunkX[0] = 1;
                 initialChunkZ[0] = 1;
             }
+
+            // The copying of each block of the original island to the raid world
             for (int x = 0; x < 16; x++)
                 for (int z = 0; z < 16; z++)
                     for (int y = 0; y < chunk.getChunkSnapshot().getHighestBlockYAt(x, z); y++) {
@@ -117,6 +121,8 @@ public final class CmdStartRaid implements ISuperiorCommand {
                         int destX = (initialChunkX[1] > chunk.getX() ? -(initialChunkX[1] - chunk.getX()) : (chunk.getX() - initialChunkX[1]) + toChunkX) * 16 + x;
                         int destZ = (initialChunkZ[1] > chunk.getZ() ? -(initialChunkZ[1] - chunk.getZ()) : (chunk.getZ() - initialChunkZ[1]) + toChunkZ) * 16 + z;
                         int finalY = y;
+
+                        // Perform the placement of blocks synchronously
                         Bukkit.getScheduler().runTask(plugin, () -> destWorld.getBlockAt(destX, finalY + 3, destZ).setType(block.getType()));
                     }
         });

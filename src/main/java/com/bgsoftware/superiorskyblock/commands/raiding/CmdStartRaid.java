@@ -10,8 +10,11 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Collections;
 import java.util.List;
@@ -139,9 +142,18 @@ public final class CmdStartRaid implements ISuperiorCommand {
                         int destX = (initialChunkX[1] > chunk.getX() ? -(initialChunkX[1] - chunk.getX()) : (chunk.getX() - initialChunkX[1]) + toChunkX) * 16 + x;
                         int destZ = (initialChunkZ[1] > chunk.getZ() ? -(initialChunkZ[1] - chunk.getZ()) : (chunk.getZ() - initialChunkZ[1]) + toChunkZ) * 16 + z;
                         int finalY = y;
-
-                        // Perform the placement of blocks synchronously
-                        Bukkit.getScheduler().runTask(plugin, () -> destWorld.getBlockAt(destX, finalY + 3, destZ).setType(block.getType()));
+                        Bukkit.getScheduler().runTask(plugin, () -> {
+                            Block targetBlock = destWorld.getBlockAt(destX, finalY + 3, destZ);
+                            targetBlock.setType(block.getType());
+                            if (targetBlock.getType() == Material.CHEST) {
+                                Chest fromChest = (Chest) block.getState();
+                                BlockState blockState = targetBlock.getState();
+                                Chest toChest = (Chest) blockState;
+                                for (ItemStack item : fromChest.getBlockInventory().getContents()) {
+                                    toChest.getBlockInventory().addItem(item != null ? item : new ItemStack(Material.AIR));
+                                }
+                            }
+                        });
                     }
         });
     }

@@ -5,10 +5,7 @@ import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.commands.ISuperiorCommand;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
@@ -16,13 +13,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public final class CmdStartRaid implements ISuperiorCommand {
 
     private int nextRaidLocationX = 0;
     private int nextRaidLocationZ = 0;
+    public static Map<UUID, HashSet<Location>> islandOwnerBlocks = new HashMap<>();
 
     @Override
     public List<String> getAliases() {
@@ -84,9 +81,13 @@ public final class CmdStartRaid implements ISuperiorCommand {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Island teamOneIsland = plugin.getGrid().getIsland(teamOneLeader.getUniqueId());
             Island teamTwoIsland = plugin.getGrid().getIsland(teamTwoLeader.getUniqueId());
+            List<Chunk> teamOneIslandChunks = teamOneIsland.getAllChunks();
+            List<Chunk> teamTwoIslandChunks = teamTwoIsland.getAllChunks();
+            islandOwnerBlocks.put(teamOneIsland.getOwner().getUniqueId(), new HashSet<>());
+            islandOwnerBlocks.put(teamTwoIsland.getOwner().getUniqueId(), new HashSet<>());
             int destX = nextRaidLocationX;
             int destZ = nextRaidLocationZ;
-            nextRaidLocationX += 10;
+            nextRaidLocationX += teamOneIslandChunks.size() * 2;
             copyIsland(teamOneIsland, raidWorld, destX, destZ, plugin);
             copyIsland(teamTwoIsland, raidWorld, destX, destZ + 3, plugin);
             Bukkit.getScheduler().runTask(plugin, () -> {
@@ -95,8 +96,8 @@ public final class CmdStartRaid implements ISuperiorCommand {
                 teamOneMembers.forEach(member -> {
                     if (member.isOnline()) {
                         Location islandCenter = teamOneIsland.getCenter(World.Environment.NORMAL);
-                        double teleportOffsetX = islandCenter.getX() - teamOneIsland.getAllChunks().get(0).getX() * 16;
-                        double teleportOffsetZ = islandCenter.getZ() - teamOneIsland.getAllChunks().get(0).getZ() * 16;
+                        double teleportOffsetX = islandCenter.getX() - teamOneIslandChunks.get(0).getX() * 16;
+                        double teleportOffsetZ = islandCenter.getZ() - teamOneIslandChunks.get(0).getZ() * 16;
                         Location teleportLocation = new Location(raidWorld, (destX * 16) + teleportOffsetX, islandCenter.getY() + 3, (destZ * 16) + teleportOffsetZ);
                         member.teleport(teleportLocation);
 
@@ -105,8 +106,8 @@ public final class CmdStartRaid implements ISuperiorCommand {
                 teamTwoMembers.forEach(member -> {
                     if (member.isOnline()) {
                         Location islandCenter = teamTwoIsland.getCenter(World.Environment.NORMAL);
-                        double teleportOffsetX = islandCenter.getX() - teamTwoIsland.getAllChunks().get(0).getX() * 16;
-                        double teleportOffsetZ = islandCenter.getZ() - teamTwoIsland.getAllChunks().get(0).getZ() * 16;
+                        double teleportOffsetX = islandCenter.getX() - teamTwoIslandChunks.get(0).getX() * 16;
+                        double teleportOffsetZ = islandCenter.getZ() - teamTwoIslandChunks.get(0).getZ() * 16;
                         Location teleportLocation = new Location(raidWorld, (destX * 16) + teleportOffsetX, islandCenter.getY() + 3, ((destZ + 3) * 16) + teleportOffsetZ);
                         member.teleport(teleportLocation);
                     }
@@ -119,7 +120,7 @@ public final class CmdStartRaid implements ISuperiorCommand {
         final int[] initialChunkX = new int[2];
         final int[] initialChunkZ = new int[2];
 
-        System.out.println("There are " + island.getAllChunks().size() + " chunks to copy.");
+        SuperiorSkyblockPlugin.raidDebug("There are " + island.getAllChunks().size() + " chunks to copy.");
 
         island.getAllChunks().forEach(chunk -> {
             // This is so the island chunks are placed in the correct
@@ -144,6 +145,7 @@ public final class CmdStartRaid implements ISuperiorCommand {
                         int finalY = y;
                         Bukkit.getScheduler().runTask(plugin, () -> {
                             Block targetBlock = destWorld.getBlockAt(destX, finalY + 3, destZ);
+                            islandOwnerBlocks.get(island.getOwner().getUniqueId()).add(targetBlock.getLocation());
                             targetBlock.setType(block.getType());
                             if (targetBlock.getType() == Material.CHEST) {
                                 Chest fromChest = (Chest) block.getState();

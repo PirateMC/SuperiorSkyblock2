@@ -18,6 +18,9 @@ import java.util.List;
 
 public final class CmdStartRaid implements ISuperiorCommand {
 
+    private int nextRaidLocationX = 0;
+    private int nextRaidLocationZ = 0;
+
     @Override
     public List<String> getAliases() {
         return Collections.singletonList("startraid");
@@ -78,8 +81,9 @@ public final class CmdStartRaid implements ISuperiorCommand {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Island teamOneIsland = plugin.getGrid().getIsland(teamOneLeader.getUniqueId());
             Island teamTwoIsland = plugin.getGrid().getIsland(teamTwoLeader.getUniqueId());
-            int destX = (int) (Math.random() * 100);
-            int destZ = (int) (Math.random() * 100);
+            int destX = nextRaidLocationX;
+            int destZ = nextRaidLocationZ;
+            nextRaidLocationX += 10;
             copyIsland(teamOneIsland, raidWorld, destX, destZ, plugin);
             copyIsland(teamTwoIsland, raidWorld, destX, destZ + 3, plugin);
             Bukkit.getScheduler().runTask(plugin, () -> {
@@ -100,7 +104,7 @@ public final class CmdStartRaid implements ISuperiorCommand {
                         Location islandCenter = teamTwoIsland.getCenter(World.Environment.NORMAL);
                         double teleportOffsetX = islandCenter.getX() - teamTwoIsland.getAllChunks().get(0).getX() * 16;
                         double teleportOffsetZ = islandCenter.getZ() - teamTwoIsland.getAllChunks().get(0).getZ() * 16;
-                        Location teleportLocation = new Location(raidWorld, (destX * 16) + teleportOffsetX, islandCenter.getY() + 3, (destZ * 16 + 3) + teleportOffsetZ);
+                        Location teleportLocation = new Location(raidWorld, (destX * 16) + teleportOffsetX, islandCenter.getY() + 3, ((destZ + 3) * 16) + teleportOffsetZ);
                         member.teleport(teleportLocation);
                     }
                 });

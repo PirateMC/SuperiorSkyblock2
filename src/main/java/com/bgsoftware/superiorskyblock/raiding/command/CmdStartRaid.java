@@ -5,6 +5,7 @@ import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.commands.ISuperiorCommand;
+import com.bgsoftware.superiorskyblock.raiding.util.ChunkLocationPair;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -14,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public final class CmdStartRaid implements ISuperiorCommand {
 
@@ -117,6 +119,41 @@ public final class CmdStartRaid implements ISuperiorCommand {
                 });
             });
         });
+    }
+
+    private Set<Location> getTranslatedLocations(Set<Location> locations, ChunkLocationPair translationOffset) {
+        Set<Location> translatedLocations = new HashSet<>(locations);
+        int xOffset = translationOffset.getChunkX() * 16 + translationOffset.getLocationX();
+        int zOffset = translationOffset.getChunkZ() * 16 + translationOffset.getLocationZ();
+        return translatedLocations.stream()
+                .map(location -> location.add(xOffset, 0, zOffset))
+                .collect(Collectors.toSet());
+    }
+
+    private Set<Location> getIslandBlockLocations(Island island) {
+        Set<Location> locations = new HashSet<>();
+        List<Chunk> chunks = island.getAllChunks();
+        chunks.forEach(chunk -> locations.addAll(filterOutEmptyBlocks(chunk)));
+        return locations;
+    }
+
+    private Set<Location> filterOutEmptyBlocks(Chunk chunk) {
+        Set<Location> blockLocations = new HashSet<>();
+        ChunkSnapshot snapshot = chunk.getChunkSnapshot();
+        for (int x = 0; x < 16; x++)
+            for (int z = 0; z < 16; z++) {
+                int maxY = snapshot.getHighestBlockYAt(x, z);
+                for (int y = 0; y < maxY; y++) {
+                    Block block = chunk.getBlock(x, y, z);
+                    if (block.getType() == Material.AIR) continue;
+                    blockLocations.add(block.getLocation());
+                }
+            }
+        return blockLocations;
+    }
+
+    private void copyBlocks(Set<Location> source, Set<Location> destination) {
+
     }
 
     private void copyIsland(Island island, World destWorld, int toChunkX, int toChunkZ, SuperiorSkyblockPlugin plugin) {

@@ -6,7 +6,8 @@ main: com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin
 website: https://bg-software.com/
 api-version: '1.13'
 softdepend: [ AdvancedSpawners, ChangeSkin, CleanroomGenerator, CMI, EpicSpawners, Essentials, JetsMinions, LeaderHeads, MergedSpawner, MVdWPlaceholderAPI, PlaceholderAPI, PvpingSpawners, SilkSpawners, ShopGUIPlus, SkinsRestorer, VanishNoPacket, Vault, WildStacker, WorldEdit ]
-loadbefore: [Multiverse-Core, Slimefun]
+loadbefore: [ Slimefun ]
+depend: [ Multiverse-Core ]
 permissions:
   superior.*:
     description: Permission for all admin & island commands

@@ -1,8 +1,10 @@
-package com.bgsoftware.superiorskyblock.commands.raiding;
+package com.bgsoftware.superiorskyblock.raiding.command;
 
 import com.bgsoftware.superiorskyblock.Locale;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.commands.ISuperiorCommand;
+import com.bgsoftware.superiorskyblock.raiding.RaidInvitation;
+import com.bgsoftware.superiorskyblock.raiding.RaidInvitationHandler;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -12,7 +14,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 public final class CmdRaid implements ISuperiorCommand {
 
@@ -89,44 +92,3 @@ public final class CmdRaid implements ISuperiorCommand {
     }
 }
 
-class RaidInvitation {
-    private UUID senderUuid;
-    private UUID inviteeUuid;
-    private long timeLeft = 60;
-
-    public RaidInvitation(UUID senderUuid, UUID inviteeUuid) {
-        this.senderUuid = senderUuid;
-        this.inviteeUuid = inviteeUuid;
-    }
-
-    public UUID getSenderUuid() {
-        return senderUuid;
-    }
-
-    public UUID getInviteeUuid() {
-        return inviteeUuid;
-    }
-
-    public long getTimeLeft() {
-        return timeLeft;
-    }
-
-    public void setTimeLeft(long timeLeft) {
-        this.timeLeft = timeLeft;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof RaidInvitation)) return false;
-        return ((RaidInvitation) obj).senderUuid.equals(senderUuid)
-                && ((RaidInvitation) obj).inviteeUuid.equals(inviteeUuid);
-    }
-}
-
-class RaidInvitationHandler {
-    private static Set<RaidInvitation> raidInvitations = new HashSet<>();
-
-    public static boolean addInvitation(RaidInvitation invitation) {
-        return raidInvitations.add(invitation);
-    }
-}

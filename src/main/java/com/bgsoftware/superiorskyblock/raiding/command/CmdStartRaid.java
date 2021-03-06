@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorskyblock.commands.raiding;
+package com.bgsoftware.superiorskyblock.raiding.command;
 
 import com.bgsoftware.superiorskyblock.Locale;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
@@ -81,10 +81,13 @@ public final class CmdStartRaid implements ISuperiorCommand {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Island teamOneIsland = plugin.getGrid().getIsland(teamOneLeader.getUniqueId());
             Island teamTwoIsland = plugin.getGrid().getIsland(teamTwoLeader.getUniqueId());
+
             List<Chunk> teamOneIslandChunks = teamOneIsland.getAllChunks();
             List<Chunk> teamTwoIslandChunks = teamTwoIsland.getAllChunks();
+
             islandOwnerBlocks.put(teamOneIsland.getOwner().getUniqueId(), new HashSet<>());
             islandOwnerBlocks.put(teamTwoIsland.getOwner().getUniqueId(), new HashSet<>());
+
             int destX = nextRaidLocationX;
             int destZ = nextRaidLocationZ;
             nextRaidLocationX += teamOneIslandChunks.size() * 2;

@@ -10,6 +10,11 @@
 # It's recommended to set the task to have a low interval, as it might cause lag.
 calc-interval: 0
 
+raids:
+  #In seconds
+  start-countdown: 10
+  start-sound: ENTITY_ENDER_DRAGON_SHOOT
+
 # All settings related to the database of the plugin.
 database:
   # Choose between SQLite (localhost database) and MySQL (remote database)

@@ -585,6 +585,8 @@ PURGE_CLEAR: '&e&lIsland | &7Successfully cleared all the queued islands to be p
 PURGED_ISLANDS: |-
   &e&lIsland | &7{0} islands will be purged when server restarts.
   &e&lIsland | &7You can cancel it anytime using /is admin purge cancel.
+RAID_START_COUNTDOWN: '&e&lRaid starting in {0}'
+RAID_START: '&e&lRaid started!'
 RANKUP_SUCCESS: '&e&lIsland | &7Successfully updated the level of the upgrade {0} for {1}''s island.'
 RANKUP_SUCCESS_ALL: '&e&lIsland | &7Successfully updated the level of the upgrade {0} for all the islands.'
 RANKUP_SUCCESS_NAME: '&e&lIsland | &7Successfully updated the level of the upgrade {0} for {1}.'

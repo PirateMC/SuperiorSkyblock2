@@ -91,13 +91,24 @@ public final class CmdStartRaid implements ISuperiorCommand {
             copyIsland(teamOneIsland, raidWorld, destX, destZ, plugin);
             copyIsland(teamTwoIsland, raidWorld, destX, destZ + 3, plugin);
             Bukkit.getScheduler().runTask(plugin, () -> {
+
                 List<SuperiorPlayer> teamOneMembers = teamOneIsland.getIslandMembers(true);
                 List<SuperiorPlayer> teamTwoMembers = teamTwoIsland.getIslandMembers(true);
+
+                teamOneIsland.getIslandVisitors(true).forEach(visitor ->
+                        visitor.asPlayer().performCommand("spawn")
+                );
+
+                teamTwoIsland.getIslandVisitors(true).forEach(visitor ->
+                        visitor.asPlayer().performCommand("spawn")
+                );
+
                 teamOneMembers.forEach(member -> {
                     if (member.isOnline()) {
                         Location islandCenter = teamOneIsland.getCenter(World.Environment.NORMAL);
                         double teleportOffsetX = islandCenter.getX() - teamOneIslandChunks.get(0).getX() * 16;
                         double teleportOffsetZ = islandCenter.getZ() - teamOneIslandChunks.get(0).getZ() * 16;
+                        raidWorld.getBlockAt((int) ((destX * 16) + teleportOffsetX), (int) (islandCenter.getY() + 3), (int) ((destZ * 16) + teleportOffsetZ)).setType(Material.STONE);
                         Location teleportLocation = new Location(raidWorld, (destX * 16) + teleportOffsetX, islandCenter.getY() + 3, (destZ * 16) + teleportOffsetZ);
                         member.teleport(teleportLocation);
 
@@ -108,11 +119,16 @@ public final class CmdStartRaid implements ISuperiorCommand {
                         Location islandCenter = teamTwoIsland.getCenter(World.Environment.NORMAL);
                         double teleportOffsetX = islandCenter.getX() - teamTwoIslandChunks.get(0).getX() * 16;
                         double teleportOffsetZ = islandCenter.getZ() - teamTwoIslandChunks.get(0).getZ() * 16;
+                        raidWorld.getBlockAt((int) ((destX * 16) + teleportOffsetX), (int) (islandCenter.getY() + 3), (int) (((destZ + 3) * 16) + teleportOffsetZ)).setType(Material.STONE);
                         Location teleportLocation = new Location(raidWorld, (destX * 16) + teleportOffsetX, islandCenter.getY() + 3, ((destZ + 3) * 16) + teleportOffsetZ);
                         member.teleport(teleportLocation);
                     }
                 });
+
+                plugin.getRaidsHandler().startRaid(teamOneMembers, teamTwoMembers);
             });
+
+
         });
     }
 
@@ -157,6 +173,7 @@ public final class CmdStartRaid implements ISuperiorCommand {
                             }
                         });
                     }
+
         });
     }
 

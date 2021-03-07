@@ -14,6 +14,7 @@ import com.bgsoftware.superiorskyblock.utils.tags.CompoundTag;
 import com.bgsoftware.superiorskyblock.utils.tags.ListTag;
 import com.bgsoftware.superiorskyblock.utils.upgrades.UpgradeValue;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -179,6 +180,8 @@ public final class SettingsHandler extends AbstractHandler {
     public final boolean physicsListener;
     public final double chargeOnWarp;
     public final boolean publicWarps;
+    public final int raidStartCountdown;
+    public final Sound raidStartSound;
 
     public SettingsHandler(SuperiorSkyblockPlugin plugin){
         super(plugin);
@@ -450,6 +453,9 @@ public final class SettingsHandler extends AbstractHandler {
         physicsListener = cfg.getBoolean("physics-listener", true);
         chargeOnWarp = cfg.getDouble("charge-on-warp", 0D);
         publicWarps = cfg.getBoolean("public-warps");
+
+        raidStartCountdown = cfg.getInt("raids.start-countdown");
+        raidStartSound = Sound.valueOf(cfg.getString("raids.start-sound"));
     }
 
     @Override

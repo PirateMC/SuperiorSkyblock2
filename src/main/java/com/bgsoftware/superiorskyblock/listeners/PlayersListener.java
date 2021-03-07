@@ -10,6 +10,7 @@ import com.bgsoftware.superiorskyblock.api.schematic.Schematic;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.island.data.SPlayerDataHandler;
 import com.bgsoftware.superiorskyblock.hooks.SkinsRestorerHook;
+import com.bgsoftware.superiorskyblock.raid.SuperiorRaid;
 import com.bgsoftware.superiorskyblock.schematics.BaseSchematic;
 import com.bgsoftware.superiorskyblock.utils.LocaleUtils;
 import com.bgsoftware.superiorskyblock.utils.StringUtils;
@@ -268,6 +269,16 @@ public final class PlayersListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerMoveOutside(PlayerMoveEvent e){
+        SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(e.getPlayer());
+
+        SuperiorRaid raid = plugin.getRaidsHandler().getRaidByMember(superiorPlayer);
+
+        //Playert is in raid
+        if (raid != null) {
+            if (!raid.isStarted()) e.setCancelled(true);
+            return;
+        }
+
         if(!plugin.getSettings().stopLeaving)
             return;
 
@@ -278,7 +289,6 @@ public final class PlayersListener implements Listener {
 
         Island fromIsland = plugin.getGrid().getIslandAt(e.getFrom());
         Island toIsland = plugin.getGrid().getIslandAt(e.getTo());
-        SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(e.getPlayer());
 
         if(superiorPlayer instanceof SuperiorNPCPlayer || superiorPlayer.hasBypassModeEnabled())
             return;
@@ -396,11 +406,22 @@ public final class PlayersListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e){
+        SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(e.getPlayer());
+
+        SuperiorRaid raid = plugin.getRaidsHandler().getRaidByMember(superiorPlayer);
+
+        //Player is in raid
+        if (raid != null) {
+
+            if (!raid.isStarted()) {
+                e.setCancelled(true);
+                return;
+            }
+        }
+
         if(e.getItem() == null || e.getItem().getType() != Materials.GOLDEN_AXE.toBukkitType() ||
                 !(e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.LEFT_CLICK_BLOCK))
             return;
-
-        SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(e.getPlayer());
 
         if(!superiorPlayer.hasSchematicModeEnabled())
             return;

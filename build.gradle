@@ -36,6 +36,12 @@ repositories {
     maven {
         url 'https://repo.onarandombox.com/content/repositories/multiverse/'
     }
+    maven {
+        url 'https://maven.enginehub.org/repo/'
+    }
+    maven {
+        url = uri("https://mvn.intellectualsites.com/content/repositories/releases/")
+    } // FAWE
 
     String mavenUsername = project.hasProperty('mavenUsername') ? project.mavenUsername : System.getenv('mavenUsername');
     String mavenPassword = project.hasProperty('mavenPassword') ? project.mavenPassword : System.getenv('mavenPassword');
@@ -72,7 +78,6 @@ dependencies {
     compileOnly 'net.coreprotect:CoreProtect-6:latest'
     compileOnly 'com.songoda:EpicSpawners-6:latest'
     compileOnly 'com.earth2me:Essentials-2.16:latest'
-    compileOnly 'com.boydti:FastAsyncWorldEdit:latest'
     compileOnly 'me.jet315:JetsMinions:latest'
     compileOnly 'me.robin:LeaderHeads:latest'
     compileOnly 'net.luckperms:LuckPerms:latest'
@@ -94,6 +99,9 @@ dependencies {
     compileOnly 'com.bgsoftware:WildStackerAPI:latest'
 
     compileOnly "com.onarandombox.multiversecore:Multiverse-Core:4.2.2"
+//    compileOnly "com.sk89q.worldedit:worldedit-core:7.2.0"
+    compileOnly("com.intellectualsites.fawe:FAWE-Bukkit:1.16-583")
+    compileOnly("com.intellectualsites.fawe:FAWE-Core:1.16-583")
 }
 
 jar {

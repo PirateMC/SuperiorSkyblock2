@@ -6,7 +6,6 @@ import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.commands.ISuperiorCommand;
 import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.extent.Extent;
@@ -17,6 +16,7 @@ import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.session.ClipboardHolder;
+import com.sk89q.worldedit.session.PasteBuilder;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -132,7 +132,7 @@ public final class CmdStartRaid implements ISuperiorCommand {
         Region islandRegion = null;
         Object minimumPoint = null;
         try {
-            islandRegion = (Region) cuboidRegionFromCenter.invoke(null, blockVector3, 100);
+            islandRegion = (Region) cuboidRegionFromCenter.invoke(null, blockVector3, 4);
             minimumPoint = regionMinimumPoint.invoke(islandRegion);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
@@ -151,7 +151,7 @@ public final class CmdStartRaid implements ISuperiorCommand {
         // Copy island
         BlockArrayClipboard clipboard = new BlockArrayClipboard(islandRegion);
         {
-            EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(islandCenter.getWorld()), 1000);
+            EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(islandCenter.getWorld()), 100_000);
             Object forwardExtentCopy = null;
             try {
                 forwardExtentCopy = forwardExtentCopyConstructor.newInstance(editSession, islandRegion, clipboard, minimumPoint);
@@ -170,15 +170,34 @@ public final class CmdStartRaid implements ISuperiorCommand {
             Operations.complete((ForwardExtentCopy) forwardExtentCopy);
         }
 
+        Method pasteHolderTo = null;
+        try {
+            pasteHolderTo = PasteBuilder.class.getMethod("to", blockVector3Class);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+
         // Paste island
         {
-            EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(raidWorld), 1000);
-            Operation operation = new ClipboardHolder(clipboard)
-                    .createPaste(editSession)
-                    .to(new Vector((destX * 16) + teleportOffsetX, islandCenter.getY() + 3, (destZ)))
-                    .build();
+            EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(raidWorld), 100_000);
+//            Operation operation = new ClipboardHolder(clipboard)
+//                    .createPaste(editSession)
+//                    .to(new Vector((destX * 16) + teleportOffsetX, islandCenter.getY() + 3, (destZ)))
+//                    .build();
+            PasteBuilder pasteBuilder = new ClipboardHolder(clipboard)
+                    .createPaste(editSession);
+            try {
+                pasteHolderTo.invoke(pasteBuilder, blockVectorAt.invoke(null, (destX * 16) + teleportOffsetX, islandCenter.getY() + 3, (destZ)));
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+            Operation operation = pasteBuilder.build();
             Operations.complete(operation);
         }
+
+        ((Player) sender).teleport(new Location(raidWorld, (destX * 16) + teleportOffsetX, islandCenter.getY() + 3, destZ));
 
 //            copyIsland(teamOneIsland, raidWorld, destX, destZ, plugin);
 //            copyIsland(teamTwoIsland, raidWorld, destX, destZ + 3, plugin);
@@ -190,8 +209,8 @@ public final class CmdStartRaid implements ISuperiorCommand {
 //                        Location islandCenter = teamOneIsland.getCenter(World.Environment.NORMAL);
 //                        double teleportOffsetX = islandCenter.getX() - teamOneIslandChunks.get(0).getX() * 16;
 //                        double teleportOffsetZ = islandCenter.getZ() - teamOneIslandChunks.get(0).getZ() * 16;
-                    Location teleportLocation = new Location(raidWorld, (destX * 16) + teleportOffsetX, islandCenter.getY() + 3, (destZ * 16) + teleportOffsetZ);
-                    member.teleport(teleportLocation);
+//                    Location teleportLocation = new Location(raidWorld, (destX * 16) + teleportOffsetX, islandCenter.getY() + 3, destZ);
+//                    member.teleport(teleportLocation);
 
                 }
             });

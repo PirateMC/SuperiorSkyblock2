@@ -3,14 +3,17 @@ package com.bgsoftware.superiorskyblock.commands.raiding;
 import com.bgsoftware.superiorskyblock.Locale;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.commands.ISuperiorCommand;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.regions.CuboidRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 public class CmdRaidRestore implements ISuperiorCommand {
@@ -58,11 +61,17 @@ public class CmdRaidRestore implements ISuperiorCommand {
             sender.sendMessage("Could not find player " + ownerName + ".");
             return;
         }
-        HashSet<Location> ownerIslandBlockLocations = CmdStartRaid.islandOwnerBlocks.get(player.getUniqueId());
-        ownerIslandBlockLocations.forEach(location -> {
-            if (location.getY() > 197) location.getBlock().setType(Material.AIR);
-            else location.getBlock().setType(Material.WATER);
-        });
+        Location raidIslandCenter = CmdStartRaid.occupiedIslandLocations.get(player.getUniqueId());
+        World world = raidIslandCenter.getWorld();
+        CuboidRegion region = CuboidRegion.fromCenter(BlockVector3.at(raidIslandCenter.getX(), raidIslandCenter.getY(), raidIslandCenter.getZ()), 32);
+        for (int x = region.getMinimumPoint().getX(); x < region.getMaximumPoint().getX(); x++)
+            for (int z = region.getMinimumPoint().getZ(); z < region.getMaximumPoint().getZ(); z++)
+                for (int y = region.getMinimumPoint().getY(); y < region.getMaximumPoint().getY(); y++) {
+                    Block block = world.getBlockAt(x, y, z);
+                    if (y <= 197) block.setType(Material.WATER);
+                    else block.setType(Material.AIR);
+                }
+        SuperiorSkyblockPlugin.raidDebug("Island of " + player.getName() + " has been removed from raid world.");
     }
 
     @Override

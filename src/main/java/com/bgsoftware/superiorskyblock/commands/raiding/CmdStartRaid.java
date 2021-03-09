@@ -25,7 +25,7 @@ import java.util.*;
 public final class CmdStartRaid implements ISuperiorCommand {
 
     private int nextRaidLocationX = 0;
-    public static Map<UUID, HashSet<Location>> islandOwnerBlocks = new HashMap<>();
+    public static Map<UUID, Location> occupiedIslandLocations = new HashMap<>();
 
     @Override
     public List<String> getAliases() {
@@ -129,6 +129,8 @@ public final class CmdStartRaid implements ISuperiorCommand {
             Operations.complete(operation);
             SuperiorSkyblockPlugin.raidDebug("Finished pasting " + island.getName());
         }
+
+        occupiedIslandLocations.put(island.getOwner().getUniqueId(), destination);
     }
 
     @Override

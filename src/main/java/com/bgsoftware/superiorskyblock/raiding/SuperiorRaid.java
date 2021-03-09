@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorskyblock.raid;
+package com.bgsoftware.superiorskyblock.raiding;
 
 import com.bgsoftware.superiorskyblock.Locale;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;

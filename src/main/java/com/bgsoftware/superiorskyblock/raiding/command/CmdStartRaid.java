@@ -3,38 +3,29 @@ package com.bgsoftware.superiorskyblock.raiding.command;
 import com.bgsoftware.superiorskyblock.Locale;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
-import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.commands.ISuperiorCommand;
 import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
 import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
-import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.session.ClipboardHolder;
-import org.bukkit.*;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.Chest;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
 
 public final class CmdStartRaid implements ISuperiorCommand {
 
     private int nextRaidLocationX = 0;
-    private int nextRaidLocationZ = 0;
-    public static Map<UUID, HashSet<Location>> islandOwnerBlocks = new HashMap<>();
+    public static Map<UUID, Location> occupiedIslandLocations = new HashMap<>();
 
     @Override
     public List<String> getAliases() {
@@ -87,169 +78,59 @@ public final class CmdStartRaid implements ISuperiorCommand {
         }
 
         World raidWorld = Bukkit.getWorld("RaidWorld");
+        World superiorWorld = Bukkit.getWorld("SuperiorWorld");
 
         if (raidWorld == null) {
             SuperiorSkyblockPlugin.raidDebug("Couldn't get world 'RaidWorld'.");
             return;
         }
 
-//        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
         Island teamOneIsland = plugin.getGrid().getIsland(teamOneLeader.getUniqueId());
         Island teamTwoIsland = plugin.getGrid().getIsland(teamTwoLeader.getUniqueId());
-        List<Chunk> teamOneIslandChunks = teamOneIsland.getAllChunks();
-        List<Chunk> teamTwoIslandChunks = teamTwoIsland.getAllChunks();
-        islandOwnerBlocks.put(teamOneIsland.getOwner().getUniqueId(), new HashSet<>());
-        islandOwnerBlocks.put(teamTwoIsland.getOwner().getUniqueId(), new HashSet<>());
-        int destX = nextRaidLocationX;
-        int destZ = nextRaidLocationZ;
-        nextRaidLocationX += teamOneIslandChunks.size() * 2;
+        Location islandOneDest = new Location(raidWorld, nextRaidLocationX, 200, 0);
+        Location islandTwoDest = new Location(raidWorld, nextRaidLocationX, 200, 100);
+        copyIsland(teamOneIsland, islandOneDest);
+        copyIsland(teamTwoIsland, islandTwoDest);
+        teamOneIsland.getIslandMembers(true).forEach(member -> member.teleport(islandOneDest));
+        teamTwoIsland.getIslandMembers(true).forEach(member -> member.teleport(islandTwoDest));
+        nextRaidLocationX += 100;
+    }
 
-        Location islandCenter = teamOneIsland.getCenter(World.Environment.NORMAL);
-        double teleportOffsetX = islandCenter.getX() - teamOneIslandChunks.get(0).getX() * 16;
-        double teleportOffsetZ = islandCenter.getZ() - teamOneIslandChunks.get(0).getZ() * 16;
+    private void copyIsland(Island island, Location destination) {
+        Location islandCenter = island.getCenter(World.Environment.NORMAL);
 
-        Class<?> blockVector3Class = null;
-        Constructor<?> forwardExtentCopyConstructor = null;
-        Method blockVectorAt = null;
-        Method cuboidRegionFromCenter = null;
-        Method regionMinimumPoint = null;
-        Object blockVector3 = null;
-        try {
-            blockVector3Class = Class.forName("com.sk89q.worldedit.math.BlockVector3");
-            forwardExtentCopyConstructor = ForwardExtentCopy.class.getConstructor(Extent.class, Region.class, Extent.class, blockVector3Class);
-            blockVectorAt = blockVector3Class.getDeclaredMethod("at", double.class, double.class, double.class);
-            blockVector3 = blockVectorAt.invoke(null, islandCenter.getX(), islandCenter.getY(), islandCenter.getZ());
-            cuboidRegionFromCenter = CuboidRegion.class.getDeclaredMethod("fromCenter", blockVector3Class, int.class);
-            regionMinimumPoint = CuboidRegion.class.getMethod("getMinimumPoint");
-        } catch (ClassNotFoundException | NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
+        CuboidRegion islandRegion = CuboidRegion.fromCenter(BlockVector3.at(islandCenter.getX(), islandCenter.getY(), islandCenter.getZ()), 32);
 
-        Region islandRegion = null;
-        Object minimumPoint = null;
-        try {
-            islandRegion = (Region) cuboidRegionFromCenter.invoke(null, blockVector3, 100);
-            minimumPoint = regionMinimumPoint.invoke(islandRegion);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-//        Region islandRegion = CuboidRegion.fromCenter(new Vector(islandCenter.getX(), islandCenter.getY(), islandCenter.getZ()), 100);
+        SuperiorSkyblockPlugin.raidDebug("Island region center: " + islandRegion.getCenter());
+        SuperiorSkyblockPlugin.raidDebug("Island region minimum point: " + islandRegion.getMinimumPoint());
+        SuperiorSkyblockPlugin.raidDebug("Island region maximum point: " + islandRegion.getMaximumPoint());
+        SuperiorSkyblockPlugin.raidDebug("Island region area: " + islandRegion.getArea());
 
-        if (islandRegion == null) {
-            SuperiorSkyblockPlugin.raidDebug("The island region is null.");
-        }
-        if (minimumPoint == null) {
-            SuperiorSkyblockPlugin.raidDebug("The minimum point is null.");
-        }
+        BlockArrayClipboard clipboard = new BlockArrayClipboard(islandRegion);
 
         // Copy island
-        BlockArrayClipboard clipboard = new BlockArrayClipboard(islandRegion);
-        {
-            EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(islandCenter.getWorld()), 1000);
-            Object forwardExtentCopy = null;
-            try {
-                forwardExtentCopy = forwardExtentCopyConstructor.newInstance(editSession, islandRegion, clipboard, minimumPoint);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            }
-
-            if (forwardExtentCopy == null) {
-                SuperiorSkyblockPlugin.raidDebug("The forward extent copy is null.");
-            }
-
-            Operations.complete((ForwardExtentCopy) forwardExtentCopy);
+        try (EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(islandCenter.getWorld()), -1)) {
+            ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(session, islandRegion, clipboard, islandRegion.getMinimumPoint());
+            forwardExtentCopy.setCopyingBiomes(true);
+            forwardExtentCopy.setCopyingEntities(true);
+            Operations.complete(forwardExtentCopy);
+            SuperiorSkyblockPlugin.raidDebug("Finished copying " + island.getName());
         }
 
         // Paste island
-        {
-            EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(raidWorld), 1000);
+        try (EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(destination.getWorld()), -1)) {
             Operation operation = new ClipboardHolder(clipboard)
-                    .createPaste(editSession)
-                    .to(new Vector((destX * 16) + teleportOffsetX, islandCenter.getY() + 3, (destZ)))
+                    .createPaste(session)
+                    .to(BlockVector3.at(destination.getX() - 32, destination.getY() - 32, destination.getZ() - 32))
+                    .ignoreAirBlocks(true)
+                    .copyBiomes(true)
+                    .copyEntities(true)
                     .build();
             Operations.complete(operation);
+            SuperiorSkyblockPlugin.raidDebug("Finished pasting " + island.getName());
         }
 
-//            copyIsland(teamOneIsland, raidWorld, destX, destZ, plugin);
-//            copyIsland(teamTwoIsland, raidWorld, destX, destZ + 3, plugin);
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            List<SuperiorPlayer> teamOneMembers = teamOneIsland.getIslandMembers(true);
-            List<SuperiorPlayer> teamTwoMembers = teamTwoIsland.getIslandMembers(true);
-            teamOneMembers.forEach(member -> {
-                if (member.isOnline()) {
-//                        Location islandCenter = teamOneIsland.getCenter(World.Environment.NORMAL);
-//                        double teleportOffsetX = islandCenter.getX() - teamOneIslandChunks.get(0).getX() * 16;
-//                        double teleportOffsetZ = islandCenter.getZ() - teamOneIslandChunks.get(0).getZ() * 16;
-                    Location teleportLocation = new Location(raidWorld, (destX * 16) + teleportOffsetX, islandCenter.getY() + 3, (destZ * 16) + teleportOffsetZ);
-                    member.teleport(teleportLocation);
-
-                }
-            });
-            teamTwoMembers.forEach(member -> {
-                if (member.isOnline()) {
-//                        Location islandCenter = teamTwoIsland.getCenter(World.Environment.NORMAL);
-//                        double teleportOffsetX = islandCenter.getX() - teamTwoIslandChunks.get(0).getX() * 16;
-//                        double teleportOffsetZ = islandCenter.getZ() - teamTwoIslandChunks.get(0).getZ() * 16;
-                    Location teleportLocation = new Location(raidWorld, (destX * 16) + teleportOffsetX, islandCenter.getY() + 3, ((destZ + 3) * 16) + teleportOffsetZ);
-                    member.teleport(teleportLocation);
-                }
-            });
-        });
-//        });
-    }
-
-    private void copyIsland(Island island, World destWorld, int toChunkX, int toChunkZ, SuperiorSkyblockPlugin plugin) {
-        final int[] initialChunkX = new int[2];
-        final int[] initialChunkZ = new int[2];
-
-        SuperiorSkyblockPlugin.raidDebug("There are " + island.getAllChunks().size() + " chunks to copy.");
-
-        island.getAllChunks().forEach(chunk -> {
-            // This is so the island chunks are placed in the correct
-            // order instead of in a jumbled manner
-            if (initialChunkX[0] == 0 || initialChunkZ[0] == 0) {
-                initialChunkX[1] = chunk.getX();
-                initialChunkZ[1] = chunk.getZ();
-                initialChunkX[0] = 1;
-                initialChunkZ[0] = 1;
-            }
-
-            // The copying of each block of the original island to the raid world
-            for (int x = 0; x < 16; x++)
-                for (int z = 0; z < 16; z++)
-                    for (int y = 0; y < chunk.getChunkSnapshot().getHighestBlockYAt(x, z); y++) {
-                        Block block = chunk.getBlock(x, y, z);
-                        if (block.getType() == Material.AIR) {
-                            continue;
-                        }
-                        int destX = (initialChunkX[1] > chunk.getX() ? -(initialChunkX[1] - chunk.getX()) : (chunk.getX() - initialChunkX[1]) + toChunkX) * 16 + x;
-                        int destZ = (initialChunkZ[1] > chunk.getZ() ? -(initialChunkZ[1] - chunk.getZ()) : (chunk.getZ() - initialChunkZ[1]) + toChunkZ) * 16 + z;
-                        int finalY = y;
-                        Bukkit.getScheduler().runTask(plugin, () -> {
-                            Block targetBlock = destWorld.getBlockAt(destX, finalY + 3, destZ);
-                            islandOwnerBlocks.get(island.getOwner().getUniqueId()).add(targetBlock.getLocation());
-                            targetBlock.setType(block.getType());
-                            if (targetBlock.getType() == Material.CHEST) {
-                                Chest fromChest = (Chest) block.getState();
-                                BlockState blockState = targetBlock.getState();
-                                Chest toChest = (Chest) blockState;
-                                for (ItemStack item : fromChest.getBlockInventory().getContents()) {
-                                    toChest.getBlockInventory().addItem(item != null ? item : new ItemStack(Material.AIR));
-                                }
-                            }
-                        });
-                    }
-        });
+        occupiedIslandLocations.put(island.getOwner().getUniqueId(), destination);
     }
 
     @Override

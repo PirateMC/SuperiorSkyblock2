@@ -1,7 +1,7 @@
 package com.bgsoftware.superiorskyblock.handlers;
 
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
-import com.bgsoftware.superiorskyblock.raid.SuperiorRaid;
+import com.bgsoftware.superiorskyblock.raiding.SuperiorRaid;
 
 import java.util.ArrayList;
 import java.util.List;

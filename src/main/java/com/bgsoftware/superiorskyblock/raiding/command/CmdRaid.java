@@ -77,7 +77,7 @@ public final class CmdRaid implements ISuperiorCommand {
         mainComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("This text is shown on hover!").create()));
 
         TextComponent optionAccept = new TextComponent("Accept");
-        optionAccept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "island startraid " + senderName + " " + inviteeName));
+        optionAccept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/island startraid " + senderName + " " + inviteeName));
         optionAccept.setColor(ChatColor.GREEN);
 
         TextComponent optionDecline = new TextComponent("Decline");

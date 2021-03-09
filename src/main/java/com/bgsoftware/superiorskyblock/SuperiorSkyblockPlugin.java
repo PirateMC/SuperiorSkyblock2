@@ -64,6 +64,7 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
     private final CommandsHandler commandsHandler = new CommandsHandler(this);
     private final DataHandler dataHandler = new DataHandler(this);
     private final FactoriesHandler factoriesHandler = new FactoriesHandler();
+    private final RaidsHandler raidsHandler = new RaidsHandler();
     private static MultiverseCore multiverseCore = null;
 
     // The only handler that is initialized is this one, therefore it's not final.
@@ -424,6 +425,10 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
 
     public SettingsHandler getSettings() {
         return settingsHandler;
+    }
+
+    public RaidsHandler getRaidsHandler() {
+        return raidsHandler;
     }
 
     @Override

@@ -19,12 +19,21 @@ You must add yourself all the private jars or purchase access to our private rep
 
 ## Updates
 
-This plugin is provided "as is", which means no updates or new features are guaranteed. We will do our best to keep 
+This plugin is provided "as is", which means no updates or new features are guaranteed. We will do our best to keep
 updating and pushing new updates, and you are more than welcome to contribute your time as well and make pull requests
-for bug fixes. 
+for bug fixes.
 
 ## License
 
 This plugin is licensed under GNU GPL v3.0
 
 This plugin uses HikariCP which you can find [here](https://github.com/brettwooldridge/HikariCP).
+
+## Running on your server
+
+### Required Plugins
+
+* Multiverse-Core
+    * In worlds.yml set SuperiorWorld property `autoLoad: false`. This is to ensure that SuperiorSkyblock loads the
+      world instead of Multiverse.
+* CleanroomGenerator-1.1.1 (it's possible that version may vary)

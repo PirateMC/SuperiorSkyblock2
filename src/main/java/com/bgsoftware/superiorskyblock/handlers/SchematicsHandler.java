@@ -1,28 +1,20 @@
 package com.bgsoftware.superiorskyblock.handlers;
 
+import com.bgsoftware.superiorskyblock.Locale;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.handlers.SchematicManager;
 import com.bgsoftware.superiorskyblock.api.schematic.Schematic;
-import com.bgsoftware.superiorskyblock.hooks.FAWEHook;
+import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
+import com.bgsoftware.superiorskyblock.schematics.SuperiorSchematic;
+import com.bgsoftware.superiorskyblock.schematics.TagBuilder;
 import com.bgsoftware.superiorskyblock.schematics.WorldEditSchematic;
 import com.bgsoftware.superiorskyblock.utils.FileUtils;
 import com.bgsoftware.superiorskyblock.utils.LocationUtils;
 import com.bgsoftware.superiorskyblock.utils.ServerVersion;
 import com.bgsoftware.superiorskyblock.utils.registry.Registry;
-import com.bgsoftware.superiorskyblock.utils.tags.FloatTag;
-import com.bgsoftware.superiorskyblock.utils.tags.IntTag;
-import com.bgsoftware.superiorskyblock.utils.tags.StringTag;
-import com.google.common.collect.Lists;
-
-import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
-import com.bgsoftware.superiorskyblock.schematics.SuperiorSchematic;
-import com.bgsoftware.superiorskyblock.schematics.TagBuilder;
-import com.bgsoftware.superiorskyblock.Locale;
-import com.bgsoftware.superiorskyblock.utils.tags.CompoundTag;
-import com.bgsoftware.superiorskyblock.utils.tags.ListTag;
-import com.bgsoftware.superiorskyblock.utils.tags.Tag;
+import com.bgsoftware.superiorskyblock.utils.tags.*;
 import com.bgsoftware.superiorskyblock.wrappers.SchematicPosition;
-
+import com.google.common.collect.Lists;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -33,13 +25,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -217,10 +203,6 @@ public final class SchematicsHandler extends AbstractHandler implements Schemati
                 CompoundTag compoundTag = (CompoundTag) Tag.fromStream(reader, 0);
                 if (compoundTag.getValue().containsKey("version") && !compoundTag.getValue().get("version").getValue().equals(ServerVersion.getBukkitVersion()))
                     SuperiorSkyblockPlugin.log("&cSchematic " + file.getName() + " was created in a different version, may cause issues.");
-                if(compoundTag.getValue().isEmpty()) {
-                    if(FAWEHook.isEnabled())
-                        schematic = FAWEHook.loadSchematic(schemName, file);
-                }
                 else {
                     schematic = new SuperiorSchematic(schemName, compoundTag);
                 }

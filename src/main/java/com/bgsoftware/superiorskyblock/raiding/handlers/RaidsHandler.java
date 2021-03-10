@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorskyblock.handlers;
+package com.bgsoftware.superiorskyblock.raiding.handlers;
 
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.raiding.SuperiorRaid;

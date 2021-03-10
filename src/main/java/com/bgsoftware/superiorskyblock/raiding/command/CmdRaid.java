@@ -6,7 +6,6 @@ import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.commands.ISuperiorCommand;
 import com.bgsoftware.superiorskyblock.raiding.RaidInvitation;
 import com.bgsoftware.superiorskyblock.raiding.RaidInvitationHandler;
-import com.bgsoftware.superiorskyblock.raiding.SuperiorRaid;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -90,8 +89,7 @@ public final class CmdRaid implements ISuperiorCommand {
         Island teamOneIsland = plugin.getGrid().getIsland(invitation.getSenderUuid());
         Island teamTwoIsland = plugin.getGrid().getIsland(invitation.getInviteeUuid());
 
-        SuperiorRaid raid = new SuperiorRaid(teamOneIsland.getIslandMembers(true), teamTwoIsland.getIslandMembers(true));
-        raid.startRaid();
+        plugin.getRaidsHandler().startRaid(teamOneIsland.getIslandMembers(true), teamTwoIsland.getIslandMembers(true));
     }
 
     private void declineInvitation(Player invitationSender, Player commandSender) {

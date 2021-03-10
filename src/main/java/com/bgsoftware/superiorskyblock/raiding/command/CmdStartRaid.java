@@ -4,28 +4,18 @@ import com.bgsoftware.superiorskyblock.Locale;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.commands.ISuperiorCommand;
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
-import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
-import com.sk89q.worldedit.function.operation.Operation;
-import com.sk89q.worldedit.function.operation.Operations;
-import com.sk89q.worldedit.math.BlockVector3;
-import com.sk89q.worldedit.regions.CuboidRegion;
-import com.sk89q.worldedit.session.ClipboardHolder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 public final class CmdStartRaid implements ISuperiorCommand {
 
     private int nextRaidLocationX = 0;
-    public static Map<UUID, Location> occupiedIslandLocations = new HashMap<>();
 
     @Override
     public List<String> getAliases() {
@@ -89,48 +79,11 @@ public final class CmdStartRaid implements ISuperiorCommand {
         Island teamTwoIsland = plugin.getGrid().getIsland(teamTwoLeader.getUniqueId());
         Location islandOneDest = new Location(raidWorld, nextRaidLocationX, 200, 0);
         Location islandTwoDest = new Location(raidWorld, nextRaidLocationX, 200, 100);
-        copyIsland(teamOneIsland, islandOneDest);
-        copyIsland(teamTwoIsland, islandTwoDest);
+        plugin.getRaidIslandManager().createRaidIsland(teamOneIsland, islandOneDest);
+        plugin.getRaidIslandManager().createRaidIsland(teamTwoIsland, islandTwoDest);
         teamOneIsland.getIslandMembers(true).forEach(member -> member.teleport(islandOneDest));
         teamTwoIsland.getIslandMembers(true).forEach(member -> member.teleport(islandTwoDest));
         nextRaidLocationX += 100;
-    }
-
-    private void copyIsland(Island island, Location destination) {
-        Location islandCenter = island.getCenter(World.Environment.NORMAL);
-
-        CuboidRegion islandRegion = CuboidRegion.fromCenter(BlockVector3.at(islandCenter.getX(), islandCenter.getY(), islandCenter.getZ()), 32);
-
-        SuperiorSkyblockPlugin.raidDebug("Island region center: " + islandRegion.getCenter());
-        SuperiorSkyblockPlugin.raidDebug("Island region minimum point: " + islandRegion.getMinimumPoint());
-        SuperiorSkyblockPlugin.raidDebug("Island region maximum point: " + islandRegion.getMaximumPoint());
-        SuperiorSkyblockPlugin.raidDebug("Island region area: " + islandRegion.getArea());
-
-        BlockArrayClipboard clipboard = new BlockArrayClipboard(islandRegion);
-
-        // Copy island
-        try (EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(islandCenter.getWorld()), -1)) {
-            ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(session, islandRegion, clipboard, islandRegion.getMinimumPoint());
-            forwardExtentCopy.setCopyingBiomes(true);
-            forwardExtentCopy.setCopyingEntities(true);
-            Operations.complete(forwardExtentCopy);
-            SuperiorSkyblockPlugin.raidDebug("Finished copying " + island.getName());
-        }
-
-        // Paste island
-        try (EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(destination.getWorld()), -1)) {
-            Operation operation = new ClipboardHolder(clipboard)
-                    .createPaste(session)
-                    .to(BlockVector3.at(destination.getX() - 32, destination.getY() - 32, destination.getZ() - 32))
-                    .ignoreAirBlocks(true)
-                    .copyBiomes(true)
-                    .copyEntities(true)
-                    .build();
-            Operations.complete(operation);
-            SuperiorSkyblockPlugin.raidDebug("Finished pasting " + island.getName());
-        }
-
-        occupiedIslandLocations.put(island.getOwner().getUniqueId(), destination);
     }
 
     @Override

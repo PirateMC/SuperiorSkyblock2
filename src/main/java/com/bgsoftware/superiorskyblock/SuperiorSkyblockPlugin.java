@@ -16,6 +16,7 @@ import com.bgsoftware.superiorskyblock.nms.NMSAdapter;
 import com.bgsoftware.superiorskyblock.nms.NMSBlocks;
 import com.bgsoftware.superiorskyblock.nms.NMSHolograms;
 import com.bgsoftware.superiorskyblock.nms.NMSTags;
+import com.bgsoftware.superiorskyblock.raiding.RaidIslandManager;
 import com.bgsoftware.superiorskyblock.raiding.handlers.RaidsHandler;
 import com.bgsoftware.superiorskyblock.tasks.CalcTask;
 import com.bgsoftware.superiorskyblock.utils.FileUtils;
@@ -67,6 +68,9 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
     private final FactoriesHandler factoriesHandler = new FactoriesHandler();
     private final RaidsHandler raidsHandler = new RaidsHandler();
     private static MultiverseCore multiverseCore = null;
+
+    // Raiding
+    private final RaidIslandManager raidIslandManager = new RaidIslandManager();
 
     // The only handler that is initialized is this one, therefore it's not final.
     // This is to prevent it's fields to be non-finals.
@@ -430,6 +434,10 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
 
     public RaidsHandler getRaidsHandler() {
         return raidsHandler;
+    }
+
+    public RaidIslandManager getRaidIslandManager() {
+        return raidIslandManager;
     }
 
     @Override

@@ -3,6 +3,8 @@ package com.bgsoftware.superiorskyblock.raiding.command;
 import com.bgsoftware.superiorskyblock.Locale;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
+import com.bgsoftware.superiorskyblock.api.objects.Pair;
+import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.commands.ISuperiorCommand;
 import com.bgsoftware.superiorskyblock.raiding.RaidInvitation;
 import com.bgsoftware.superiorskyblock.raiding.RaidInvitationHandler;
@@ -13,6 +15,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -90,7 +93,14 @@ public final class CmdRaid implements ISuperiorCommand {
         Island teamOneIsland = plugin.getGrid().getIsland(invitation.getSenderUuid());
         Island teamTwoIsland = plugin.getGrid().getIsland(invitation.getInviteeUuid());
 
-        SuperiorRaid raid = new SuperiorRaid(teamOneIsland.getIslandMembers(true), teamTwoIsland.getIslandMembers(true));
+        List<SuperiorPlayer> teamOneMembers = teamOneIsland.getIslandMembers(true);
+        List<SuperiorPlayer> teamTwoMembers = teamTwoIsland.getIslandMembers(true);
+
+        Pair<Location, Location> raidIslandLocations = plugin.getRaidIslandManager().setupIslands(teamOneIsland, teamTwoIsland);
+        teamOneMembers.forEach(member -> member.teleport(raidIslandLocations.getKey()));
+        teamTwoMembers.forEach(member -> member.teleport(raidIslandLocations.getValue()));
+
+        SuperiorRaid raid = new SuperiorRaid(teamOneMembers, teamTwoMembers);
         raid.startRaid();
     }
 

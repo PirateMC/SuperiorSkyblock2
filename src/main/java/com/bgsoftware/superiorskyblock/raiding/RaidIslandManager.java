@@ -2,6 +2,7 @@ package com.bgsoftware.superiorskyblock.raiding;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
+import com.bgsoftware.superiorskyblock.api.objects.Pair;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
@@ -12,6 +13,7 @@ import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.session.ClipboardHolder;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -25,9 +27,12 @@ public class RaidIslandManager {
 
     private Map<UUID, Location> raidIslandLocations = new HashMap<>();
     private int nextRaidLocationX = 0;
+    private int nextRaidLocationZ = 0;
+    private int raidIslandSpacingX = 100;
+    private int raidIslandSpacingZ = 0;
+    private int raidIslandY = 200;
 
     public RaidIslandManager() {
-
     }
 
     public void deleteRaidIsland(UUID player) {
@@ -43,8 +48,18 @@ public class RaidIslandManager {
                 }
     }
 
-    public void createRaidIsland(Island island, Location destination) {
+    public Pair<Location, Location> setupIslands(Island islandOne, Island islandTwo) {
+        World raidWorld = Bukkit.getWorld("RaidWorld");
+        Location locationOne = createRaidIsland(islandOne, new Location(raidWorld, nextRaidLocationX, raidIslandY, nextRaidLocationZ));
+        Location locationTwo = createRaidIsland(islandTwo, new Location(raidWorld, nextRaidLocationX, raidIslandY, nextRaidLocationZ + 100));
+        nextRaidLocationX += raidIslandSpacingX;
+        nextRaidLocationZ += raidIslandSpacingZ;
+        return new Pair<>(locationOne, locationTwo);
+    }
+
+    public Location createRaidIsland(Island island, Location destination) {
         Location islandCenter = island.getCenter(World.Environment.NORMAL);
+        Location pasteLocation = new Location(destination.getWorld(), destination.getX() - 32, destination.getY() - 32, destination.getZ() - 32);
 
         CuboidRegion islandRegion = CuboidRegion.fromCenter(BlockVector3.at(islandCenter.getX(), islandCenter.getY(), islandCenter.getZ()), 32);
 
@@ -68,7 +83,7 @@ public class RaidIslandManager {
         try (EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(destination.getWorld()), -1)) {
             Operation operation = new ClipboardHolder(clipboard)
                     .createPaste(session)
-                    .to(BlockVector3.at(destination.getX() - 32, destination.getY() - 32, destination.getZ() - 32))
+                    .to(BlockVector3.at(pasteLocation.getX(), pasteLocation.getY(), pasteLocation.getZ()))
                     .ignoreAirBlocks(true)
                     .copyBiomes(true)
                     .copyEntities(true)
@@ -78,5 +93,6 @@ public class RaidIslandManager {
         }
 
         raidIslandLocations.put(island.getOwner().getUniqueId(), destination);
+        return pasteLocation;
     }
 }

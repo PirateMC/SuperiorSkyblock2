@@ -50,14 +50,16 @@ public class RaidIslandManager {
 
     public Pair<Location, Location> setupIslands(Island islandOne, Island islandTwo) {
         World raidWorld = Bukkit.getWorld("RaidWorld");
-        Location locationOne = createRaidIsland(islandOne, new Location(raidWorld, nextRaidLocationX, raidIslandY, nextRaidLocationZ));
-        Location locationTwo = createRaidIsland(islandTwo, new Location(raidWorld, nextRaidLocationX, raidIslandY, nextRaidLocationZ + 100));
+        Location locationOne = new Location(raidWorld, nextRaidLocationX, raidIslandY, nextRaidLocationZ);
+        Location locationTwo = new Location(raidWorld, nextRaidLocationX, raidIslandY, nextRaidLocationZ + 100);
+        createRaidIsland(islandOne, locationOne);
+        createRaidIsland(islandTwo, locationTwo);
         nextRaidLocationX += raidIslandSpacingX;
         nextRaidLocationZ += raidIslandSpacingZ;
         return new Pair<>(locationOne, locationTwo);
     }
 
-    public Location createRaidIsland(Island island, Location destination) {
+    public void createRaidIsland(Island island, Location destination) {
         Location islandCenter = island.getCenter(World.Environment.NORMAL);
         Location pasteLocation = new Location(destination.getWorld(), destination.getX() - 32, destination.getY() - 32, destination.getZ() - 32);
 
@@ -93,6 +95,5 @@ public class RaidIslandManager {
         }
 
         raidIslandLocations.put(island.getOwner().getUniqueId(), destination);
-        return pasteLocation;
     }
 }

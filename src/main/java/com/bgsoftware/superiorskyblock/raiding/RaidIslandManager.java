@@ -26,6 +26,7 @@ import java.util.UUID;
 public class RaidIslandManager {
 
     private Map<UUID, Pair<Location, Integer>> raidIslandLocations = new HashMap<>();
+    private int lastIslandMaxSize = 0;
     private int nextRaidLocationX = 0;
     private int nextRaidLocationZ = 0;
     private final int raidIslandSpacingX = 100;
@@ -35,6 +36,7 @@ public class RaidIslandManager {
     private final int waterLevel = 197;
 
     public RaidIslandManager() {
+
     }
 
     public void deleteRaidIsland(UUID player) {
@@ -58,8 +60,9 @@ public class RaidIslandManager {
         Location locationTwo = new Location(raidWorld, nextRaidLocationX, raidIslandY, nextRaidLocationZ + minimumSpacingBetweenIslands + islandOne.getIslandSize() + islandTwo.getIslandSize());
         createRaidIsland(islandOne, locationOne);
         createRaidIsland(islandTwo, locationTwo);
-        nextRaidLocationX += raidIslandSpacingX + islandOne.getIslandSize() + islandTwo.getIslandSize();
+        nextRaidLocationX += raidIslandSpacingX + lastIslandMaxSize;
         nextRaidLocationZ += raidIslandSpacingZ;
+        lastIslandMaxSize = Integer.max(islandOne.getIslandSize(), islandTwo.getIslandSize());
         return new Pair<>(locationOne, locationTwo);
     }
 

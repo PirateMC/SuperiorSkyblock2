@@ -63,9 +63,10 @@ public class RaidIslandManager {
 
     public void createRaidIsland(Island island, Location destination) {
         Location islandCenter = island.getCenter(World.Environment.NORMAL);
-        Location pasteLocation = new Location(destination.getWorld(), destination.getX() - 32, destination.getY() - 32, destination.getZ() - 32);
+        int islandSize = island.getIslandSize();
+        Location pasteLocation = new Location(destination.getWorld(), destination.getX() - islandSize, destination.getY() - islandSize, destination.getZ() - islandSize);
 
-        CuboidRegion islandRegion = CuboidRegion.fromCenter(BlockVector3.at(islandCenter.getX(), islandCenter.getY(), islandCenter.getZ()), 32);
+        CuboidRegion islandRegion = CuboidRegion.fromCenter(BlockVector3.at(islandCenter.getX(), islandCenter.getY(), islandCenter.getZ()), islandSize);
 
         SuperiorSkyblockPlugin.raidDebug("Island region center: " + islandRegion.getCenter());
         SuperiorSkyblockPlugin.raidDebug("Island region minimum point: " + islandRegion.getMinimumPoint());

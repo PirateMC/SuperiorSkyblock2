@@ -28,10 +28,11 @@ public class RaidIslandManager {
     private Map<UUID, Location> raidIslandLocations = new HashMap<>();
     private int nextRaidLocationX = 0;
     private int nextRaidLocationZ = 0;
-    private int raidIslandSpacingX = 100;
-    private int raidIslandSpacingZ = 0;
-    private int minimumSpacingBetweenIslands = 100;
-    private int raidIslandY = 200;
+    private final int raidIslandSpacingX = 100;
+    private final int raidIslandSpacingZ = 0;
+    private final int minimumSpacingBetweenIslands = 100;
+    private final int raidIslandY = 200;
+    private final int waterLevel = 197;
 
     public RaidIslandManager() {
     }
@@ -44,7 +45,7 @@ public class RaidIslandManager {
             for (int z = region.getMinimumPoint().getZ(); z < region.getMaximumPoint().getZ(); z++)
                 for (int y = region.getMinimumPoint().getY(); y < region.getMaximumPoint().getY(); y++) {
                     Block block = world.getBlockAt(x, y, z);
-                    if (y <= 197) block.setType(Material.WATER);
+                    if (y <= waterLevel) block.setType(Material.WATER);
                     else block.setType(Material.AIR);
                 }
     }

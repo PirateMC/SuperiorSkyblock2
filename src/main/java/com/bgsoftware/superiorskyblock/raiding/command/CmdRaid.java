@@ -18,6 +18,7 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -76,7 +77,8 @@ public final class CmdRaid implements ISuperiorCommand {
             if (RaidInvitationHandler.addInvitation(invitation)) sender.sendMessage("Invitation sent.");
             else sender.sendMessage("You've already sent an invitation to this player.");
 
-            TextComponent[] messageComponents = createInvitationMessageComponents(sender.getName());
+            Island senderIsland = plugin.getGrid().getIsland(commandSender.getUniqueId());
+            TextComponent[] messageComponents = createInvitationMessageComponents(sender.getName(), senderIsland);
             invitee.spigot().sendMessage(messageComponents);
         }
     }
@@ -119,25 +121,30 @@ public final class CmdRaid implements ISuperiorCommand {
         return invitation;
     }
 
-    private TextComponent[] createInvitationMessageComponents(String senderName) {
-        TextComponent mainComponent = new TextComponent(senderName + " has invited you to a raid. ");
+    private TextComponent[] createInvitationMessageComponents(String senderName, Island senderIsland) {
+        TextComponent senderNameComponent = new TextComponent(senderName);
+        BigDecimal islandLevel = senderIsland.getIslandLevel();
+        int islandSize = senderIsland.getIslandSize();
+        senderNameComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Island level: " + islandLevel + "\nIsland size: " + islandSize).create()));
+
+        TextComponent mainComponent = new TextComponent(" has invited you to a raid. ");
         mainComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("[Insert island level and members online here]").create()));
 
         TextComponent optionAccept = new TextComponent("Accept");
-        optionAccept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/island raid accept " + senderName));
+        optionAccept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/island raid accept " + senderNameComponent));
         optionAccept.setColor(ChatColor.GREEN);
 
         TextComponent orText = new TextComponent(" or ");
         orText.setColor(ChatColor.WHITE);
 
         TextComponent optionDecline = new TextComponent("Decline");
-        optionDecline.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/island raid deny " + senderName));
+        optionDecline.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/island raid deny " + senderNameComponent));
         optionDecline.setColor(ChatColor.RED);
 
         TextComponent period = new TextComponent(".");
         period.setColor(ChatColor.WHITE);
 
-        return new TextComponent[]{mainComponent, optionAccept, orText, optionDecline};
+        return new TextComponent[]{senderNameComponent, mainComponent, optionAccept, orText, optionDecline};
     }
 
     @Override

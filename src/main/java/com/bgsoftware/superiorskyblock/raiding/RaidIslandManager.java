@@ -30,6 +30,7 @@ public class RaidIslandManager {
     private int nextRaidLocationZ = 0;
     private int raidIslandSpacingX = 100;
     private int raidIslandSpacingZ = 0;
+    private int minimumSpacingBetweenIslands = 100;
     private int raidIslandY = 200;
 
     public RaidIslandManager() {
@@ -51,7 +52,7 @@ public class RaidIslandManager {
     public Pair<Location, Location> setupIslands(Island islandOne, Island islandTwo) {
         World raidWorld = Bukkit.getWorld("RaidWorld");
         Location locationOne = new Location(raidWorld, nextRaidLocationX, raidIslandY, nextRaidLocationZ);
-        Location locationTwo = new Location(raidWorld, nextRaidLocationX, raidIslandY, nextRaidLocationZ + 100);
+        Location locationTwo = new Location(raidWorld, nextRaidLocationX, raidIslandY, nextRaidLocationZ + minimumSpacingBetweenIslands + islandOne.getIslandSize() + islandTwo.getIslandSize());
         createRaidIsland(islandOne, locationOne);
         createRaidIsland(islandTwo, locationTwo);
         nextRaidLocationX += raidIslandSpacingX;

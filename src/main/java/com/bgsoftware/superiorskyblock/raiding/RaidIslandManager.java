@@ -56,7 +56,7 @@ public class RaidIslandManager {
         Location locationTwo = new Location(raidWorld, nextRaidLocationX, raidIslandY, nextRaidLocationZ + minimumSpacingBetweenIslands + islandOne.getIslandSize() + islandTwo.getIslandSize());
         createRaidIsland(islandOne, locationOne);
         createRaidIsland(islandTwo, locationTwo);
-        nextRaidLocationX += raidIslandSpacingX;
+        nextRaidLocationX += raidIslandSpacingX + islandOne.getIslandSize() + islandTwo.getIslandSize();
         nextRaidLocationZ += raidIslandSpacingZ;
         return new Pair<>(locationOne, locationTwo);
     }

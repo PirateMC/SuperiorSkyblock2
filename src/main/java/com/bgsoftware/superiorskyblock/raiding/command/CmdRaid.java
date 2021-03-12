@@ -122,23 +122,24 @@ public final class CmdRaid implements ISuperiorCommand {
     }
 
     private TextComponent[] createInvitationMessageComponents(String senderName, Island senderIsland) {
-        TextComponent senderNameComponent = new TextComponent(senderName);
         BigDecimal islandLevel = senderIsland.getIslandLevel();
         int islandSize = senderIsland.getIslandSize();
+
+        TextComponent senderNameComponent = new TextComponent(senderName);
         senderNameComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Island level: " + islandLevel + "\nIsland size: " + islandSize).create()));
+        senderNameComponent.setColor(ChatColor.YELLOW);
 
         TextComponent mainComponent = new TextComponent(" has invited you to a raid. ");
-        mainComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("[Insert island level and members online here]").create()));
 
         TextComponent optionAccept = new TextComponent("Accept");
-        optionAccept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/island raid accept " + senderNameComponent));
+        optionAccept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/island raid accept " + senderName));
         optionAccept.setColor(ChatColor.GREEN);
 
         TextComponent orText = new TextComponent(" or ");
         orText.setColor(ChatColor.WHITE);
 
         TextComponent optionDecline = new TextComponent("Decline");
-        optionDecline.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/island raid deny " + senderNameComponent));
+        optionDecline.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/island raid deny " + senderName));
         optionDecline.setColor(ChatColor.RED);
 
         TextComponent period = new TextComponent(".");

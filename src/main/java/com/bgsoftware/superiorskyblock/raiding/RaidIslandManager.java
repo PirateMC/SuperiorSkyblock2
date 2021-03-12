@@ -25,7 +25,7 @@ import java.util.UUID;
 
 public class RaidIslandManager {
 
-    private Map<UUID, Location> raidIslandLocations = new HashMap<>();
+    private Map<UUID, Pair<Location, Integer>> raidIslandLocations = new HashMap<>();
     private int nextRaidLocationX = 0;
     private int nextRaidLocationZ = 0;
     private final int raidIslandSpacingX = 100;
@@ -38,9 +38,11 @@ public class RaidIslandManager {
     }
 
     public void deleteRaidIsland(UUID player) {
-        Location raidIslandCenter = raidIslandLocations.get(player);
-        World world = raidIslandCenter.getWorld();
-        CuboidRegion region = CuboidRegion.fromCenter(BlockVector3.at(raidIslandCenter.getX(), raidIslandCenter.getY(), raidIslandCenter.getZ()), 32);
+        Pair<Location, Integer> islandCenterSize = raidIslandLocations.get(player);
+        Location islandCenter = islandCenterSize.getKey();
+        int islandSize = islandCenterSize.getValue();
+        World world = islandCenter.getWorld();
+        CuboidRegion region = CuboidRegion.fromCenter(BlockVector3.at(islandCenter.getX(), islandCenter.getY(), islandCenter.getZ()), islandSize);
         for (int x = region.getMinimumPoint().getX(); x < region.getMaximumPoint().getX(); x++)
             for (int z = region.getMinimumPoint().getZ(); z < region.getMaximumPoint().getZ(); z++)
                 for (int y = region.getMinimumPoint().getY(); y < region.getMaximumPoint().getY(); y++) {
@@ -95,6 +97,6 @@ public class RaidIslandManager {
             SuperiorSkyblockPlugin.raidDebug("Finished pasting " + island.getName());
         }
 
-        raidIslandLocations.put(island.getOwner().getUniqueId(), destination);
+        raidIslandLocations.put(island.getOwner().getUniqueId(), new Pair<>(destination, islandSize));
     }
 }

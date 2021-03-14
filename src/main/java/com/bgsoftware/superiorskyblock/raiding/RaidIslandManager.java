@@ -31,7 +31,7 @@ public class RaidIslandManager {
     private int nextRaidLocationZ = 0;
     private final int raidIslandSpacingX = 100;
     private final int raidIslandSpacingZ = 0;
-    private final int minimumSpacingBetweenIslands = 100;
+    private final int minimumSpacingBetweenIslands = 30;
     private final int raidIslandY = 200;
     private final int waterLevel = 197;
 

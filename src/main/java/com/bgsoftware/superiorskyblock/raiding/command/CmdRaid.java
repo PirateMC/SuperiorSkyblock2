@@ -37,7 +37,7 @@ public final class CmdRaid implements ISuperiorCommand {
 
     @Override
     public String getUsage(java.util.Locale locale) {
-        return "raid <" + Locale.COMMAND_ARGUMENT_ISLAND_NAME.getMessage(locale) + ">";
+        return "raid <" + Locale.COMMAND_ARGUMENT_PLAYER_NAME.getMessage(locale) + ">";
     }
 
     @Override

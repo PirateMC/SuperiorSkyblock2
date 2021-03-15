@@ -648,6 +648,14 @@ public final class PlayersListener implements Listener {
     public void onPlayerCommand(PlayerCommandPreprocessEvent e){
         SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(e.getPlayer());
 
+        SuperiorRaid raid = plugin.getRaidsHandler().getRaidByMember(superiorPlayer);
+
+        //Player is in raid
+        if (raid != null) {
+            e.setCancelled(true);
+            return;
+        }
+
         if(superiorPlayer.hasBypassModeEnabled())
             return;
 

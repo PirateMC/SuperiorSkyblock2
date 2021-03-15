@@ -71,18 +71,19 @@ public final class CmdRaid implements ISuperiorCommand {
                 Player invitationSender = Bukkit.getPlayer(args[2]);
                 if (arg.equalsIgnoreCase("accept")) acceptInvitation(invitationSender, commandSender, plugin);
                 else if (arg.equalsIgnoreCase("deny")) declineInvitation(invitationSender, commandSender);
-                else sender.sendMessage("Couldn't find player with name " + arg + ".");
+                else sender.sendMessage(Locale.INVALID_PLAYER.getMessage(LocaleUtils.getLocale(sender), arg));
             } else {
                 commandSender.sendMessage(Locale.INVALID_ARGUMENT_COUNT.getMessage(LocaleUtils.getLocale(commandSender)));
             }
         } else {
             if (commandSender.getUniqueId().equals(invitee.getUniqueId())) {
-                commandSender.sendMessage("You cannot invite yourself.");
+                commandSender.sendMessage(Locale.INVALID_INVITATION_TARGET.getMessage(LocaleUtils.getLocale(commandSender)));
                 return;
             }
             RaidInvitation invitation = new RaidInvitation(commandSender.getUniqueId(), invitee.getUniqueId());
             if (RaidInvitationHandler.addInvitation(invitation)) sender.sendMessage("Invitation sent.");
-            else sender.sendMessage("You've already sent an invitation to this player.");
+            else
+                sender.sendMessage(Locale.PLAYER_ALREADY_INVITED_TO_RAID.getMessage(LocaleUtils.getLocale(commandSender)));
 
             Island senderIsland = plugin.getGrid().getIsland(commandSender.getUniqueId());
             TextComponent[] messageComponents = createInvitationMessageComponents(sender.getName(), senderIsland);
@@ -94,7 +95,7 @@ public final class CmdRaid implements ISuperiorCommand {
         RaidInvitation invitation = handleInvitation(invitationSender.getUniqueId(), commandSender.getUniqueId());
 
         if (invitation == null) {
-            commandSender.sendMessage("You have no pending invitations from this player.");
+            commandSender.sendMessage(Locale.NO_PENDING_RAID_INVITATIONS.getMessage(LocaleUtils.getLocale(commandSender)));
             return;
         }
 
@@ -113,10 +114,10 @@ public final class CmdRaid implements ISuperiorCommand {
 
     private void declineInvitation(Player invitationSender, Player commandSender) {
         if (RaidInvitationHandler.removeInvitation(invitationSender.getUniqueId(), commandSender.getUniqueId())) {
-            commandSender.sendMessage("Invitation declined.");
-            invitationSender.sendMessage(commandSender.getName() + " has declined your invitation.");
+            commandSender.sendMessage(Locale.RAID_INVITATION_DECLINED.getMessage(LocaleUtils.getLocale(commandSender)));
+            invitationSender.sendMessage(Locale.RAID_INVITATION_DECLINED_OTHER.getMessage(LocaleUtils.getLocale(invitationSender), commandSender));
         } else {
-            commandSender.sendMessage("You have no pending invitations from this player.");
+            commandSender.sendMessage(Locale.NO_PENDING_RAID_INVITATIONS.getMessage(LocaleUtils.getLocale(commandSender)));
         }
     }
 

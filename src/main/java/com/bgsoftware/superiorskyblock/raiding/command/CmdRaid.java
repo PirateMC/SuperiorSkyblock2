@@ -8,6 +8,7 @@ import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.commands.ISuperiorCommand;
 import com.bgsoftware.superiorskyblock.raiding.RaidInvitation;
 import com.bgsoftware.superiorskyblock.raiding.RaidInvitationHandler;
+import com.bgsoftware.superiorskyblock.utils.LocaleUtils;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -71,7 +72,9 @@ public final class CmdRaid implements ISuperiorCommand {
                 if (arg.equalsIgnoreCase("accept")) acceptInvitation(invitationSender, commandSender, plugin);
                 else if (arg.equalsIgnoreCase("deny")) declineInvitation(invitationSender, commandSender);
                 else sender.sendMessage("Couldn't find player with name " + arg + ".");
-            } else commandSender.sendMessage("Invalid number of arguments.");
+            } else {
+                commandSender.sendMessage(Locale.INVALID_ARGUMENT_COUNT.getMessage(LocaleUtils.getLocale(commandSender)));
+            }
         } else {
             if (commandSender.getUniqueId().equals(invitee.getUniqueId())) {
                 commandSender.sendMessage("You cannot invite yourself.");

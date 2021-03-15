@@ -73,6 +73,10 @@ public final class CmdRaid implements ISuperiorCommand {
                 else sender.sendMessage("Couldn't find player with name " + arg + ".");
             } else commandSender.sendMessage("Invalid number of arguments.");
         } else {
+            if (commandSender.getUniqueId().equals(invitee.getUniqueId())) {
+                commandSender.sendMessage("You cannot invite yourself.");
+                return;
+            }
             RaidInvitation invitation = new RaidInvitation(commandSender.getUniqueId(), invitee.getUniqueId());
             if (RaidInvitationHandler.addInvitation(invitation)) sender.sendMessage("Invitation sent.");
             else sender.sendMessage("You've already sent an invitation to this player.");

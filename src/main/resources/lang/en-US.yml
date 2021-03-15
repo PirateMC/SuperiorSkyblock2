@@ -587,6 +587,8 @@ PURGED_ISLANDS: |-
   &e&lIsland | &7You can cancel it anytime using /is admin purge cancel.
 RAID_START_COUNTDOWN: '&e&lRaid starting in {0}'
 RAID_START: '&e&lRaid started!'
+RAID_RESPAWN_COUNTDOWN: '&e&lRespawning in {0}'
+RAID_RESPAWN: '&e&lRespawned!'
 RANKUP_SUCCESS: '&e&lIsland | &7Successfully updated the level of the upgrade {0} for {1}''s island.'
 RANKUP_SUCCESS_ALL: '&e&lIsland | &7Successfully updated the level of the upgrade {0} for all the islands.'
 RANKUP_SUCCESS_NAME: '&e&lIsland | &7Successfully updated the level of the upgrade {0} for {1}.'

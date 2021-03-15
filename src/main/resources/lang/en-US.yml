@@ -591,6 +591,7 @@ PURGED_ISLANDS: |-
   &e&lIsland | &7You can cancel it anytime using /is admin purge cancel.
 RAID_INVITATION_DECLINED: '&e&lRaiding | &cInvitation declined.'
 RAID_INVITATION_DECLINED_OTHER: '&e&lRaiding | &c{0} has declined your invitation.'
+RAID_INVITATION_SENT: '&e&lRaiding | &eInvitation sent.'
 RAID_START_COUNTDOWN: '&e&lRaid starting in {0}'
 RAID_START: '&e&lRaid started!'
 RANKUP_SUCCESS: '&e&lIsland | &7Successfully updated the level of the upgrade {0} for {1}''s island.'

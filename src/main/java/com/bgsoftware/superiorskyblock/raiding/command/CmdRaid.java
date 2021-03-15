@@ -81,7 +81,8 @@ public final class CmdRaid implements ISuperiorCommand {
                 return;
             }
             RaidInvitation invitation = new RaidInvitation(commandSender.getUniqueId(), invitee.getUniqueId());
-            if (RaidInvitationHandler.addInvitation(invitation)) sender.sendMessage("Invitation sent.");
+            if (RaidInvitationHandler.addInvitation(invitation))
+                sender.sendMessage(Locale.RAID_INVITATION_SENT.getMessage(LocaleUtils.getLocale(sender)));
             else
                 sender.sendMessage(Locale.PLAYER_ALREADY_INVITED_TO_RAID.getMessage(LocaleUtils.getLocale(commandSender)));
 

@@ -11,6 +11,7 @@ import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
 import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import org.bukkit.Bukkit;
@@ -58,15 +59,15 @@ public class RaidIslandManager {
         World raidWorld = Bukkit.getWorld("RaidWorld");
         Location locationOne = new Location(raidWorld, nextRaidLocationX, raidIslandY, nextRaidLocationZ);
         Location locationTwo = new Location(raidWorld, nextRaidLocationX, raidIslandY, nextRaidLocationZ + minimumSpacingBetweenIslands + islandOne.getIslandSize() + islandTwo.getIslandSize());
-        createRaidIsland(islandOne, locationOne);
-        createRaidIsland(islandTwo, locationTwo);
+        createRaidIsland(islandOne, locationOne, false);
+        createRaidIsland(islandTwo, locationTwo, true);
         nextRaidLocationX += raidIslandSpacingX + lastIslandMaxSize;
         nextRaidLocationZ += raidIslandSpacingZ;
         lastIslandMaxSize = Integer.max(islandOne.getIslandSize(), islandTwo.getIslandSize());
         return new Pair<>(locationOne, locationTwo);
     }
 
-    public void createRaidIsland(Island island, Location destination) {
+    public void createRaidIsland(Island island, Location destination, boolean flip) {
         Location islandCenter = island.getCenter(World.Environment.NORMAL);
         int islandSize = island.getIslandSize();
         Location pasteLocation = new Location(destination.getWorld(), destination.getX() - islandSize, destination.getY() - islandSize, destination.getZ() - islandSize);
@@ -90,13 +91,21 @@ public class RaidIslandManager {
 
         // Paste island
         try (EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(destination.getWorld()), -1)) {
-            Operation operation = new ClipboardHolder(clipboard)
+            ClipboardHolder holder = new ClipboardHolder(clipboard);
+            if (flip) {
+                AffineTransform affineTransform = new AffineTransform().rotateY(180);
+                AffineTransform affineTranslate = new AffineTransform().translate(-islandSize * 2, 0, -islandSize * 2);
+                holder.setTransform(affineTransform.combine(affineTranslate));
+                SuperiorSkyblockPlugin.raidDebug("Flipping island " + island.getName());
+            }
+            Operation operation = holder
                     .createPaste(session)
                     .to(BlockVector3.at(pasteLocation.getX(), pasteLocation.getY(), pasteLocation.getZ()))
                     .ignoreAirBlocks(true)
                     .copyEntities(true)
                     .build();
             Operations.complete(operation);
+//            session.moveRegion(clipboard.getRegion(), BlockVector3.at(-1, 0, -1), islandSize, true, true, false, );
             SuperiorSkyblockPlugin.raidDebug("Finished pasting " + island.getName());
         }
 

@@ -107,6 +107,7 @@ public final class CmdRaid implements ISuperiorCommand {
         List<SuperiorPlayer> teamTwoMembers = teamTwoIsland.getIslandMembers(true);
 
         Pair<Location, Location> raidIslandLocations = plugin.getRaidIslandManager().setupIslands(teamOneIsland, teamTwoIsland);
+        raidIslandLocations.getValue().setYaw(180);
         teamOneMembers.forEach(member -> member.teleport(raidIslandLocations.getKey()));
         teamTwoMembers.forEach(member -> member.teleport(raidIslandLocations.getValue()));
 

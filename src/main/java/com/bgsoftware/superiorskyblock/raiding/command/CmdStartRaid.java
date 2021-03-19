@@ -79,8 +79,8 @@ public final class CmdStartRaid implements ISuperiorCommand {
         Island teamTwoIsland = plugin.getGrid().getIsland(teamTwoLeader.getUniqueId());
         Location islandOneDest = new Location(raidWorld, nextRaidLocationX, 200, 0);
         Location islandTwoDest = new Location(raidWorld, nextRaidLocationX, 200, 100);
-        plugin.getRaidIslandManager().createRaidIsland(teamOneIsland, islandOneDest);
-        plugin.getRaidIslandManager().createRaidIsland(teamTwoIsland, islandTwoDest);
+        plugin.getRaidIslandManager().createRaidIsland(teamOneIsland, islandOneDest, false);
+        plugin.getRaidIslandManager().createRaidIsland(teamTwoIsland, islandTwoDest, true);
         teamOneIsland.getIslandMembers(true).forEach(member -> member.teleport(islandOneDest));
         teamTwoIsland.getIslandMembers(true).forEach(member -> member.teleport(islandTwoDest));
         nextRaidLocationX += 100;

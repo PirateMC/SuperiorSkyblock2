@@ -105,7 +105,6 @@ public class RaidIslandManager {
                     .copyEntities(true)
                     .build();
             Operations.complete(operation);
-//            session.moveRegion(clipboard.getRegion(), BlockVector3.at(-1, 0, -1), islandSize, true, true, false, );
             SuperiorSkyblockPlugin.raidDebug("Finished pasting " + island.getName());
         }
 

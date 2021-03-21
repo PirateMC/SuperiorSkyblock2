@@ -30,7 +30,7 @@ public class RaidIslandManager {
     private int lastIslandMaxSize = 0;
     private int nextRaidLocationX = 0;
     private int nextRaidLocationZ = 0;
-    private final int raidIslandSpacingX = 100;
+    private final int raidIslandSpacingX = 10000;
     private final int raidIslandSpacingZ = 0;
     private final int minimumSpacingBetweenIslands = 30;
     private final int raidIslandY = 200;

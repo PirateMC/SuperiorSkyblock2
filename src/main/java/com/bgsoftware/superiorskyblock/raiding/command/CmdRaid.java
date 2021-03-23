@@ -19,11 +19,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public final class CmdRaid implements ISuperiorCommand {
 
@@ -104,20 +103,34 @@ public final class CmdRaid implements ISuperiorCommand {
         Island teamOneIsland = plugin.getGrid().getIsland(invitation.getSenderUuid());
         Island teamTwoIsland = plugin.getGrid().getIsland(invitation.getInviteeUuid());
 
-        List<SuperiorPlayer> teamOneMembers = teamOneIsland.getIslandMembers(true);
-        List<SuperiorPlayer> teamTwoMembers = teamTwoIsland.getIslandMembers(true);
+        Map<SuperiorPlayer, ItemStack[]> teamOneMembers = new HashMap<>(), teamTwoMembers = new HashMap<>();
+
+        for (SuperiorPlayer superiorPlayer : teamOneIsland.getIslandMembers(true)){
+            if (!superiorPlayer.isOnline()) continue;
+
+            teamOneMembers.put(superiorPlayer, superiorPlayer.asPlayer().getInventory().getContents());
+        }
+
+        for (SuperiorPlayer superiorPlayer : teamTwoIsland.getIslandMembers(true)){
+            if (!superiorPlayer.isOnline()) continue;
+
+            teamTwoMembers.put(superiorPlayer, superiorPlayer.asPlayer().getInventory().getContents());
+        }
 
         Pair<Location, Location> raidIslandLocations = plugin.getRaidIslandManager().setupIslands(teamOneIsland, teamTwoIsland);
         raidIslandLocations.getValue().setYaw(180);
-        teamOneMembers.forEach(member -> member.teleport(raidIslandLocations.getKey()));
-        teamTwoMembers.forEach(member -> member.teleport(raidIslandLocations.getValue()));
-
+        teamOneMembers.keySet().forEach(member -> member.teleport(raidIslandLocations.getKey()));
+        teamTwoMembers.keySet().forEach(member -> member.teleport(raidIslandLocations.getValue()));
         SuperiorRaid superiorRaid = new SuperiorRaid();
 
         superiorRaid.setTeamOnePlayers(teamOneMembers);
         superiorRaid.setTeamTwoPlayers(teamTwoMembers);
-        superiorRaid.setTeamOneLocation(raidIslandLocations.getKey());
-        superiorRaid.setTeamTwoLocation(raidIslandLocations.getValue());
+        superiorRaid.setTeamOneLocation(raidIslandLocations.getKey().clone());
+        superiorRaid.setTeamTwoLocation(raidIslandLocations.getValue().clone());
+        superiorRaid.setTeamOneMinLocation(raidIslandLocations.getKey().clone().add(-teamOneIsland.getIslandSize(), -teamOneIsland.getIslandSize(), -teamOneIsland.getIslandSize()));
+        superiorRaid.setTeamOneMaxLocation(raidIslandLocations.getKey().clone().add(teamOneIsland.getIslandSize(), teamOneIsland.getIslandSize(), teamOneIsland.getIslandSize()));
+        superiorRaid.setTeamTwoMinLocation(raidIslandLocations.getValue().clone().add(-teamTwoIsland.getIslandSize(), -teamTwoIsland.getIslandSize(), -teamTwoIsland.getIslandSize()));
+        superiorRaid.setTeamTwoMaxLocation(raidIslandLocations.getValue().clone().add(teamTwoIsland.getIslandSize(), teamTwoIsland.getIslandSize(), teamTwoIsland.getIslandSize()));
 
         plugin.getRaidsHandler().startRaid(superiorRaid);
     }

@@ -14,6 +14,8 @@ raids:
   #In seconds
   start-countdown: 10
   start-sound: ENTITY_ENDER_DRAGON_SHOOT
+  #In seconds
+  duration: 300
 
 # All settings related to the database of the plugin.
 database:

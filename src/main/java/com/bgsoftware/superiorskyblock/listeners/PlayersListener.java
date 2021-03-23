@@ -40,6 +40,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
@@ -168,11 +169,30 @@ public final class PlayersListener implements Listener {
     }
 
     @EventHandler
+    public void onPlayerBreak(BlockBreakEvent event){
+
+        SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(event.getPlayer());
+        SuperiorRaid raid = plugin.getRaidsHandler().getRaidByMember(superiorPlayer);
+
+        //Player is in raid
+        if (raid == null) return;
+
+        raid.handleBreak(superiorPlayer, event.getBlock());
+    }
+
+    @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e){
         SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(e.getPlayer());
 
         if(superiorPlayer instanceof SuperiorNPCPlayer)
             return;
+
+        SuperiorRaid raid = plugin.getRaidsHandler().getRaidByMember(superiorPlayer);
+
+        //Player is in raid
+        if (raid != null){
+            plugin.getRaidsHandler().forceEndRaid(raid, superiorPlayer);
+        }
 
         if(!plugin.getProviders().isVanished(e.getPlayer()))
             handlePlayerQuit(superiorPlayer);
@@ -253,7 +273,7 @@ public final class PlayersListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerRespawn(PlayerRespawnEvent event){
 
         SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(event.getPlayer());
@@ -262,6 +282,8 @@ public final class PlayersListener implements Listener {
 
         //Player is in raid
         if (raid == null) return;
+
+        event.setRespawnLocation(raid.getRespawnLocation(superiorPlayer));
 
         raid.handleRespawn(superiorPlayer);
     }

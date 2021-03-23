@@ -2,19 +2,24 @@ package com.bgsoftware.superiorskyblock.raiding;
 
 import com.bgsoftware.superiorskyblock.Locale;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.utils.LocaleUtils;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.Map;
 
 public class SuperiorRaid {
 
     private final SuperiorSkyblockPlugin plugin = SuperiorSkyblockPlugin.getPlugin();
-    private List<SuperiorPlayer> teamOnePlayers, teamTwoPlayers;
-    private Location teamOneLocation, teamTwoLocation;
+    private Map<SuperiorPlayer, ItemStack[]> teamOnePlayers, teamTwoPlayers;
+    private Location teamOneLocation, teamTwoLocation, teamOneMaxLocation, teamOneMinLocation, teamTwoMaxLocation, teamTwoMinLocation;
+    private double teamOnePoints = 0, teamTwoPoints = 0;
     private boolean started = false;
 
     public void startRaid(){
@@ -28,7 +33,7 @@ public class SuperiorRaid {
 
                 if (countdown == 0){
 
-                    teamOnePlayers.stream()
+                    teamOnePlayers.keySet().stream()
                             .filter(SuperiorPlayer::isOnline)
                             .map(SuperiorPlayer::asPlayer)
                             .forEach(player -> {
@@ -39,7 +44,7 @@ public class SuperiorRaid {
                                 player.playSound(player.getLocation(), plugin.getSettings().raidStartSound, 1, 1);
                             });
 
-                    teamTwoPlayers.stream()
+                    teamTwoPlayers.keySet().stream()
                             .filter(SuperiorPlayer::isOnline)
                             .map(SuperiorPlayer::asPlayer)
                             .forEach(player -> {
@@ -52,9 +57,10 @@ public class SuperiorRaid {
 
                     started = true;
                     cancel();
+                    return;
                 }
 
-                teamOnePlayers.stream()
+                teamOnePlayers.keySet().stream()
                         .filter(SuperiorPlayer::isOnline)
                         .map(SuperiorPlayer::asPlayer)
                         .forEach(player ->
@@ -62,7 +68,7 @@ public class SuperiorRaid {
                                         Locale.RAID_START_COUNTDOWN.getMessage(LocaleUtils.getLocale(player), countdown),
                                         "", 0, 20, 0));
 
-                teamTwoPlayers.stream()
+                teamTwoPlayers.keySet().stream()
                         .filter(SuperiorPlayer::isOnline)
                         .map(SuperiorPlayer::asPlayer)
                         .forEach(player ->
@@ -76,13 +82,13 @@ public class SuperiorRaid {
         }.runTaskTimer(plugin, 0, 20);
     }
 
+    public Location getRespawnLocation(SuperiorPlayer superiorPlayer){
+        return teamOnePlayers.containsKey(superiorPlayer) ?
+                teamOneLocation : teamTwoLocation;
+    }
+
     public void handleRespawn(SuperiorPlayer superiorPlayer){
         SuperiorSkyblockPlugin plugin = SuperiorSkyblockPlugin.getPlugin();
-
-        Location teleportLocation = teamOnePlayers.contains(superiorPlayer) ?
-                teamOneLocation : teamTwoLocation;
-
-        superiorPlayer.asPlayer().teleport(teleportLocation);
 
         superiorPlayer.asPlayer().setMetadata("Respawning", new FixedMetadataValue(plugin, ""));
 
@@ -119,24 +125,54 @@ public class SuperiorRaid {
         }.runTaskTimer(plugin, 0, 20);
     }
 
+    public void handleBreak(SuperiorPlayer superiorPlayer, Block block){
+
+        BigDecimal value = plugin.getBlockValues().getBlockWorth(Key.of(block));
+
+        if (value.intValue() == 0) return;
+
+        Location max, min;
+        boolean isTeamOne = false;
+
+        if (teamOnePlayers.containsKey(superiorPlayer)){
+            max = teamTwoMaxLocation.clone();
+            min = teamTwoMinLocation.clone();
+            isTeamOne = true;
+        } else {
+            max = teamOneMaxLocation.clone();
+            min = teamOneMinLocation.clone();
+        }
+
+        if (block.getLocation().getX() <= max.getX() && block.getLocation().getX() >= min.getX() &&
+                block.getLocation().getY() <= max.getY() && block.getLocation().getY() >= min.getY() &&
+                block.getLocation().getZ() <= max.getZ() && block.getLocation().getZ() >= min.getZ()){
+
+            if (isTeamOne){
+                teamOnePoints += value.doubleValue();
+            } else {
+                teamTwoPoints += value.doubleValue();
+            }
+        }
+    }
+
     public Location getSpawnLocation(SuperiorPlayer superiorPlayer){
-        return teamOnePlayers.contains(superiorPlayer) ?
+        return teamOnePlayers.containsKey(superiorPlayer) ?
                 teamOneLocation : teamTwoLocation;
     }
 
-    public void setTeamOnePlayers(List<SuperiorPlayer> teamOnePlayers) {
+    public void setTeamOnePlayers(Map<SuperiorPlayer, ItemStack[]> teamOnePlayers) {
         this.teamOnePlayers = teamOnePlayers;
     }
 
-    public List<SuperiorPlayer> getTeamOnePlayers() {
+    public Map<SuperiorPlayer, ItemStack[]> getTeamOnePlayers() {
         return teamOnePlayers;
     }
 
-    public void setTeamTwoPlayers(List<SuperiorPlayer> teamTwoPlayers) {
+    public void setTeamTwoPlayers(Map<SuperiorPlayer, ItemStack[]> teamTwoPlayers) {
         this.teamTwoPlayers = teamTwoPlayers;
     }
 
-    public List<SuperiorPlayer> getTeamTwoPlayers() {
+    public Map<SuperiorPlayer, ItemStack[]> getTeamTwoPlayers() {
         return teamTwoPlayers;
     }
 
@@ -154,6 +190,46 @@ public class SuperiorRaid {
 
     public Location getTeamTwoLocation() {
         return teamTwoLocation;
+    }
+
+    public void setTeamOneMaxLocation(Location teamOneMaxLocation) {
+        this.teamOneMaxLocation = teamOneMaxLocation;
+    }
+
+    public Location getTeamOneMaxLocation() {
+        return teamOneMaxLocation;
+    }
+
+    public void setTeamOneMinLocation(Location teamOneMinLocation) {
+        this.teamOneMinLocation = teamOneMinLocation;
+    }
+
+    public Location getTeamOneMinLocation() {
+        return teamOneMinLocation;
+    }
+
+    public void setTeamTwoMaxLocation(Location teamTwoMaxLocation) {
+        this.teamTwoMaxLocation = teamTwoMaxLocation;
+    }
+
+    public Location getTeamTwoMaxLocation() {
+        return teamTwoMaxLocation;
+    }
+
+    public void setTeamTwoMinLocation(Location teamTwoMinLocation) {
+        this.teamTwoMinLocation = teamTwoMinLocation;
+    }
+
+    public Location getTeamTwoMinLocation() {
+        return teamTwoMinLocation;
+    }
+
+    public double getTeamOnePoints() {
+        return teamOnePoints;
+    }
+
+    public double getTeamTwoPoints() {
+        return teamTwoPoints;
     }
 
     public void setStarted(boolean started) {

@@ -182,6 +182,7 @@ public final class SettingsHandler extends AbstractHandler {
     public final boolean publicWarps;
     public final int raidStartCountdown;
     public final Sound raidStartSound;
+    public final int raidDuration;
 
     public SettingsHandler(SuperiorSkyblockPlugin plugin){
         super(plugin);
@@ -456,6 +457,7 @@ public final class SettingsHandler extends AbstractHandler {
 
         raidStartCountdown = cfg.getInt("raids.start-countdown");
         raidStartSound = Sound.valueOf(cfg.getString("raids.start-sound"));
+        raidDuration = cfg.getInt("raids.duration");
     }
 
     @Override

@@ -10,9 +10,7 @@ public class RaidsHandler {
 
     private final List<SuperiorRaid> raids = new ArrayList<>();
 
-    public void startRaid(List<SuperiorPlayer> teamOnePlayers, List<SuperiorPlayer> teamTwoPlayers){
-        SuperiorRaid superiorRaid = new SuperiorRaid(teamOnePlayers, teamTwoPlayers);
-
+    public void startRaid(SuperiorRaid superiorRaid){
         raids.add(superiorRaid);
 
         superiorRaid.startRaid();

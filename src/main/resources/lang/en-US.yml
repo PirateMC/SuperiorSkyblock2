@@ -594,6 +594,8 @@ RAID_INVITATION_DECLINED_OTHER: '&e&lRaiding | &c{0} has declined your invitatio
 RAID_INVITATION_SENT: '&e&lRaiding | &eInvitation sent.'
 RAID_START_COUNTDOWN: '&e&lRaid starting in {0}'
 RAID_START: '&e&lRaid started!'
+RAID_RESPAWN_COUNTDOWN: '&e&lRespawning in {0}'
+RAID_RESPAWN: '&e&lRespawned!'
 RANKUP_SUCCESS: '&e&lIsland | &7Successfully updated the level of the upgrade {0} for {1}''s island.'
 RANKUP_SUCCESS_ALL: '&e&lIsland | &7Successfully updated the level of the upgrade {0} for all the islands.'
 RANKUP_SUCCESS_NAME: '&e&lIsland | &7Successfully updated the level of the upgrade {0} for {1}.'

@@ -40,10 +40,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityPortalEnterEvent;
-import org.bukkit.event.entity.EntityPotionEffectEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
@@ -123,6 +120,16 @@ public final class PlayersListener implements Listener {
 
         if(!plugin.getProviders().isVanished(e.getPlayer()))
             handlePlayerJoin(superiorPlayer);
+
+        SuperiorRaid raid = plugin.getRaidsHandler().getRaidByMember(superiorPlayer);
+
+        //Player is in raid
+        if (raid != null) {
+            e.getPlayer().removeMetadata("Respawning", plugin);
+
+            e.getPlayer().teleport(raid.getSpawnLocation(superiorPlayer));
+            return;
+        }
 
         Executor.sync(() -> {
             if(superiorPlayer.isOnline() && plugin.getGrid().isIslandsWorld(superiorPlayer.getWorld()) && plugin.getGrid().getIslandAt(superiorPlayer.getLocation()) == null){
@@ -246,16 +253,49 @@ public final class PlayersListener implements Listener {
         }
     }
 
+    @EventHandler
+    public void onPlayerRespawn(PlayerRespawnEvent event){
+
+        SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(event.getPlayer());
+
+        SuperiorRaid raid = plugin.getRaidsHandler().getRaidByMember(superiorPlayer);
+
+        //Player is in raid
+        if (raid == null) return;
+
+        raid.handleRespawn(superiorPlayer);
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event){
+        SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(event.getEntity());
+
+        SuperiorRaid raid = plugin.getRaidsHandler().getRaidByMember(superiorPlayer);
+
+        //Player is in raid
+        if (raid == null) return;
+
+        event.getDrops().clear();
+    }
+
     @EventHandler(ignoreCancelled = true)
     public void onPlayerMoveOutside(PlayerMoveEvent e){
         SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(e.getPlayer());
 
         SuperiorRaid raid = plugin.getRaidsHandler().getRaidByMember(superiorPlayer);
 
-        //Playert is in raid
+        //Player is in raid
         if (raid != null) {
-            if (!raid.isStarted()) e.setCancelled(true);
-            return;
+            if (!raid.isStarted()) {
+                e.setCancelled(true);
+                return;
+            }
+
+            if (e.getPlayer().hasMetadata("Respawning")){
+                e.setCancelled(true);
+                return;
+            }
+
         }
 
         if(!plugin.getSettings().stopLeaving)
@@ -280,6 +320,8 @@ public final class PlayersListener implements Listener {
         }
     }
 
+
+
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onPlayerDamage(EntityDamageEvent e){
         if(!(e.getEntity() instanceof Player))
@@ -303,6 +345,11 @@ public final class PlayersListener implements Listener {
                     e.setCancelled(true);
             }
 
+            return;
+        }
+
+        if (damagerPlayer.asPlayer().hasMetadata("Respawning") || targetPlayer.asPlayer().hasMetadata("Respawning")){
+            e.setCancelled(true);
             return;
         }
 
@@ -600,6 +647,14 @@ public final class PlayersListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerCommand(PlayerCommandPreprocessEvent e){
         SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(e.getPlayer());
+
+        SuperiorRaid raid = plugin.getRaidsHandler().getRaidByMember(superiorPlayer);
+
+        //Player is in raid
+        if (raid != null) {
+            e.setCancelled(true);
+            return;
+        }
 
         if(superiorPlayer.hasBypassModeEnabled())
             return;

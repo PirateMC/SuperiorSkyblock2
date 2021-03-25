@@ -187,7 +187,7 @@ public final class PlayersListener implements Listener {
         if(superiorPlayer instanceof SuperiorNPCPlayer)
             return;
 
-        SuperiorRaid raid = plugin.getRaidsHandler().getRaidByMember(superiorPlayer);
+        SuperiorRaid raid = plugin.getRaidsHandler().getRaidByOwner(superiorPlayer);
 
         //Player is in raid
         if (raid != null){

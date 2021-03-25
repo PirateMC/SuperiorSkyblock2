@@ -589,13 +589,16 @@ PURGE_CLEAR: '&e&lIsland | &7Successfully cleared all the queued islands to be p
 PURGED_ISLANDS: |-
   &e&lIsland | &7{0} islands will be purged when server restarts.
   &e&lIsland | &7You can cancel it anytime using /is admin purge cancel.
+RAID_DRAW: "&e&lIt's a draw!"
 RAID_INVITATION_DECLINED: '&e&lRaiding | &cInvitation declined.'
 RAID_INVITATION_DECLINED_OTHER: '&e&lRaiding | &c{0} has declined your invitation.'
 RAID_INVITATION_SENT: '&e&lRaiding | &eInvitation sent.'
+RAID_LOSE: '&c&lBetter luck next time'
 RAID_START_COUNTDOWN: '&e&lRaid starting in {0}'
 RAID_START: '&e&lRaid started!'
 RAID_RESPAWN_COUNTDOWN: '&e&lRespawning in {0}'
 RAID_RESPAWN: '&e&lRespawned!'
+RAID_WIN: '&a&lCongrats, here is your winnings!'
 RANKUP_SUCCESS: '&e&lIsland | &7Successfully updated the level of the upgrade {0} for {1}''s island.'
 RANKUP_SUCCESS_ALL: '&e&lIsland | &7Successfully updated the level of the upgrade {0} for all the islands.'
 RANKUP_SUCCESS_NAME: '&e&lIsland | &7Successfully updated the level of the upgrade {0} for {1}.'

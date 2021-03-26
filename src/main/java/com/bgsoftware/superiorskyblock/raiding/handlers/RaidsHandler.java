@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 
 public class RaidsHandler {
 
-
     private final List<SuperiorRaid> raids = new ArrayList<>();
 
     public void startRaid(SuperiorRaid superiorRaid){
@@ -44,6 +43,7 @@ public class RaidsHandler {
     }
 
     public void endRaid(SuperiorRaid superiorRaid){
+        superiorRaid.setOver(true);
         raids.remove(superiorRaid);
 
         if (superiorRaid.getTeamOnePoints() > superiorRaid.getTeamTwoPoints()){

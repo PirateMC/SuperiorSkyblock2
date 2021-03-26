@@ -20,7 +20,7 @@ public class SuperiorRaid {
     private Map<SuperiorPlayer, ItemStack[]> teamOnePlayers, teamTwoPlayers;
     private Location teamOneLocation, teamTwoLocation, teamOneMaxLocation, teamOneMinLocation, teamTwoMaxLocation, teamTwoMinLocation;
     private double teamOnePoints = 0, teamTwoPoints = 0;
-    private boolean started = false;
+    private boolean started = false, isOver = false;
 
     public void startRaid(){
 
@@ -55,6 +55,8 @@ public class SuperiorRaid {
                                 player.playSound(player.getLocation(), plugin.getSettings().raidStartSound, 1, 1);
                             });
 
+                    SuperiorRaid.this.runGameCountDownTask();
+
                     started = true;
                     cancel();
                     return;
@@ -78,6 +80,45 @@ public class SuperiorRaid {
 
                 countdown--;
 
+            }
+        }.runTaskTimer(plugin, 0, 20);
+    }
+
+    private void runGameCountDownTask(){
+        new BukkitRunnable(){
+
+            int gameCountdown = plugin.getSettings().raidDuration;
+
+            @Override
+            public void run() {
+
+                if (SuperiorRaid.this.isOver) {
+                    cancel();
+                    return;
+                }
+
+                if (gameCountdown == 0){
+                    cancel();
+                    return;
+                }
+
+                teamOnePlayers.keySet().stream()
+                        .filter(SuperiorPlayer::isOnline)
+                        .map(SuperiorPlayer::asPlayer)
+                        .forEach(player ->
+                                plugin.getNMSAdapter().sendActionBar(player,
+                                        Locale.RAID_COUNTDOWN.getMessage(LocaleUtils.getLocale(player),
+                                                String.format("%d:%d", gameCountdown/60, gameCountdown%60))));
+
+                teamTwoPlayers.keySet().stream()
+                        .filter(SuperiorPlayer::isOnline)
+                        .map(SuperiorPlayer::asPlayer)
+                        .forEach(player ->
+                                plugin.getNMSAdapter().sendActionBar(player,
+                                        Locale.RAID_COUNTDOWN.getMessage(LocaleUtils.getLocale(player),
+                                                String.format("%d:%d", gameCountdown/60, gameCountdown%60))));
+
+                gameCountdown--;
             }
         }.runTaskTimer(plugin, 0, 20);
     }
@@ -238,5 +279,13 @@ public class SuperiorRaid {
 
     public boolean isStarted() {
         return started;
+    }
+
+    public void setOver(boolean over) {
+        isOver = over;
+    }
+
+    public boolean isOver() {
+        return isOver;
     }
 }

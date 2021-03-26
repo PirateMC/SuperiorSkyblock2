@@ -42,6 +42,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
@@ -462,6 +464,11 @@ public final class PlayersListener implements Listener {
         if (raid != null) {
 
             if (!raid.isStarted()) {
+                e.setCancelled(true);
+                return;
+            }
+
+            if (e.getClickedBlock() != null && e.getClickedBlock().getType() == Material.ENDER_CHEST){
                 e.setCancelled(true);
                 return;
             }

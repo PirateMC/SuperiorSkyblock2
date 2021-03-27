@@ -69,8 +69,11 @@ public final class CmdRaid implements ISuperiorCommand {
         if (invitee == null) {
             if (args.length == 3) {
                 Player invitationSender = Bukkit.getPlayer(args[2]);
-                if (arg.equalsIgnoreCase("accept")) acceptInvitation(invitationSender, commandSender, plugin);
-                else if (arg.equalsIgnoreCase("deny")) declineInvitation(invitationSender, commandSender);
+                if (arg.equalsIgnoreCase("accept")) {
+                    commandSender.sendMessage(ChatColor.GREEN + "Invitation accepted.");
+                    invitationSender.sendMessage(ChatColor.GREEN + commandSender.getName() + " has accepted your invitation.");
+                    acceptInvitation(invitationSender, commandSender, plugin);
+                } else if (arg.equalsIgnoreCase("deny")) declineInvitation(invitationSender, commandSender);
                 else sender.sendMessage(Locale.INVALID_PLAYER.getMessage(LocaleUtils.getLocale(sender), arg));
             } else {
                 commandSender.sendMessage(Locale.INVALID_ARGUMENT_COUNT.getMessage(LocaleUtils.getLocale(commandSender)));

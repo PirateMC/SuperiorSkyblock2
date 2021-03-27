@@ -80,13 +80,23 @@ public final class CmdRaid implements ISuperiorCommand {
                 commandSender.sendMessage(Locale.INVALID_INVITATION_TARGET.getMessage(LocaleUtils.getLocale(commandSender)));
                 return;
             }
+            // Ensure both players have an island
+            Island senderIsland = plugin.getGrid().getIsland(commandSender.getUniqueId());
+            Island inviteeIsland = plugin.getGrid().getIsland(invitee.getUniqueId());
+            if (senderIsland == null) {
+                commandSender.sendMessage(Locale.PLAYER_NOT_ISLAND_OWNER.getMessage(LocaleUtils.getLocale(commandSender), commandSender.getName()));
+                return;
+            }
+            if (inviteeIsland == null) {
+                commandSender.sendMessage(Locale.PLAYER_NOT_ISLAND_OWNER.getMessage(LocaleUtils.getLocale(invitee), invitee.getName()));
+                return;
+            }
             RaidInvitation invitation = new RaidInvitation(commandSender.getUniqueId(), invitee.getUniqueId());
             if (RaidInvitationHandler.addInvitation(invitation))
                 sender.sendMessage(Locale.RAID_INVITATION_SENT.getMessage(LocaleUtils.getLocale(sender)));
             else
                 sender.sendMessage(Locale.PLAYER_ALREADY_INVITED_TO_RAID.getMessage(LocaleUtils.getLocale(commandSender)));
 
-            Island senderIsland = plugin.getGrid().getIsland(commandSender.getUniqueId());
             TextComponent[] messageComponents = createInvitationMessageComponents(sender.getName(), senderIsland);
             invitee.spigot().sendMessage(messageComponents);
         }
@@ -164,6 +174,7 @@ public final class CmdRaid implements ISuperiorCommand {
 
         TextComponent optionAccept = new TextComponent("Accept");
         optionAccept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/island raid accept " + senderName));
+        optionAccept.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Accept raid invitation").create()));
         optionAccept.setColor(ChatColor.GREEN);
 
         TextComponent orText = new TextComponent(" or ");
@@ -171,12 +182,13 @@ public final class CmdRaid implements ISuperiorCommand {
 
         TextComponent optionDecline = new TextComponent("Decline");
         optionDecline.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/island raid deny " + senderName));
+        optionDecline.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Decline raid invitation").create()));
         optionDecline.setColor(ChatColor.RED);
 
         TextComponent period = new TextComponent(".");
         period.setColor(ChatColor.WHITE);
 
-        return new TextComponent[]{senderNameComponent, mainComponent, optionAccept, orText, optionDecline};
+        return new TextComponent[]{senderNameComponent, mainComponent, optionAccept, orText, optionDecline, period};
     }
 
     @Override

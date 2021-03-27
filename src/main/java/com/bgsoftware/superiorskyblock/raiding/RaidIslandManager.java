@@ -90,7 +90,7 @@ public class RaidIslandManager {
         try (EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(islandCenter.getWorld()), -1)) {
             ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(session, islandRegion, clipboard, islandRegion.getMinimumPoint());
             forwardExtentCopy.setCopyingEntities(true);
-            forwardExtentCopy.setSourceFunction(new RegionMaskingFilter(session, new BlockMask(session, new BaseBlock(BlockTypes.WATER.getDefaultState())), new NullRegionFunction()));
+            forwardExtentCopy.setFilterFunction(new RegionMaskingFilter(session, new BlockMask(session, new BaseBlock(BlockTypes.WATER.getDefaultState())), new NullRegionFunction()));
             Operations.complete(forwardExtentCopy);
             SuperiorSkyblockPlugin.raidDebug("Finished copying " + island.getName());
         }

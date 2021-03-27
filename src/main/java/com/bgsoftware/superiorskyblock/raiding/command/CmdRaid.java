@@ -63,6 +63,18 @@ public final class CmdRaid implements ISuperiorCommand {
 
     @Override
     public void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, String[] args) {
+
+        if (!sender.isOp() && !SuperiorSkyblockPlugin.isRaidingEnabled()) {
+            sender.sendMessage(ChatColor.RED + "This feature is currently disabled.");
+            return;
+        }
+
+        if (sender.isOp() && args[1].equalsIgnoreCase("toggle")) {
+            SuperiorSkyblockPlugin.setRaidingEnabled(!SuperiorSkyblockPlugin.isRaidingEnabled());
+            sender.sendMessage(SuperiorSkyblockPlugin.isRaidingEnabled() ? ChatColor.GREEN + "Enabled island raiding." : ChatColor.RED + "Disabled island raiding.");
+            return;
+        }
+
         String arg = args[1];
         Player commandSender = (Player) sender;
         Player invitee = Bukkit.getPlayer(arg);

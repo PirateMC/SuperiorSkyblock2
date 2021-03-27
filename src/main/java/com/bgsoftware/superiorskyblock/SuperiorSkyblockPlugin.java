@@ -87,6 +87,7 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
     private boolean debugMode = false;
     private Pattern debugFilter = null;
     private boolean raidDebugMode = true;
+    private static boolean raidingEnabled = true;
 
     @Override
     public void onLoad() {
@@ -609,6 +610,14 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
         if (plugin.raidDebugMode) {
             System.out.println("[SuperiorSkyblock2-RAID-DEBUG] " + message);
         }
+    }
+
+    public static boolean isRaidingEnabled() {
+        return raidingEnabled;
+    }
+
+    public static void setRaidingEnabled(boolean value) {
+        raidingEnabled = value;
     }
 
     public static void debug(String message) {

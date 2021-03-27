@@ -501,6 +501,10 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
             SortingType.register("PLAYERS", SortingComparators.PLAYERS_COMPARATOR, false);
         } catch (NullPointerException ignored) {
         }
+        try {
+            SortingType.register("RAIDING", SortingComparators.RAID_COMPARATOR, false);
+        } catch (NullPointerException ignored){
+        }
     }
 
     private void loadIslandFlags() {

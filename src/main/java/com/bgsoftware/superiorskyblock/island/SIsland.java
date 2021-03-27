@@ -173,6 +173,7 @@ public final class SIsland implements Island {
     private final SyncedObject<IslandChest[]> islandChest = SyncedObject.of(new IslandChest[plugin.getSettings().islandChestsDefaultPage]);
     private final SyncedObject<Long> lastInterest = SyncedObject.of(-1L);
     private final SyncedObject<Long> lastUpgradeTime = SyncedObject.of(-1L);
+    private final SyncedObject<Integer> raidWins = SyncedObject.of(0);
 
     /*
      * Island multipliers & limits
@@ -240,6 +241,7 @@ public final class SIsland implements Island {
             this.islandRawName.set(StringUtils.stripColors(resultSet.getString("name")));
             this.description.set(resultSet.getString("description"));
             this.ignored.set(resultSet.getBoolean("ignored"));
+            this.raidWins.set(resultSet.getInt("raidWins"));
             parseNumbersSafe(() -> this.bonusLevel.set(new BigDecimal(resultSet.getString("bonusLevel"))));
 
             String generatedSchematics = resultSet.getString("generatedSchematics");
@@ -3227,6 +3229,22 @@ public final class SIsland implements Island {
     @Override
     public IslandDataHandler getDataHandler() {
         return islandDataHandler;
+    }
+
+    /*
+     * Raid methods
+     */
+
+    @Override
+    public int getRaidWins() {
+        return raidWins.get();
+    }
+
+    @Override
+    public void addRaidWin() {
+        raidWins.set(raidWins.get()+1);
+
+        islandDataHandler.saveRaidWins();
     }
 
     /*

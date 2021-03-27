@@ -30,6 +30,11 @@ public final class SortingComparators {
         return compare == 0 ? ISLAND_NAMES_COMPARATOR.compare(o1, o2) : compare;
     };
 
+    public final static Comparator<Island> RAID_COMPARATOR = (o1, o2) -> {
+        int compare = Integer.compare(o2.getRaidWins(), o1.getRaidWins());
+        return compare == 0 ? ISLAND_NAMES_COMPARATOR.compare(o1, o2) : compare;
+    };
+
     public final static Comparator<Island> RATING_COMPARATOR = (o1, o2) -> {
         int totalRatingsCompare = Double.compare(o2.getTotalRating() * o2.getRatingAmount(), o1.getTotalRating() * o1.getRatingAmount());
 

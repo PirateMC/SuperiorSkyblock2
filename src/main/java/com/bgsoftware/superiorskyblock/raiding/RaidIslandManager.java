@@ -37,7 +37,6 @@ public class RaidIslandManager {
     private final int waterLevel = 197;
 
     public RaidIslandManager() {
-
     }
 
     public void deleteRaidIsland(UUID player) {

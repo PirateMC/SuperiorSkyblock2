@@ -1527,6 +1527,16 @@ public final class SpawnIsland implements Island {
         return null;
     }
 
+    @Override
+    public void addRaidWin() {
+
+    }
+
+    @Override
+    public int getRaidWins() {
+        return 0;
+    }
+
     @SuppressWarnings("NullableProblems")
     @Override
     public int compareTo(Island o) {

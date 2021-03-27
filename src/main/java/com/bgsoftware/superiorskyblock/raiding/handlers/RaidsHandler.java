@@ -83,6 +83,8 @@ public class RaidsHandler {
 
     private void handleEnd(SuperiorRaid raid, Island winnersIsland, Island losersIsland, boolean isDraw){
 
+        winnersIsland.addRaidWin();
+
         if (isDraw){
             resetMembers(raid, winnersIsland, Locale.RAID_DRAW);
             resetMembers(raid, losersIsland, Locale.RAID_DRAW);

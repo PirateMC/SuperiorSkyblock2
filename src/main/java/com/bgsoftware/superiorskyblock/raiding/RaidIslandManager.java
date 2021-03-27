@@ -3,13 +3,13 @@ package com.bgsoftware.superiorskyblock.raiding;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.objects.Pair;
-import com.boydti.fawe.object.function.NullRegionFunction;
+import com.boydti.fawe.object.mask.AirMask;
+import com.boydti.fawe.object.mask.LiquidMask;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.function.RegionMaskingFilter;
-import com.sk89q.worldedit.function.mask.BlockMask;
 import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
 import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
@@ -17,8 +17,6 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.session.ClipboardHolder;
-import com.sk89q.worldedit.world.block.BaseBlock;
-import com.sk89q.worldedit.world.block.BlockTypes;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -90,7 +88,7 @@ public class RaidIslandManager {
         try (EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(islandCenter.getWorld()), -1)) {
             ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(session, islandRegion, clipboard, islandRegion.getMinimumPoint());
             forwardExtentCopy.setCopyingEntities(true);
-            forwardExtentCopy.setFilterFunction(new RegionMaskingFilter(session, new BlockMask(session, new BaseBlock(BlockTypes.WATER.getDefaultState())), new NullRegionFunction()));
+            forwardExtentCopy.setFilterFunction(new RegionMaskingFilter(session, new LiquidMask(session).inverse().tryCombine(new AirMask(session).inverse()), blockVector3 -> true));
             Operations.complete(forwardExtentCopy);
             SuperiorSkyblockPlugin.raidDebug("Finished copying " + island.getName());
         }
@@ -108,7 +106,6 @@ public class RaidIslandManager {
                     .createPaste(session)
                     .to(BlockVector3.at(pasteLocation.getX(), pasteLocation.getY(), pasteLocation.getZ()))
                     .ignoreAirBlocks(true)
-                    .filter(new RegionMaskingFilter(session, new BlockMask(session, new BaseBlock(BlockTypes.WATER.getDefaultState())), new NullRegionFunction()))
                     .copyEntities(true)
                     .build();
             Operations.complete(operation);

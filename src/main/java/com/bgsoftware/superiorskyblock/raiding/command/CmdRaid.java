@@ -17,6 +17,7 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -136,18 +137,32 @@ public final class CmdRaid implements ISuperiorCommand {
             teamOneMembers.put(superiorPlayer, superiorPlayer.asPlayer().getInventory().getContents());
         }
 
-        for (SuperiorPlayer superiorPlayer : teamTwoIsland.getIslandMembers(true)){
+        for (SuperiorPlayer superiorPlayer : teamTwoIsland.getIslandMembers(true)) {
             if (!superiorPlayer.isOnline()) continue;
 
             teamTwoMembers.put(superiorPlayer, superiorPlayer.asPlayer().getInventory().getContents());
         }
 
         Pair<Location, Location> raidIslandLocations = plugin.getRaidIslandManager().setupIslands(teamOneIsland, teamTwoIsland);
-        raidIslandLocations.getValue().setYaw(180);
-        teamOneMembers.keySet().forEach(member -> member.teleport(raidIslandLocations.getKey()));
-        teamTwoMembers.keySet().forEach(member -> member.teleport(raidIslandLocations.getValue()));
-        SuperiorRaid superiorRaid = new SuperiorRaid();
+        raidIslandLocations.getValue().setYaw(raidIslandLocations.getValue().getYaw() + 180);
 
+        Location teleportLocation = teamOneIsland.getTeleportLocation(World.Environment.NORMAL);
+        Location islandCenter = teamOneIsland.getCenter(World.Environment.NORMAL);
+        double xDiff = teleportLocation.getX() - islandCenter.getX();
+        double yDiff = teleportLocation.getY() - islandCenter.getY();
+        double zDiff = teleportLocation.getZ() - islandCenter.getZ();
+        double[] diffs1 = new double[]{xDiff, yDiff, zDiff};
+        teamOneMembers.keySet().forEach(member -> member.teleport(raidIslandLocations.getKey().add(diffs1[0], diffs1[1], diffs1[2])));
+
+        teleportLocation = teamTwoIsland.getTeleportLocation(World.Environment.NORMAL);
+        islandCenter = teamTwoIsland.getCenter(World.Environment.NORMAL);
+        xDiff = teleportLocation.getX() - islandCenter.getX();
+        yDiff = teleportLocation.getY() - islandCenter.getY();
+        zDiff = teleportLocation.getZ() - islandCenter.getZ();
+        double[] diffs2 = new double[]{xDiff, yDiff, zDiff};
+        teamTwoMembers.keySet().forEach(member -> member.teleport(raidIslandLocations.getValue().subtract(diffs2[0], diffs2[1], diffs2[2])));
+
+        SuperiorRaid superiorRaid = new SuperiorRaid();
         superiorRaid.setTeamOnePlayers(teamOneMembers);
         superiorRaid.setTeamTwoPlayers(teamTwoMembers);
         superiorRaid.setTeamOneLocation(raidIslandLocations.getKey().clone());

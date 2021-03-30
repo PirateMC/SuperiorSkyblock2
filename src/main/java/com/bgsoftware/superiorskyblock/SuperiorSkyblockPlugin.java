@@ -34,6 +34,7 @@ import com.bgsoftware.superiorskyblock.utils.registry.Registry;
 import com.bgsoftware.superiorskyblock.utils.threads.Executor;
 import com.onarandombox.MultiverseCore.MultiverseCore;
 import com.onarandombox.MultiverseCore.api.MVWorldManager;
+import com.onarandombox.MultiverseCore.exceptions.PropertyDoesNotExistException;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -219,6 +220,11 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
         MVWorldManager manager = multiverseCore.getMVWorldManager();
         if (!manager.isMVWorld("RaidWorld")) {
             manager.addWorld("RaidWorld", World.Environment.NORMAL, "", WorldType.NORMAL, true, "CleanroomGenerator:197|water");
+            try {
+                manager.getMVWorld("RaidWorld").setPropertyValue("keepInventory", "true");
+            } catch (PropertyDoesNotExistException e) {
+                e.printStackTrace();
+            }
         } else {
             raidDebug("The raid world already exists!");
         }

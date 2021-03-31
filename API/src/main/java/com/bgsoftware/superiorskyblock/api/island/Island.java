@@ -1805,7 +1805,7 @@ public interface Island extends Comparable<Island> {
     /**
      * Set the amount of rows for the chest in a specific index.
      * @param index The index of the page (0 or above)
-     * @param rows The amount of rows for that page.
+     * @param rows The amount  of rows for that page.
      */
     void setChestRows(int index, int rows);
 
@@ -1817,5 +1817,19 @@ public interface Island extends Comparable<Island> {
      * Get the data handler of the object.
      */
     IslandDataHandler getDataHandler();
+
+    /*
+     *  Raids related methods
+     */
+
+    /**
+     * Add a raid win
+     */
+    void addRaidWin();
+
+    /**
+     * Get wins of the island
+     */
+    int getRaidWins();
 
 }

@@ -38,6 +38,8 @@ public abstract class PlaceholderHook {
     private static final Pattern BLOCK_LIMIT_PLACEHOLDER_PATTERN = Pattern.compile("island_block_limit_(.+)");
     private static final Pattern ENTITY_LIMIT_PLACEHOLDER_PATTERN = Pattern.compile("island_entity_limit_(.+)");
     private static final Pattern TOP_PLACEHOLDER_PATTERN = Pattern.compile("island_top_(.+)");
+    private static final Pattern TOP_RAID_PLACEHOLDER_PATTERN = Pattern.compile("island_raid_top_(.+)");
+    private static final Pattern TOP_RAID_WINS_PLACEHOLDER_PATTERN = Pattern.compile("wins_(.+)");
     private static final Pattern TOP_WORTH_PLACEHOLDER_PATTERN = Pattern.compile("worth_(.+)");
     private static final Pattern TOP_LEVEL_PLACEHOLDER_PATTERN = Pattern.compile("level_(.+)");
     private static final Pattern TOP_RATING_PLACEHOLDER_PATTERN = Pattern.compile("rating_(.+)");
@@ -120,7 +122,6 @@ public abstract class PlaceholderHook {
 
             else if ((matcher = ISLAND_PLACEHOLDER_PATTERN.matcher(placeholder)).matches()) {
                 String subPlaceholder = matcher.group(1).toLowerCase();
-
                 if (subPlaceholder.startsWith("location_")) {
                     if(player == null)
                         throw new NullPointerException();
@@ -131,6 +132,36 @@ public abstract class PlaceholderHook {
                         return plugin.getSettings().defaultPlaceholders.get(placeholder, "");
 
                     subPlaceholder = subPlaceholder.replace("location_", "");
+                }
+
+                if ((matcher = TOP_RAID_PLACEHOLDER_PATTERN.matcher(placeholder)).matches()){
+                    String option = matcher.group(1);
+
+                    if ((matcher = TOP_LEADER_PLACEHOLDER_PATTERN.matcher(option)).matches()){
+
+                        if (!org.apache.commons.lang.StringUtils.isNumeric(matcher.group(1))) return "";
+
+                        int index = Integer.parseInt(matcher.group(1)) - 1;
+
+                        Island rankingIsland = plugin.getGrid().getIsland(index, SortingTypes.BY_WINS);
+
+                        if (rankingIsland == null) return "";
+
+                        return rankingIsland.getOwner().getName();
+                    } else if ((matcher = TOP_RAID_WINS_PLACEHOLDER_PATTERN.matcher(option)).matches()){
+
+                        if (!org.apache.commons.lang.StringUtils.isNumeric(matcher.group(1))) return "";
+
+                        int index = Integer.parseInt(matcher.group(1)) - 1;
+
+                        Island rankingIsland = plugin.getGrid().getIsland(index, SortingTypes.BY_WINS);
+
+                        if (rankingIsland == null) return "";
+
+                        return String.valueOf(rankingIsland.getRaidWins());
+                    }
+
+                    return "";
                 }
 
                 if ((matcher = PERMISSION_PLACEHOLDER_PATTERN.matcher(placeholder)).matches()) {

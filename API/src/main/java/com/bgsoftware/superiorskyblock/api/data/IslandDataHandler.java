@@ -202,4 +202,8 @@ public interface IslandDataHandler {
      */
     void saveWarpCategories();
 
+    /**
+     * Save raid wins of the island.
+     */
+    void saveRaidWins();
 }

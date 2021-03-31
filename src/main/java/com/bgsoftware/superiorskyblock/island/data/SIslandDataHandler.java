@@ -389,6 +389,15 @@ public final class SIslandDataHandler extends DatabaseObject implements IslandDa
     }
 
     @Override
+    public void saveRaidWins() {
+        if (loadingIsland) return;
+        Query.ISLAND_SET_RAID_WINS.getStatementHolder(this)
+                .setInt(island.getRaidWins())
+                .setString(island.getOwner().getUniqueId().toString())
+                .execute(true);
+    }
+
+    @Override
     public StatementHolder setUpdateStatement(StatementHolder statementHolder) {
         return statementHolder.setString(IslandSerializer.serializeLocations(island.getTeleportLocations()))
                 .setString(LocationUtils.getLocation(island.getVisitorsLocation()))

@@ -54,6 +54,8 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
 
     private static final ReflectField<SuperiorSkyblock> PLUGIN = new ReflectField<>(SuperiorSkyblockAPI.class, SuperiorSkyblock.class, "plugin");
     private static SuperiorSkyblockPlugin plugin;
+    public static final String RAID_WORLD_NAME = "RaidWorld";
+    public static final int RAID_WORLD_WATER_LEVEL = 197;
 
     private final GridHandler gridHandler = new GridHandler(this);
     private final BlockValuesHandler blockValuesHandler = new BlockValuesHandler(this);

@@ -144,6 +144,7 @@ public final class CmdRaid implements ISuperiorCommand {
         }
 
         Pair<Location, Location> raidIslandLocations = plugin.getRaidIslandManager().setupIslands(teamOneIsland, teamTwoIsland);
+        final World raidWorld = raidIslandLocations.getKey().getWorld();
         raidIslandLocations.getValue().setYaw(raidIslandLocations.getValue().getYaw() + 180);
 
         Location teleportLocation = teamOneIsland.getTeleportLocation(World.Environment.NORMAL);

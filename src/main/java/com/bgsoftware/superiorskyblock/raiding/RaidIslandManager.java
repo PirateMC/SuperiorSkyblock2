@@ -3,6 +3,7 @@ package com.bgsoftware.superiorskyblock.raiding;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.objects.Pair;
+import com.bgsoftware.superiorskyblock.raiding.util.BlockVectorUtils;
 import com.boydti.fawe.object.mask.AirMask;
 import com.boydti.fawe.object.mask.LiquidMask;
 import com.sk89q.worldedit.EditSession;
@@ -19,17 +20,14 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
-public class RaidIslandManager {
+public final class RaidIslandManager {
 
-    private Map<UUID, Pair<Location, Integer>> raidIslandLocations = new HashMap<>();
+    private RaidSlotSet slots = new RaidSlotSet();
+
     private int lastIslandMaxSize = 0;
     private int nextRaidLocationX = 0;
     private int nextRaidLocationZ = 0;
@@ -37,39 +35,31 @@ public class RaidIslandManager {
     private final int raidIslandSpacingZ = 0;
     private final int minimumSpacingBetweenIslands = 30;
     private final int raidIslandY = 200;
-    private final int waterLevel = 197;
 
     public RaidIslandManager() {
     }
 
-    public void deleteRaidIsland(UUID player) {
-        Pair<Location, Integer> islandCenterSize = raidIslandLocations.get(player);
-        Location islandCenter = islandCenterSize.getKey();
-        int islandSize = islandCenterSize.getValue();
-        World world = islandCenter.getWorld();
-        CuboidRegion region = CuboidRegion.fromCenter(BlockVector3.at(islandCenter.getX(), islandCenter.getY(), islandCenter.getZ()), islandSize);
-        for (int x = region.getMinimumPoint().getX(); x < region.getMaximumPoint().getX(); x++)
-            for (int z = region.getMinimumPoint().getZ(); z < region.getMaximumPoint().getZ(); z++)
-                for (int y = region.getMinimumPoint().getY(); y < region.getMaximumPoint().getY(); y++) {
-                    Block block = world.getBlockAt(x, y, z);
-                    if (y <= waterLevel) block.setType(Material.WATER);
-                    else block.setType(Material.AIR);
-                }
+    public void restoreRaidSlot(UUID ownerUuid) {
+        slots.getSlotOfIslandOwner(ownerUuid).ifPresent(RaidSlot::restore);
+        if (slots.removeSlotOfOwner(ownerUuid)) {
+            SuperiorSkyblockPlugin.raidDebug("Successfully removed raid slot of " + ownerUuid);
+        }
     }
 
     public Pair<Location, Location> setupIslands(Island islandOne, Island islandTwo) {
         World raidWorld = Bukkit.getWorld("RaidWorld");
         Location locationOne = new Location(raidWorld, nextRaidLocationX, raidIslandY, nextRaidLocationZ);
         Location locationTwo = new Location(raidWorld, nextRaidLocationX, raidIslandY, nextRaidLocationZ + minimumSpacingBetweenIslands + islandOne.getIslandSize() + islandTwo.getIslandSize());
-        createRaidIsland(islandOne, locationOne, false);
-        createRaidIsland(islandTwo, locationTwo, true);
+        RaidIsland firstRaidIsland = createRaidIsland(islandOne, locationOne, false);
+        RaidIsland secondRaidIsland = createRaidIsland(islandTwo, locationTwo, true);
+        slots.add(new RaidSlot(firstRaidIsland, secondRaidIsland));
         nextRaidLocationX += raidIslandSpacingX + lastIslandMaxSize;
         nextRaidLocationZ += raidIslandSpacingZ;
         lastIslandMaxSize = Integer.max(islandOne.getIslandSize(), islandTwo.getIslandSize());
         return new Pair<>(locationOne, locationTwo);
     }
 
-    public void createRaidIsland(Island island, Location destination, boolean flip) {
+    public RaidIsland createRaidIsland(Island island, Location destination, boolean flip) {
         Location islandCenter = island.getCenter(World.Environment.NORMAL);
         int islandSize = island.getIslandSize();
         Location pasteLocation = new Location(destination.getWorld(), destination.getX() - islandSize, destination.getY() - islandSize, destination.getZ() - islandSize);
@@ -109,8 +99,12 @@ public class RaidIslandManager {
                     .build();
             Operations.complete(operation);
             SuperiorSkyblockPlugin.raidDebug("Finished pasting " + island.getName());
-        }
 
-        raidIslandLocations.put(island.getOwner().getUniqueId(), new Pair<>(destination, islandSize));
+            return new RaidIsland(
+                    island.getOwner().getUniqueId(),
+                    BlockVectorUtils.fromLocation(pasteLocation),
+                    BlockVectorUtils.fromLocation(pasteLocation.add(islandRegion.getWidth(), islandRegion.getHeight(), islandRegion.getLength()))
+            );
+        }
     }
 }

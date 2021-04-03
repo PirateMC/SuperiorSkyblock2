@@ -85,7 +85,7 @@ public class RaidsHandler {
 
         winnersIsland.addRaidWin();
 
-        if (isDraw){
+        if (isDraw) {
             resetMembers(raid, winnersIsland, Locale.RAID_DRAW);
             resetMembers(raid, losersIsland, Locale.RAID_DRAW);
             return;
@@ -94,8 +94,7 @@ public class RaidsHandler {
         resetMembers(raid, winnersIsland, Locale.RAID_WIN);
         resetMembers(raid, losersIsland, Locale.RAID_LOSE);
 
-        SuperiorSkyblockPlugin.getPlugin().getRaidIslandManager().deleteRaidIsland(winnersIsland.getOwner().getUniqueId());
-        SuperiorSkyblockPlugin.getPlugin().getRaidIslandManager().deleteRaidIsland(losersIsland.getOwner().getUniqueId());
+        SuperiorSkyblockPlugin.getPlugin().getRaidIslandManager().restoreRaidSlot(winnersIsland.getOwner().getUniqueId());
 
         List<ItemStack> winnings = breakValuableBlocks(losersIsland);
         losersIsland.calcIslandWorth(null);
@@ -103,7 +102,7 @@ public class RaidsHandler {
         for (Player player : winnersIsland.getIslandMembers(true).stream()
                 .filter(SuperiorPlayer::isOnline)
                 .map(SuperiorPlayer::asPlayer)
-                .collect(Collectors.toList())){
+                .collect(Collectors.toList())) {
 
             Collection<ItemStack> items = player.getInventory().addItem(winnings.toArray(new ItemStack[0])).values();
             winnings.clear();

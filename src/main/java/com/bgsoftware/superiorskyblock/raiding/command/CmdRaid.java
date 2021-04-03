@@ -152,7 +152,11 @@ public final class CmdRaid implements ISuperiorCommand {
         double yDiff = teleportLocation.getY() - islandCenter.getY();
         double zDiff = teleportLocation.getZ() - islandCenter.getZ();
         double[] diffs1 = new double[]{xDiff, yDiff, zDiff};
-        teamOneMembers.keySet().forEach(member -> member.teleport(raidIslandLocations.getKey().add(diffs1[0], diffs1[1], diffs1[2])));
+        teamOneMembers.keySet().forEach(member -> {
+            Location adjustedTeleportLocation = raidIslandLocations.getKey().add(diffs1[0], diffs1[1], diffs1[2]);
+            double y = raidWorld.getHighestBlockYAt(adjustedTeleportLocation.getBlockX(), adjustedTeleportLocation.getBlockZ());
+            member.teleport(new Location(raidWorld, adjustedTeleportLocation.getX(), y, adjustedTeleportLocation.getZ()).add(0.5, 0, 0.5));
+        });
 
         teleportLocation = teamTwoIsland.getTeleportLocation(World.Environment.NORMAL);
         islandCenter = teamTwoIsland.getCenter(World.Environment.NORMAL);
@@ -160,7 +164,11 @@ public final class CmdRaid implements ISuperiorCommand {
         yDiff = teleportLocation.getY() - islandCenter.getY();
         zDiff = teleportLocation.getZ() - islandCenter.getZ();
         double[] diffs2 = new double[]{xDiff, yDiff, zDiff};
-        teamTwoMembers.keySet().forEach(member -> member.teleport(raidIslandLocations.getValue().subtract(diffs2[0], diffs2[1], diffs2[2])));
+        teamTwoMembers.keySet().forEach(member -> {
+            Location adjustedTeleportLocation = raidIslandLocations.getValue().subtract(diffs2[0], diffs2[1], diffs2[2]);
+            double y = raidWorld.getHighestBlockYAt(adjustedTeleportLocation.getBlockX(), adjustedTeleportLocation.getBlockZ());
+            member.teleport(new Location(raidWorld, adjustedTeleportLocation.getX(), y, adjustedTeleportLocation.getZ()).add(0.5, 0, 0.5));
+        });
 
         SuperiorRaid superiorRaid = new SuperiorRaid();
         superiorRaid.setTeamOnePlayers(teamOneMembers);

@@ -68,7 +68,6 @@ public final class CmdStartRaid implements ISuperiorCommand {
         }
 
         World raidWorld = Bukkit.getWorld("RaidWorld");
-        World superiorWorld = Bukkit.getWorld("SuperiorWorld");
 
         if (raidWorld == null) {
             SuperiorSkyblockPlugin.raidDebug("Couldn't get world 'RaidWorld'.");

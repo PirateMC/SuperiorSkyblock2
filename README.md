@@ -29,7 +29,7 @@ This plugin is licensed under GNU GPL v3.0
 
 This plugin uses HikariCP which you can find [here](https://github.com/brettwooldridge/HikariCP).
 
-## Running on your server
+# Raiding
 
 ### Required Plugins
 
@@ -37,3 +37,12 @@ This plugin uses HikariCP which you can find [here](https://github.com/brettwool
     * In worlds.yml set SuperiorWorld property `autoLoad: false`. This is to ensure that SuperiorSkyblock loads the
       world instead of Multiverse.
 * CleanroomGenerator-1.1.1 (it's possible that version may vary)
+
+### Commands & Permissions
+
+|Command|Permission|Description|Deprecated|
+|-------|----------|-----------|----------|
+|`is raid <player>`|`superior.island.raid`|Invite an island to a raid.|Deprecated. Use `is raid <island` instead.|
+|`is raid <island>`|`superior.island.raid`|Invite an island to a raid.|
+|`is raid toggle`| |Toggle the raiding feature on or off.|
+|`is raidcooldown <[start, stop]>`|`superior.island.raidcooldown`|Start or stop the raid cool down timer.|

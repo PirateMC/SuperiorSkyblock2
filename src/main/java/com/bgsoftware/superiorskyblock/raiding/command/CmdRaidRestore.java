@@ -44,7 +44,7 @@ public class CmdRaidRestore implements ISuperiorCommand {
 
     @Override
     public boolean canBeExecutedByConsole() {
-        return false;
+        return true;
     }
 
     @Override

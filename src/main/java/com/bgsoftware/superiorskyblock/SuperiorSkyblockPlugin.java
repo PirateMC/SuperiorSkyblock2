@@ -221,14 +221,33 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
         // Create the raid world if it doesn't already exist
         MVWorldManager manager = multiverseCore.getMVWorldManager();
         if (!manager.isMVWorld("RaidWorld")) {
-            manager.addWorld("RaidWorld", World.Environment.NORMAL, "", WorldType.NORMAL, true, "CleanroomGenerator:197|water");
-            try {
-                manager.getMVWorld("RaidWorld").setPropertyValue("keepInventory", "true");
-            } catch (PropertyDoesNotExistException e) {
-                e.printStackTrace();
+            if (!manager.hasUnloadedWorld("RaidWorld", false)) {
+                raidDebug("The raid world exists but is unloaded. Loading it...");
+                if (manager.loadWorld("RaidWorld")) {
+                    try {
+                        if (manager.getMVWorld("RaidWorld").setPropertyValue("keepInventory", "true")) {
+                            raidDebug("keepInventory was successfully set to true in the raid world.");
+                        } else {
+                            raidDebug("There was a problem setting keepInventory to true in the raid world.");
+                        }
+                    } catch (PropertyDoesNotExistException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                manager.addWorld("RaidWorld", World.Environment.NORMAL, "", WorldType.NORMAL, true, "CleanroomGenerator:197|water");
+                try {
+                    if (manager.getMVWorld("RaidWorld").setPropertyValue("keepInventory", "true")) {
+                        raidDebug("keepInventory was successfully set to true in the raid world.");
+                    } else {
+                        raidDebug("There was a problem setting keepInventory to true in the raid world.");
+                    }
+                } catch (PropertyDoesNotExistException e) {
+                    e.printStackTrace();
+                }
             }
         } else {
-            raidDebug("The raid world already exists!");
+            raidDebug("The raid world already exists.");
         }
     }
 
@@ -268,12 +287,6 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
             System.out.println("Closing database...");
             dataHandler.closeConnection();
             Registry.clearCache();
-        }
-
-        // Delete raid world on server stop
-        if (multiverseCore.getMVWorldManager().isMVWorld("RaidWorld")) {
-            multiverseCore.getMVWorldManager().deleteWorld("RaidWorld");
-            raidDebug("Deleting raid world...");
         }
     }
 

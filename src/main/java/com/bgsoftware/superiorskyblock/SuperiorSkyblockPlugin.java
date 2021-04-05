@@ -224,7 +224,7 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
         }
         // Create the raid world if it doesn't already exist
         MVWorldManager manager = multiverseCore.getMVWorldManager();
-        if (!manager.isMVWorld("RaidWorld")) {
+        if (manager.isMVWorld("RaidWorld")) {
             if (manager.hasUnloadedWorld("RaidWorld", false)) {
                 raidDebug("The raid world exists but is unloaded. Loading it...");
                 if (manager.loadWorld("RaidWorld")) {
@@ -238,20 +238,18 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
                         e.printStackTrace();
                     }
                 }
-            } else {
-                manager.addWorld("RaidWorld", World.Environment.NORMAL, "", WorldType.NORMAL, true, "CleanroomGenerator:197|water");
-                try {
-                    if (manager.getMVWorld("RaidWorld").setPropertyValue("keepInventory", "true")) {
-                        raidDebug("keepInventory was successfully set to true in the raid world.");
-                    } else {
-                        raidDebug("There was a problem setting keepInventory to true in the raid world.");
-                    }
-                } catch (PropertyDoesNotExistException e) {
-                    e.printStackTrace();
-                }
             }
         } else {
-            raidDebug("The raid world already exists.");
+            manager.addWorld("RaidWorld", World.Environment.NORMAL, "", WorldType.NORMAL, true, "CleanroomGenerator:197|water");
+            try {
+                if (manager.getMVWorld("RaidWorld").setPropertyValue("keepInventory", "true")) {
+                    raidDebug("keepInventory was successfully set to true in the raid world.");
+                } else {
+                    raidDebug("There was a problem setting keepInventory to true in the raid world.");
+                }
+            } catch (PropertyDoesNotExistException e) {
+                e.printStackTrace();
+            }
         }
     }
 

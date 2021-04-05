@@ -84,7 +84,7 @@ dependencies {
     compileOnly 'net.coreprotect:CoreProtect-6:latest'
     compileOnly 'com.songoda:EpicSpawners-6:latest'
     compileOnly 'com.earth2me:Essentials-2.16:latest'
-    compileOnly 'com.boydti:FastAsyncWorldEdit:latest'
+//    compileOnly 'com.boydti:FastAsyncWorldEdit:latest'
     compileOnly 'me.jet315:JetsMinions:latest'
     compileOnly 'me.robin:LeaderHeads:latest'
     compileOnly 'net.luckperms:LuckPerms:latest'

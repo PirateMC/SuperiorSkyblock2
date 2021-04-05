@@ -209,4 +209,9 @@ public final class SEmptyIslandDataHandler implements IslandDataHandler {
     public void saveWarpCategories() {
 
     }
+
+    @Override
+    public void saveRaidWins() {
+
+    }
 }

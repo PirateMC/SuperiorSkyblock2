@@ -5,7 +5,10 @@ import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.utils.key.Key;
 import com.bgsoftware.superiorskyblock.utils.tags.CompoundTag;
 import com.mojang.authlib.properties.Property;
-import org.bukkit.*;
+import org.bukkit.Chunk;
+import org.bukkit.ChunkSnapshot;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
@@ -24,8 +27,6 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 
 public interface NMSAdapter {
-
-    void copyChunk(Chunk fromChunk, World toWorld);
 
     void registerCommand(BukkitCommand command);
 

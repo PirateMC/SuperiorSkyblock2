@@ -45,16 +45,6 @@ public final class NMSAdapter_v1_10_R1 implements NMSAdapter {
     private final SuperiorSkyblockPlugin plugin = SuperiorSkyblockPlugin.getPlugin();
 
     @Override
-    public void copyChunk(org.bukkit.Chunk fromChunk, org.bukkit.World toWorld) {
-        CraftChunk fromCraftChunk = (CraftChunk) fromChunk;
-        CraftChunk toCraftChunk = (CraftChunk) toWorld.getChunkAt(fromChunk.getX(), fromChunk.getZ());
-        Chunk fromChunkHandle = fromCraftChunk.getHandle();
-        ChunkSection[] fromChunkSections = fromChunkHandle.getSections();
-        ChunkSection[] toChunkSections = toCraftChunk.getHandle().getSections();
-        System.arraycopy(fromChunkSections, 0, toChunkSections, 0, fromChunkSections.length);
-    }
-
-    @Override
     public void registerCommand(BukkitCommand command) {
         ((CraftServer) plugin.getServer()).getCommandMap().register("superiorskyblock2", command);
     }

@@ -43,16 +43,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.*;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.*;
 import java.math.BigDecimal;
+import java.util.*;
 
 @SuppressWarnings("unused")
 public final class PlayersListener implements Listener {
@@ -196,7 +194,6 @@ public final class PlayersListener implements Listener {
         if(superiorPlayer instanceof SuperiorNPCPlayer)
             return;
 
-        if(!superiorPlayer.isVanished())
         SuperiorRaid raid = plugin.getRaidsHandler().getRaidByOwner(superiorPlayer);
 
         //Player is in raid
@@ -340,7 +337,6 @@ public final class PlayersListener implements Listener {
 
         Island fromIsland = plugin.getGrid().getIslandAt(e.getFrom());
         Island toIsland = plugin.getGrid().getIslandAt(e.getTo());
-        SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(e.getPlayer());
 
         if(superiorPlayer instanceof SuperiorNPCPlayer || superiorPlayer.hasBypassModeEnabled())
             return;

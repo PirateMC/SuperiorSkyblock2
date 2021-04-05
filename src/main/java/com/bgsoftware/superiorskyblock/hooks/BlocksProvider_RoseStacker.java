@@ -14,7 +14,6 @@ import dev.rosewood.rosestacker.event.BlockUnstackEvent;
 import dev.rosewood.rosestacker.event.SpawnerStackEvent;
 import dev.rosewood.rosestacker.event.SpawnerUnstackEvent;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
-import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -62,9 +61,10 @@ public final class BlocksProvider_RoseStacker implements BlocksProvider {
     @Override
     public String getSpawnerType(ItemStack itemStack) {
         Preconditions.checkNotNull(itemStack, "itemStack parameter cannot be null.");
-        return GET_STACKED_ITEM_ENTITY_TYPE.isValid() ?
-                GET_STACKED_ITEM_ENTITY_TYPE.invoke(null, itemStack).name() :
-                ItemUtils.getStackedItemEntityType(itemStack).name();
+//        return GET_STACKED_ITEM_ENTITY_TYPE.isValid() ?
+//                GET_STACKED_ITEM_ENTITY_TYPE.invoke(null, itemStack).name() :
+//                ItemUtils.getStackedItemEntityType(itemStack).name();
+        return null;
     }
 
     @Override
@@ -119,7 +119,7 @@ public final class BlocksProvider_RoseStacker implements BlocksProvider {
             Island island = plugin.getGrid().getIslandAt(location);
             if(island != null) {
                 Key blockKey = Key.of(e.getStack().getBlock());
-                island.handleBlockPlace(blockKey, e.isNew() ? e.getIncreaseAmount() - 1 : e.getIncreaseAmount());
+//                island.handleBlockPlace(blockKey, e.isNew() ? e.getIncreaseAmount() - 1 : e.getIncreaseAmount());
             }
         }
 

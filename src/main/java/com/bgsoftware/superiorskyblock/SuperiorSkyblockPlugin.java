@@ -290,6 +290,8 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
             dataHandler.closeConnection();
             Registry.clearCache();
         }
+
+        raidIslandManager.restoreAllSlots();
     }
 
     public Updater getUpdater() {

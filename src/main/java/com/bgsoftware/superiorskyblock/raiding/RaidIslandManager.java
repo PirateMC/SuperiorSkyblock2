@@ -28,6 +28,10 @@ public final class RaidIslandManager {
         slots.removeSlotOfOwner(ownerUuid);
     }
 
+    public void restoreAllSlots() {
+        slots.forEach(RaidSlot::restore);
+    }
+
     public Pair<Location, Location> setupIslands(Island islandOne, Island islandTwo) {
         World raidWorld = Bukkit.getWorld("RaidWorld");
         Location locationOne = new Location(raidWorld, nextRaidLocationX, raidIslandY, nextRaidLocationZ);

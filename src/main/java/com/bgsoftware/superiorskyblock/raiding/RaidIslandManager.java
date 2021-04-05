@@ -40,9 +40,7 @@ public final class RaidIslandManager {
 
     public void restoreRaidSlot(UUID ownerUuid) {
         slots.getSlotOfIslandOwner(ownerUuid).ifPresent(RaidSlot::restore);
-        if (slots.removeSlotOfOwner(ownerUuid)) {
-            SuperiorSkyblockPlugin.raidDebug("Successfully removed raid slot of " + ownerUuid);
-        }
+        slots.removeSlotOfOwner(ownerUuid);
     }
 
     public Pair<Location, Location> setupIslands(Island islandOne, Island islandTwo) {

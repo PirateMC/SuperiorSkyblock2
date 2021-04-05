@@ -225,7 +225,7 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
         // Create the raid world if it doesn't already exist
         MVWorldManager manager = multiverseCore.getMVWorldManager();
         if (!manager.isMVWorld("RaidWorld")) {
-            if (!manager.hasUnloadedWorld("RaidWorld", false)) {
+            if (manager.hasUnloadedWorld("RaidWorld", false)) {
                 raidDebug("The raid world exists but is unloaded. Loading it...");
                 if (manager.loadWorld("RaidWorld")) {
                     try {

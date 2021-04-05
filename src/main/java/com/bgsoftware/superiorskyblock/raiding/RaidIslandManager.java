@@ -3,7 +3,6 @@ package com.bgsoftware.superiorskyblock.raiding;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.objects.Pair;
-import com.bgsoftware.superiorskyblock.raiding.util.BlockVectorUtils;
 import com.boydti.fawe.object.mask.AirMask;
 import com.boydti.fawe.object.mask.LiquidMask;
 import com.sk89q.worldedit.EditSession;
@@ -50,8 +49,15 @@ public final class RaidIslandManager {
         World raidWorld = Bukkit.getWorld("RaidWorld");
         Location locationOne = new Location(raidWorld, nextRaidLocationX, raidIslandY, nextRaidLocationZ);
         Location locationTwo = new Location(raidWorld, nextRaidLocationX, raidIslandY, nextRaidLocationZ + minimumSpacingBetweenIslands + islandOne.getIslandSize() + islandTwo.getIslandSize());
-        RaidIsland firstRaidIsland = createRaidIsland(islandOne, locationOne, false);
-        RaidIsland secondRaidIsland = createRaidIsland(islandTwo, locationTwo, true);
+
+        RaidIsland firstRaidIsland = new RaidIsland(islandOne, locationOne);
+        firstRaidIsland.flip(false);
+        firstRaidIsland.copyPaste();
+
+        RaidIsland secondRaidIsland = new RaidIsland(islandTwo, locationTwo);
+        secondRaidIsland.flip(true);
+        secondRaidIsland.copyPaste();
+
         slots.add(new RaidSlot(firstRaidIsland, secondRaidIsland));
         nextRaidLocationX += raidIslandSpacingX + lastIslandMaxSize;
         nextRaidLocationZ += raidIslandSpacingZ;
@@ -100,11 +106,7 @@ public final class RaidIslandManager {
             Operations.complete(operation);
             SuperiorSkyblockPlugin.raidDebug("Finished pasting " + island.getName());
 
-            return new RaidIsland(
-                    island.getOwner().getUniqueId(),
-                    BlockVectorUtils.fromLocation(pasteLocation),
-                    BlockVectorUtils.fromLocation(pasteLocation.add(islandRegion.getWidth(), islandRegion.getHeight(), islandRegion.getLength()))
-            );
+            return new RaidIsland(island, pasteLocation);
         }
     }
 }

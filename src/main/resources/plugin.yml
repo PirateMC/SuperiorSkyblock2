@@ -137,8 +137,6 @@ permissions:
             description: Withdraw money from your island's bank into your personal account.
           superior.island.raid:
             description: Invite another island to a raid.
-          superior.island.startraid:
-            description: Initiate a raid between two island owners.
           superior.island.raidrestore:
             description: Restore the chunks containing this island in the raid world.
       superior.admin.*:

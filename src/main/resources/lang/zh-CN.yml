@@ -98,6 +98,7 @@ COMMAND_ARGUMENT_ALL_ISLANDS: '*'
 COMMAND_ARGUMENT_ALL_PLAYERS: '*'
 COMMAND_ARGUMENT_AMOUNT: 数量
 COMMAND_ARGUMENT_BIOME: 'biome'
+COMMAND_ARGUMENT_COMMAND: 'command...'
 COMMAND_ARGUMENT_DISCORD: Discord频道...
 COMMAND_ARGUMENT_EFFECT: 'potion-effect'
 COMMAND_ARGUMENT_EMAIL: 邮箱
@@ -155,6 +156,7 @@ COMMAND_DESCRIPTION_ADMIN_BYPASS: 打开管理员忽略模式.
 COMMAND_DESCRIPTION_ADMIN_CHEST: 'Open island''s chest of another island.'
 COMMAND_DESCRIPTION_ADMIN_CLEAR_GENERATOR: 给指定的岛屿清除矿物生成概率.
 COMMAND_DESCRIPTION_ADMIN_CLOSE: 将一个岛屿向公众关闭.
+COMMAND_DESCRIPTION_ADMIN_CMD_ALL: 'Execute a command for all members of islands.'
 COMMAND_DESCRIPTION_ADMIN_COUNT: 检查一个岛屿指定方块的数量.
 COMMAND_DESCRIPTION_ADMIN_DEBUG: 切换调试模式输出.
 COMMAND_DESCRIPTION_ADMIN_DEL_WARP: 'Delete a warp for an island.'
@@ -321,6 +323,8 @@ GENERATOR_CLEARED_ALL: '&e&l岛屿 | &7成功将所有岛屿的矿物生成概�
 GENERATOR_UPDATED: '&e&l岛屿 | &7成功升级 &b{1} &7岛屿矿机的 &e{0} &7概率.'
 GENERATOR_UPDATED_NAME: '&e&l岛屿 | &7成功将 &b{1} &7的岛屿矿机升级至 &e{0}级&7.'
 GENERATOR_UPDATED_ALL: '&e&l岛屿 | &7成功将所有岛屿的矿机升级至 &e{0}级&7.'
+GLOBAL_COMMAND_EXECUTED: '&e&lIsland | &7Successfully executed the command on {0}''s island members!'
+GLOBAL_COMMAND_EXECUTED_NAME: '&e&lIsland | &7Successfully executed the command on the island members of {0}!'
 GLOBAL_MESSAGE_SENT: '&e&l岛屿 | &7成功给 &b{0} &7岛屿的所有成员发送信息！'
 GLOBAL_MESSAGE_SENT_NAME: '&e&l岛屿 | &7成功给 &b{0} &7岛屿的所有成员发送信息！'
 GLOBAL_TITLE_SENT: '&e&lIsland | &7Successfully sent to {0}''s island members the title!'
@@ -466,6 +470,8 @@ ISLAND_INFO_WORTH: '&e&l岛屿 | &7价值: {0}'
 ISLAND_OPENED: '&e&l岛屿 | &7已将岛屿设置为对公众开放.'
 ISLAND_PREVIEW_CANCEL_DISTANCE: '&e&lPreview | &7You went too far away, and you are no longer in preview mode.'
 ISLAND_PREVIEW_CANCEL: '&e&lPreview | &7You cancelled the preview mode.'
+ISLAND_PREVIEW_CONFIRM_TEXT: 'CONFIRM'
+ISLAND_PREVIEW_CANCEL_TEXT: 'CANCEL'
 ISLAND_PREVIEW_START: |
   &e&lPreview | &7You started the preview mode for the schematic {0}.
   &e&lPreview | &7Type &a&lCONFIRM &7to create a new island, or &c&lCANCEL &7to cancel the preview mode.
@@ -682,6 +688,7 @@ WARP_CATEGORY_ICON_NEW_LORE: |
 WARP_CATEGORY_ICON_NEW_NAME: '&e&lWarps | &7Enter a name (Type "-cancel" to cancel):'
 WARP_CATEGORY_ICON_NEW_TYPE: '&e&lWarps | &7Enter a new material type (Type "-cancel" to cancel):'
 WARP_CATEGORY_ICON_UPDATED: '&e&lWarps | &7Successfully updated the category''s icon.'
+WARP_CATEGORY_ILLEGAL_NAME: '&c&lError | &7You can only use alphabetical letters, numbers and ''_'' for warp category names.'
 WARP_CATEGORY_SLOT: '&e&lWarps | &7Enter a new slot (Type "-cancel" to cancel):'
 WARP_CATEGORY_SLOT_ALREADY_TAKEN: '&c&lError | &7This slot is already taken by another category.'
 WARP_CATEGORY_SLOT_SUCCESS: '&e&lWarps | &7Successfully changed the category''s slot to {0}.'
@@ -694,6 +701,7 @@ WARP_ICON_NEW_LORE: |
 WARP_ICON_NEW_NAME: '&e&lWarps | &7Enter a name (Type "-cancel" to cancel):'
 WARP_ICON_NEW_TYPE: '&e&lWarps | &7Enter a new material type (Type "-cancel" to cancel):'
 WARP_ICON_UPDATED: '&e&lWarps | &7Successfully updated the warp''s icon.'
+WARP_ILLEGAL_NAME: '&c&lError | &7You can only use alphabetical letters, numbers and ''_'' for warp names.'
 WARP_LOCATION_UPDATE: '&e&lWarps | &7Successfully updated the warp''s location to your location.'
 WARP_PUBLIC_UPDATE: '&e&lWarps | &7Successfully opened the warp to the public.'
 WARP_PRIVATE_UPDATE: '&e&lWarps | &7Successfully closed the warp to the public.'

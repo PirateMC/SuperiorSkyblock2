@@ -1,22 +1,44 @@
 package com.bgsoftware.superiorskyblock.nms;
 
+import com.bgsoftware.common.reflection.ReflectField;
+import com.bgsoftware.common.reflection.ReflectMethod;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.utils.key.Key;
-import com.bgsoftware.superiorskyblock.utils.reflections.ReflectField;
 import com.bgsoftware.superiorskyblock.utils.tags.CompoundTag;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.minecraft.server.v1_16_R3.BiomeBase;
+import net.minecraft.server.v1_16_R3.BiomeStorage;
+import net.minecraft.server.v1_16_R3.Block;
+import net.minecraft.server.v1_16_R3.BlockPosition;
+import net.minecraft.server.v1_16_R3.ChatMessage;
 import net.minecraft.server.v1_16_R3.Chunk;
+import net.minecraft.server.v1_16_R3.Entity;
+import net.minecraft.server.v1_16_R3.EntityPlayer;
+import net.minecraft.server.v1_16_R3.IBlockData;
+import net.minecraft.server.v1_16_R3.IRegistry;
+import net.minecraft.server.v1_16_R3.MinecraftServer;
+import net.minecraft.server.v1_16_R3.NBTTagCompound;
+import net.minecraft.server.v1_16_R3.PacketPlayOutWorldBorder;
+import net.minecraft.server.v1_16_R3.PlayerInteractManager;
+import net.minecraft.server.v1_16_R3.Registry;
 import net.minecraft.server.v1_16_R3.SoundCategory;
+import net.minecraft.server.v1_16_R3.SoundEffectType;
+import net.minecraft.server.v1_16_R3.TileEntityHopper;
+import net.minecraft.server.v1_16_R3.TileEntityMobSpawner;
 import net.minecraft.server.v1_16_R3.World;
 import net.minecraft.server.v1_16_R3.WorldBorder;
-import net.minecraft.server.v1_16_R3.*;
+import net.minecraft.server.v1_16_R3.WorldServer;
+import org.bukkit.Bukkit;
+import org.bukkit.ChunkSnapshot;
+import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.*;
+import org.bukkit.NamespacedKey;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Biome;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.command.defaults.BukkitCommand;
@@ -50,18 +72,11 @@ public final class NMSAdapter_v1_16_R3 implements NMSAdapter {
 
     private static final SuperiorSkyblockPlugin plugin = SuperiorSkyblockPlugin.getPlugin();
     private static final ReflectField<BiomeBase[]> BIOME_BASE_ARRAY = new ReflectField<>(BiomeStorage.class, BiomeBase[].class, "h");
+    private static final ReflectField<Registry<BiomeBase>> BIOME_REGISTRY = new ReflectField<>(BiomeStorage.class, Registry.class, "registry", "g");
     private static final ReflectField<BiomeStorage> BIOME_STORAGE = new ReflectField<>("org.bukkit.craftbukkit.VERSION.generator.CustomChunkGenerator$CustomBiomeGrid", BiomeStorage.class, "biome");
     private static final ReflectField<Integer> PORTAL_TICKS = new ReflectField<>(Entity.class, int.class, "portalTicks");
-
-    @Override
-    public void copyChunk(org.bukkit.Chunk fromChunk, org.bukkit.World toWorld) {
-        CraftChunk fromCraftChunk = (CraftChunk) fromChunk;
-        CraftChunk toCraftChunk = (CraftChunk) toWorld.getChunkAt(fromChunk.getX(), fromChunk.getZ());
-        Chunk fromChunkHandle = fromCraftChunk.getHandle();
-        ChunkSection[] fromChunkSections = fromChunkHandle.getSections();
-        ChunkSection[] toChunkSections = toCraftChunk.getHandle().getSections();
-        System.arraycopy(fromChunkSections, 0, toChunkSections, 0, fromChunkSections.length);
-    }
+    private static final ReflectMethod<Float> SOUND_VOLUME = new ReflectMethod<>(SoundEffectType.class, "getVolume");
+    private static final ReflectMethod<Float> SOUND_PITCH = new ReflectMethod<>(SoundEffectType.class, "getPitch");
 
     @Override
     public void registerCommand(BukkitCommand command) {
@@ -90,6 +105,14 @@ public final class NMSAdapter_v1_16_R3 implements NMSAdapter {
         BlockPosition blockPosition = new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
         TileEntityMobSpawner mobSpawner = (TileEntityMobSpawner)((CraftWorld) location.getWorld()).getHandle().getTileEntity(blockPosition);
         return mobSpawner.getSpawner().spawnDelay;
+    }
+
+    @Override
+    public void setSpawnerDelay(CreatureSpawner creatureSpawner, int spawnDelay) {
+        Location location = creatureSpawner.getLocation();
+        BlockPosition blockPosition = new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        TileEntityMobSpawner mobSpawner = (TileEntityMobSpawner)((CraftWorld) location.getWorld()).getHandle().getTileEntity(blockPosition);
+        mobSpawner.getSpawner().spawnDelay = spawnDelay;
     }
 
     @Override
@@ -190,8 +213,13 @@ public final class NMSAdapter_v1_16_R3 implements NMSAdapter {
     public void playPlaceSound(Location location) {
         BlockPosition blockPosition = new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
         World world = ((CraftWorld) location.getWorld()).getHandle();
-        SoundEffectType soundeffecttype = world.getType(blockPosition).getStepSound();
-        world.playSound(null, blockPosition, soundeffecttype.e(), SoundCategory.BLOCKS, (soundeffecttype.a() + 1.0F) / 2.0F, soundeffecttype.b() * 0.8F);
+        SoundEffectType soundEffectType = world.getType(blockPosition).getStepSound();
+
+        float volume = SOUND_VOLUME.isValid() ? SOUND_VOLUME.invoke(soundEffectType) : soundEffectType.a();
+        float pitch = SOUND_PITCH.isValid() ? SOUND_PITCH.invoke(soundEffectType) : soundEffectType.b();
+
+        world.playSound(null, blockPosition, soundEffectType.getPlaceSound(),
+                SoundCategory.BLOCKS,(volume + 1.0F) / 2.0F, pitch * 0.8F);
     }
 
     @Override
@@ -199,7 +227,7 @@ public final class NMSAdapter_v1_16_R3 implements NMSAdapter {
         BiomeStorage biomeStorage = BIOME_STORAGE.get(biomeGrid);
         BiomeBase[] biomeBases = BIOME_BASE_ARRAY.get(biomeStorage);
 
-        BiomeBase biomeBase = CraftBlock.biomeToBiomeBase((IRegistry<BiomeBase>) biomeStorage.g, biome);
+        BiomeBase biomeBase = CraftBlock.biomeToBiomeBase((IRegistry<BiomeBase>) BIOME_REGISTRY.get(biomeStorage), biome);
 
         if(biomeBases == null)
             return;

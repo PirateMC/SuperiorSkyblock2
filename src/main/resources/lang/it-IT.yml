@@ -101,6 +101,7 @@ COMMAND_ARGUMENT_ALL_ISLANDS: '*'
 COMMAND_ARGUMENT_ALL_PLAYERS: '*'
 COMMAND_ARGUMENT_AMOUNT: quantità
 COMMAND_ARGUMENT_BIOME: bioma
+COMMAND_ARGUMENT_COMMAND: 'command...'
 COMMAND_ARGUMENT_DISCORD: discord...
 COMMAND_ARGUMENT_EFFECT: effetto-pozione
 COMMAND_ARGUMENT_EMAIL: email
@@ -158,6 +159,7 @@ COMMAND_DESCRIPTION_ADMIN_BYPASS: Attiva/disattiva la modalità bypass.
 COMMAND_DESCRIPTION_ADMIN_CHEST: Apri il baule di un'altra isola.
 COMMAND_DESCRIPTION_ADMIN_CLEAR_GENERATOR: Cancella i tassi del generatore per un'isola specifica.
 COMMAND_DESCRIPTION_ADMIN_CLOSE: Chiudi un'isola al pubblico.
+COMMAND_DESCRIPTION_ADMIN_CMD_ALL: 'Execute a command for all members of islands.'
 COMMAND_DESCRIPTION_ADMIN_COUNT: Controlla un conteggio dei blocchi su un'isola specifica.
 COMMAND_DESCRIPTION_ADMIN_DEBUG: Attiva o disattiva i messaggi di Debug.
 COMMAND_DESCRIPTION_ADMIN_DEL_WARP: Elimina un warp per un'isola.
@@ -323,6 +325,8 @@ GENERATOR_CLEARED_NAME: '&e&lIsola | &7Cancellati con successo gli importi del g
 GENERATOR_CLEARED_ALL: '&e&lIsola | &7Cancellati con successo gli importi del generatore per tutte le isole.'
 GENERATOR_UPDATED: '&e&lIsola | &7Aggiornato con successo la percentuale di generazione di {0} sull''isola di {1}.'
 GENERATOR_UPDATED_NAME: '&e&lIsola | &7Aggiornato con successo la percentuale di generazione di {0} sull''isola {1}.'
+GLOBAL_COMMAND_EXECUTED: '&e&lIsland | &7Successfully executed the command on {0}''s island members!'
+GLOBAL_COMMAND_EXECUTED_NAME: '&e&lIsland | &7Successfully executed the command on the island members of {0}!'
 GENERATOR_UPDATED_ALL: '&e&lIsola | &7Aggiornato con successo la percentuale di generazione di {0} in tutte le isole.'
 GLOBAL_MESSAGE_SENT: '&e&lIsola | &7Il messaggio è stato inviato correttamente ai membri dell''isola di {0}!'
 GLOBAL_MESSAGE_SENT_NAME: '&e&lIsola | &7Il messaggio è stato inviato correttamente ai membri dell''isola di {0}!'
@@ -470,6 +474,8 @@ ISLAND_INFO_WORTH: '&e&lIsola | &7Valore: {0}'
 ISLAND_OPENED: '&e&lIsola | &7Aperta con successo l''isola al pubblico.'
 ISLAND_PREVIEW_CANCEL_DISTANCE: '&e&lAnteprima | &7Sei andato troppo lontano, non sei più in modalità anteprima.'
 ISLAND_PREVIEW_CANCEL: '&e&lAnteprima | &7Hai annullato la modalità di anteprima.'
+ISLAND_PREVIEW_CONFIRM_TEXT: 'CONFIRM'
+ISLAND_PREVIEW_CANCEL_TEXT: 'CANCEL'
 ISLAND_PREVIEW_START: |
   &e&lAnteprima | &7Hai avviato la modalità di anteprima per la schematica {0}.
   &e&lAnteprima | &7Scrivi &a&lCONFIRM &7per creare una nuova isola, oppure &c&lCANCEL &7per annullare la modalità di anteprima.
@@ -684,6 +690,7 @@ WARP_CATEGORY_ICON_NEW_LORE: |
 WARP_CATEGORY_ICON_NEW_NAME: '&e&lWarps | &7Enter a name (Type "-cancel" to cancel):'
 WARP_CATEGORY_ICON_NEW_TYPE: '&e&lWarps | &7Enter a new material type (Type "-cancel" to cancel):'
 WARP_CATEGORY_ICON_UPDATED: '&e&lWarps | &7Successfully updated the category''s icon.'
+WARP_CATEGORY_ILLEGAL_NAME: '&c&lError | &7You can only use alphabetical letters, numbers and ''_'' for warp category names.'
 WARP_CATEGORY_SLOT: '&e&lWarps | &7Enter a new slot (Type "-cancel" to cancel):'
 WARP_CATEGORY_SLOT_ALREADY_TAKEN: '&c&lError | &7This slot is already taken by another category.'
 WARP_CATEGORY_SLOT_SUCCESS: '&e&lWarps | &7Successfully changed the category''s slot to {0}.'
@@ -696,6 +703,7 @@ WARP_ICON_NEW_LORE: |
 WARP_ICON_NEW_NAME: '&e&lWarps | &7Enter a name (Type "-cancel" to cancel):'
 WARP_ICON_NEW_TYPE: '&e&lWarps | &7Enter a new material type (Type "-cancel" to cancel):'
 WARP_ICON_UPDATED: '&e&lWarps | &7Successfully updated the warp''s icon.'
+WARP_ILLEGAL_NAME: '&c&lError | &7You can only use alphabetical letters, numbers and ''_'' for warp names.'
 WARP_LOCATION_UPDATE: '&e&lWarps | &7Successfully updated the warp''s location to your location.'
 WARP_PUBLIC_UPDATE: '&e&lWarps | &7Successfully opened the warp to the public.'
 WARP_PRIVATE_UPDATE: '&e&lWarps | &7Successfully closed the warp to the public.'

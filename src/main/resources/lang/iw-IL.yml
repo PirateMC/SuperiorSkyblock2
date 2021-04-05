@@ -106,6 +106,7 @@ COMMAND_ARGUMENT_ALL_ISLANDS: '*'
 COMMAND_ARGUMENT_ALL_PLAYERS: '*'
 COMMAND_ARGUMENT_AMOUNT: תומכ
 COMMAND_ARGUMENT_BIOME: 'biome'
+COMMAND_ARGUMENT_COMMAND: 'command...'
 COMMAND_ARGUMENT_DISCORD: '...דרוקסיד'
 COMMAND_ARGUMENT_EFFECT: 'potion-effect'
 COMMAND_ARGUMENT_EMAIL: ליימיא
@@ -163,6 +164,7 @@ COMMAND_DESCRIPTION_ADMIN_BYPASS: הפיקע בצמ ףילחהל.
 COMMAND_DESCRIPTION_ADMIN_CHEST: 'Open island''s chest of another island.'
 COMMAND_DESCRIPTION_ADMIN_CLEAR_GENERATOR: Clear generator rates for a specific island.
 COMMAND_DESCRIPTION_ADMIN_CLOSE: רוביצל יא רוגסל.
+COMMAND_DESCRIPTION_ADMIN_CMD_ALL: 'Execute a command for all members of islands.'
 COMMAND_DESCRIPTION_ADMIN_COUNT: 'Check a block count on a specific island.'
 COMMAND_DESCRIPTION_ADMIN_DEBUG: 'Toggle debug outputs.'
 COMMAND_DESCRIPTION_ADMIN_DEL_WARP: 'Delete a warp for an island.'
@@ -336,6 +338,8 @@ GENERATOR_UPDATED_NAME: '&e&lיא | &7החלצהב ןכדוע {1} יאה לש ר
   לש תומכה.'
 GENERATOR_UPDATED_ALL: '&e&lיא | &7החלצהב ןכדוע םייאה לכ לש רוטארנגב {0} רמוחה
   לש תומכה.'
+GLOBAL_COMMAND_EXECUTED: '&e&lIsland | &7Successfully executed the command on {0}''s island members!'
+GLOBAL_COMMAND_EXECUTED_NAME: '&e&lIsland | &7Successfully executed the command on the island members of {0}!'
 GLOBAL_MESSAGE_SENT: '&e&lיא | &7{0} לש יאה לש םינקחשל החלצהב החלשנ העדוהה!'
 GLOBAL_MESSAGE_SENT_NAME: '&e&lיא | &7{0} יאה לש םינקחשל החלצהב החלשנ העדוהה!'
 GLOBAL_TITLE_SENT: '&e&lIsland | &7Successfully sent to {0}''s island members the title!'
@@ -484,6 +488,8 @@ ISLAND_INFO_WORTH: '&e&lיא | &7יווש: {0}'
 ISLAND_OPENED: '&e&lיא | &7החלצהב רוביצל חתפנ יאה.'
 ISLAND_PREVIEW_CANCEL_DISTANCE: '&e&lPreview | &7You went too far away, and you are no longer in preview mode.'
 ISLAND_PREVIEW_CANCEL: '&e&lPreview | &7You cancelled the preview mode.'
+ISLAND_PREVIEW_CONFIRM_TEXT: 'CONFIRM'
+ISLAND_PREVIEW_CANCEL_TEXT: 'CANCEL'
 ISLAND_PREVIEW_START: |
   &e&lPreview | &7You started the preview mode for the schematic {0}.
   &e&lPreview | &7Type &a&lCONFIRM &7to create a new island, or &c&lCANCEL &7to cancel the preview mode.
@@ -702,6 +708,7 @@ WARP_CATEGORY_ICON_NEW_LORE: |
 WARP_CATEGORY_ICON_NEW_NAME: '&e&lWarps | &7Enter a name (Type "-cancel" to cancel):'
 WARP_CATEGORY_ICON_NEW_TYPE: '&e&lWarps | &7Enter a new material type (Type "-cancel" to cancel):'
 WARP_CATEGORY_ICON_UPDATED: '&e&lWarps | &7Successfully updated the category''s icon.'
+WARP_CATEGORY_ILLEGAL_NAME: '&c&lError | &7You can only use alphabetical letters, numbers and ''_'' for warp category names.'
 WARP_CATEGORY_SLOT: '&e&lWarps | &7Enter a new slot (Type "-cancel" to cancel):'
 WARP_CATEGORY_SLOT_ALREADY_TAKEN: '&c&lError | &7This slot is already taken by another category.'
 WARP_CATEGORY_SLOT_SUCCESS: '&e&lWarps | &7Successfully changed the category''s slot to {0}.'
@@ -714,6 +721,7 @@ WARP_ICON_NEW_LORE: |
 WARP_ICON_NEW_NAME: '&e&lWarps | &7Enter a name (Type "-cancel" to cancel):'
 WARP_ICON_NEW_TYPE: '&e&lWarps | &7Enter a new material type (Type "-cancel" to cancel):'
 WARP_ICON_UPDATED: '&e&lWarps | &7Successfully updated the warp''s icon.'
+WARP_ILLEGAL_NAME: '&c&lError | &7You can only use alphabetical letters, numbers and ''_'' for warp names.'
 WARP_LOCATION_UPDATE: '&e&lWarps | &7Successfully updated the warp''s location to your location.'
 WARP_PUBLIC_UPDATE: '&e&lWarps | &7Successfully opened the warp to the public.'
 WARP_PRIVATE_UPDATE: '&e&lWarps | &7Successfully closed the warp to the public.'

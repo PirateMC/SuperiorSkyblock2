@@ -108,6 +108,7 @@ public enum Locale {
     COMMAND_ARGUMENT_ALL_PLAYERS("*"),
     COMMAND_ARGUMENT_AMOUNT("amount"),
     COMMAND_ARGUMENT_BIOME("biome"),
+    COMMAND_ARGUMENT_COMMAND("command..."),
     COMMAND_ARGUMENT_DISCORD("discord..."),
     COMMAND_ARGUMENT_EFFECT("effect"),
     COMMAND_ARGUMENT_EMAIL("email"),
@@ -164,6 +165,7 @@ public enum Locale {
     COMMAND_DESCRIPTION_ADMIN_CHEST,
     COMMAND_DESCRIPTION_ADMIN_CLEAR_GENERATOR,
     COMMAND_DESCRIPTION_ADMIN_CLOSE,
+    COMMAND_DESCRIPTION_ADMIN_CMD_ALL,
     COMMAND_DESCRIPTION_ADMIN_COUNT,
     COMMAND_DESCRIPTION_ADMIN_DEBUG,
     COMMAND_DESCRIPTION_ADMIN_DEL_WARP,
@@ -333,6 +335,8 @@ public enum Locale {
     GENERATOR_UPDATED,
     GENERATOR_UPDATED_ALL,
     GENERATOR_UPDATED_NAME,
+    GLOBAL_COMMAND_EXECUTED,
+    GLOBAL_COMMAND_EXECUTED_NAME,
     GLOBAL_MESSAGE_SENT,
     GLOBAL_MESSAGE_SENT_NAME,
     GLOBAL_TITLE_SENT,
@@ -457,6 +461,8 @@ public enum Locale {
     ISLAND_OPENED,
     ISLAND_PREVIEW_CANCEL_DISTANCE,
     ISLAND_PREVIEW_CANCEL,
+    ISLAND_PREVIEW_CONFIRM_TEXT,
+    ISLAND_PREVIEW_CANCEL_TEXT,
     ISLAND_PREVIEW_START,
     ISLAND_PROTECTED,
     ISLAND_TEAM_STATUS_FOOTER,
@@ -668,6 +674,7 @@ public enum Locale {
     WARP_CATEGORY_ICON_NEW_NAME,
     WARP_CATEGORY_ICON_NEW_TYPE,
     WARP_CATEGORY_ICON_UPDATED,
+    WARP_CATEGORY_ILLEGAL_NAME,
     WARP_CATEGORY_SLOT,
     WARP_CATEGORY_SLOT_ALREADY_TAKEN,
     WARP_CATEGORY_SLOT_SUCCESS,
@@ -678,6 +685,7 @@ public enum Locale {
     WARP_ICON_NEW_NAME,
     WARP_ICON_NEW_TYPE,
     WARP_ICON_UPDATED,
+    WARP_ILLEGAL_NAME,
     WARP_LOCATION_UPDATE,
     WARP_PUBLIC_UPDATE,
     WARP_PRIVATE_UPDATE,
@@ -712,8 +720,7 @@ public enum Locale {
     }
 
     public void send(SuperiorPlayer superiorPlayer, Object... objects){
-        if(superiorPlayer.isOnline())
-            send(superiorPlayer.asPlayer(), superiorPlayer.getUserLocale(), objects);
+        superiorPlayer.runIfOnline(player -> send(player, superiorPlayer.getUserLocale(), objects));
     }
 
     public void send(CommandSender sender, Object... objects){
@@ -808,7 +815,7 @@ public enum Locale {
     }
 
     public static void sendMessage(SuperiorPlayer superiorPlayer, String message, boolean translateColors){
-        sendMessage(superiorPlayer.asPlayer(), message, translateColors);
+        superiorPlayer.runIfOnline(player -> sendMessage(player, message, translateColors));
     }
 
     public static void sendMessage(CommandSender sender, String message, boolean translateColors){
@@ -816,7 +823,7 @@ public enum Locale {
     }
 
     public static void sendProtectionMessage(SuperiorPlayer superiorPlayer){
-        sendProtectionMessage(superiorPlayer.asPlayer(), superiorPlayer.getUserLocale());
+        superiorPlayer.runIfOnline(player -> sendProtectionMessage(player, superiorPlayer.getUserLocale()));
     }
 
     public static void sendProtectionMessage(Player player){

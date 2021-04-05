@@ -23,6 +23,7 @@ import com.bgsoftware.superiorskyblock.hooks.BlocksProvider_WildStacker;
 import com.bgsoftware.superiorskyblock.hooks.CoreProtectHook;
 import com.bgsoftware.superiorskyblock.hooks.EconomyProvider_Default;
 import com.bgsoftware.superiorskyblock.hooks.EconomyProvider_Vault;
+import com.bgsoftware.superiorskyblock.hooks.SWMHook;
 import com.bgsoftware.superiorskyblock.hooks.SlimefunHook;
 import com.bgsoftware.superiorskyblock.hooks.ChangeSkinHook;
 import com.bgsoftware.superiorskyblock.hooks.JetsMinionsHook;
@@ -43,6 +44,7 @@ import com.bgsoftware.superiorskyblock.hooks.VanishProvider_Essentials;
 import com.bgsoftware.superiorskyblock.hooks.VanishProvider_SuperVanish;
 import com.bgsoftware.superiorskyblock.hooks.VanishProvider_VanishNoPacket;
 import com.bgsoftware.superiorskyblock.hooks.WorldsProvider_Default;
+import com.bgsoftware.superiorskyblock.listeners.PaperListener;
 import com.bgsoftware.superiorskyblock.utils.chunks.ChunkPosition;
 import com.bgsoftware.superiorskyblock.utils.key.Key;
 import com.bgsoftware.superiorskyblock.utils.legacy.Materials;
@@ -106,6 +108,9 @@ public final class ProvidersHandler extends AbstractHandler implements Providers
             if(Bukkit.getPluginManager().isPluginEnabled("CoreProtect"))
                 runSafe(() -> CoreProtectHook.register(plugin));
 
+            if(Bukkit.getPluginManager().isPluginEnabled("SlimeWorldManager"))
+                runSafe(SWMHook::register);
+
             if(this.spawnersProvider == null || spawnersProvider instanceof BlocksProvider) {
                 String spawnersProvider = plugin.getSettings().spawnersProvider;
                 boolean auto = spawnersProvider.equalsIgnoreCase("Auto");
@@ -128,7 +133,15 @@ public final class ProvidersHandler extends AbstractHandler implements Providers
                     runSafe(() -> setSpawnersProvider(new BlocksProvider_PvpingSpawners()));
                 } else if (Bukkit.getPluginManager().isPluginEnabled("EpicSpawners") &&
                         (auto || spawnersProvider.equalsIgnoreCase("EpicSpawners"))) {
-                    runSafe(() -> setSpawnersProvider(new BlocksProvider_EpicSpawners()));
+                    if(Bukkit.getPluginManager().getPlugin("EpicSpawners").getDescription().getVersion().startsWith("7")){
+                        try {
+                            BlocksProvider blocksProvider = (BlocksProvider) Class.forName("com.bgsoftware.superiorskyblock.hooks.BlocksProvider_EpicSpawners7").newInstance();
+                            runSafe(() -> setSpawnersProvider(blocksProvider));
+                        }catch (Exception ignored){}
+                    }
+                    else{
+                        runSafe(() -> setSpawnersProvider(new BlocksProvider_EpicSpawners()));
+                    }
                 } else if (Bukkit.getPluginManager().isPluginEnabled("UltimateStacker") &&
                         (auto || spawnersProvider.equalsIgnoreCase("UltimateStacker"))) {
                     runSafe(() -> setSpawnersProvider(new BlocksProvider_UltimateStacker()));
@@ -163,6 +176,8 @@ public final class ProvidersHandler extends AbstractHandler implements Providers
             if(hasPaperAsyncSupport()){
                 try {
                     asyncProvider = (AsyncProvider) Class.forName("com.bgsoftware.superiorskyblock.hooks.AsyncProvider_Paper").newInstance();
+                    // Only added in versions 1.13+ of paper, so it can be here
+                    Bukkit.getPluginManager().registerEvents(new PaperListener(plugin), plugin);
                     SuperiorSkyblockPlugin.log("Detected PaperSpigot - Using async chunk-loading support with PaperMC.");
                 }catch (Exception ex){
                     SuperiorSkyblockPlugin.log("Detected PaperSpigot but failed to load async chunk-loading support...");
@@ -195,29 +210,31 @@ public final class ProvidersHandler extends AbstractHandler implements Providers
 
     @Override
     public void setSpawnersProvider(SpawnersProvider spawnersProvider){
-        Preconditions.checkArgument(spawnersProvider != null, "SpawnersProvider cannot be null.");
+        Preconditions.checkNotNull(spawnersProvider, "spawnersProvider parameter cannot be null.");
         this.spawnersProvider = spawnersProvider;
     }
 
     @Override
     public void setEconomyProvider(EconomyProvider economyProvider) {
-        Preconditions.checkArgument(economyProvider != null, "EconomyProvider cannot be null.");
+        Preconditions.checkNotNull(economyProvider, "economyProvider parameter cannot be null.");
         this.economyProvider = economyProvider;
     }
 
     @Override
     public void setWorldsProvider(WorldsProvider worldsProvider) {
+        Preconditions.checkNotNull(worldsProvider, "worldsProvider parameter cannot be null.");
         this.worldsProvider = worldsProvider;
     }
 
     @Override
     public void setBankEconomyProvider(EconomyProvider bankEconomyProvider) {
-        Preconditions.checkArgument(bankEconomyProvider != null, "EconomyProvider cannot be null.");
+        Preconditions.checkNotNull(bankEconomyProvider, "bankEconomyProvider parameter cannot be null.");
         this.bankEconomyProvider = bankEconomyProvider;
     }
 
     @Override
     public void addAFKProvider(AFKProvider afkProvider) {
+        Preconditions.checkNotNull(afkProvider, "afkProvider parameter cannot be null.");
         AFKProvidersList.add(afkProvider);
     }
 
@@ -229,7 +246,7 @@ public final class ProvidersHandler extends AbstractHandler implements Providers
         return spawnersProvider != null ? Key.of(Materials.SPAWNER.toBukkitType() + ":" + spawnersProvider.getSpawnerType(itemStack)) : Key.of(itemStack);
     }
 
-    public Set<Pair<Integer, com.bgsoftware.superiorskyblock.api.key.Key>> getBlocks(ChunkPosition chunkPosition){
+    public Set<Pair<com.bgsoftware.superiorskyblock.api.key.Key, Integer>> getBlocks(ChunkPosition chunkPosition){
         return spawnersProvider instanceof BlocksProvider ? ((BlocksProvider) spawnersProvider).getBlocks(chunkPosition) : Collections.emptySet();
     }
 

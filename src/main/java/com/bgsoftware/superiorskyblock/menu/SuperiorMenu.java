@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.menu;
 
+import com.bgsoftware.common.reflection.ReflectField;
 import com.bgsoftware.superiorskyblock.Locale;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.objects.Pair;
@@ -7,7 +8,6 @@ import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.hooks.PlaceholderHook;
 import com.bgsoftware.superiorskyblock.utils.commands.CommandUtils;
 import com.bgsoftware.superiorskyblock.utils.items.ItemBuilder;
-import com.bgsoftware.superiorskyblock.utils.reflections.ReflectField;
 import com.bgsoftware.superiorskyblock.utils.registry.Registry;
 import com.bgsoftware.superiorskyblock.utils.threads.Executor;
 import com.bgsoftware.superiorskyblock.wrappers.SoundWrapper;
@@ -33,6 +33,10 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 public abstract class SuperiorMenu implements InventoryHolder {
+
+    protected static final String[] MENU_IGNORED_SECTIONS = new String[] {
+            "items", "sounds", "commands", "back"
+    };
 
     protected static final SuperiorSkyblockPlugin plugin = SuperiorSkyblockPlugin.getPlugin();
 
@@ -153,12 +157,10 @@ public abstract class SuperiorMenu implements InventoryHolder {
         if(refreshing)
             return;
 
-        Player player = superiorPlayer.asPlayer();
-
         if(e.getCurrentItem() != null) {
             SoundWrapper sound = getSound(e.getRawSlot());
             if (sound != null)
-                sound.playSound(player);
+                sound.playSound(e.getWhoClicked());
 
             List<String> commands = getCommands(e.getRawSlot());
             if (commands != null)
@@ -167,7 +169,7 @@ public abstract class SuperiorMenu implements InventoryHolder {
             Pair<String, SoundWrapper> permission = getPermission(e.getRawSlot());
             if(permission != null && !superiorPlayer.hasPermission(permission.getKey())){
                 if(permission.getValue() != null)
-                    permission.getValue().playSound(player);
+                    permission.getValue().playSound(e.getWhoClicked());
                 
                 return;
             }
@@ -254,10 +256,12 @@ public abstract class SuperiorMenu implements InventoryHolder {
             return;
         }
 
-        if(!superiorPlayer.isOnline())
+        Player player = superiorPlayer.asPlayer();
+
+        if(player == null)
             return;
 
-        if(superiorPlayer.asPlayer().isSleeping()){
+        if(player.isSleeping()){
             Locale.OPEN_MENU_WHILE_SLEEPING.send(superiorPlayer);
             return;
         }
@@ -284,9 +288,7 @@ public abstract class SuperiorMenu implements InventoryHolder {
         }
 
         Executor.sync(() -> {
-            Player player = superiorPlayer.asPlayer();
-
-            if(player == null)
+            if(!superiorPlayer.isOnline())
                 return;
 
             SuperiorMenu currentMenu = null;
@@ -402,16 +404,21 @@ public abstract class SuperiorMenu implements InventoryHolder {
         return obj instanceof SuperiorMenu && ((SuperiorMenu) obj).getIdentifier().equals(getIdentifier());
     }
 
+    protected static String[] additionalMenuSections(String... ignoredSections){
+        String[] sections = Arrays.copyOf(MENU_IGNORED_SECTIONS, MENU_IGNORED_SECTIONS.length + ignoredSections.length);
+        System.arraycopy(ignoredSections, 0, sections, MENU_IGNORED_SECTIONS.length, ignoredSections.length);
+        return sections;
+    }
+
     public static void killMenu(SuperiorPlayer superiorPlayer){
-        if(!superiorPlayer.isOnline())
-            return;
+        superiorPlayer.runIfOnline(player -> {
+            Inventory inventory = player.getOpenInventory().getTopInventory();
+            InventoryHolder inventoryHolder = inventory == null ? null : inventory.getHolder();
+            if(inventoryHolder instanceof SuperiorMenu)
+                ((SuperiorMenu) inventoryHolder).previousMove = false;
 
-        Inventory inventory = superiorPlayer.asPlayer().getOpenInventory().getTopInventory();
-        InventoryHolder inventoryHolder = inventory == null ? null : inventory.getHolder();
-        if(inventoryHolder instanceof SuperiorMenu)
-            ((SuperiorMenu) inventoryHolder).previousMove = false;
-
-        superiorPlayer.asPlayer().closeInventory();
+            player.closeInventory();
+        });
     }
 
     protected static <T extends SuperiorMenu> void refreshMenus(Class<T> menuClazz, Predicate<T> predicate){

@@ -1,5 +1,7 @@
 package com.bgsoftware.superiorskyblock.nms;
 
+import com.bgsoftware.common.reflection.ReflectField;
+import com.bgsoftware.common.reflection.ReflectMethod;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.generator.WorldGenerator;
@@ -10,8 +12,6 @@ import com.bgsoftware.superiorskyblock.utils.chunks.ChunksTracker;
 import com.bgsoftware.superiorskyblock.utils.key.Key;
 import com.bgsoftware.superiorskyblock.utils.key.KeyMap;
 import com.bgsoftware.superiorskyblock.utils.objects.CalculatedChunk;
-import com.bgsoftware.superiorskyblock.utils.reflections.ReflectField;
-import com.bgsoftware.superiorskyblock.utils.reflections.ReflectMethod;
 import com.bgsoftware.superiorskyblock.utils.tags.ByteTag;
 import com.bgsoftware.superiorskyblock.utils.tags.CompoundTag;
 import com.bgsoftware.superiorskyblock.utils.tags.IntArrayTag;
@@ -418,8 +418,13 @@ public final class NMSBlocks_v1_13_R1 implements NMSBlocks {
             Arrays.fill(chunk.getSections(), Chunk.a);
 
             if(chunk instanceof Chunk) {
-                for(int i = 0; i < ((Chunk) chunk).entitySlices.length; i++)
+                for(int i = 0; i < ((Chunk) chunk).entitySlices.length; i++) {
+                    ((Chunk) chunk).entitySlices[i].forEach(entity -> {
+                        if(!(entity instanceof EntityHuman))
+                            entity.dead = true;
+                    });
                     ((Chunk) chunk).entitySlices[i] = new UnsafeList<>();
+                }
 
                 new HashSet<>(((Chunk) chunk).tileEntities.keySet()).forEach(((Chunk) chunk).world::n);
                 ((Chunk) chunk).tileEntities.clear();

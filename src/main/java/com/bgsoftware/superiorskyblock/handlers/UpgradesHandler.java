@@ -3,9 +3,11 @@ package com.bgsoftware.superiorskyblock.handlers;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 
 import com.bgsoftware.superiorskyblock.api.handlers.UpgradesManager;
-import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
 import com.bgsoftware.superiorskyblock.api.objects.Pair;
 import com.bgsoftware.superiorskyblock.api.upgrades.Upgrade;
+import com.bgsoftware.superiorskyblock.api.upgrades.cost.UpgradeCost;
+import com.bgsoftware.superiorskyblock.api.upgrades.cost.UpgradeCostLoadException;
+import com.bgsoftware.superiorskyblock.api.upgrades.cost.UpgradeCostLoader;
 import com.bgsoftware.superiorskyblock.upgrades.DefaultUpgrade;
 import com.bgsoftware.superiorskyblock.upgrades.SUpgrade;
 import com.bgsoftware.superiorskyblock.upgrades.SUpgradeLevel;
@@ -13,11 +15,13 @@ import com.bgsoftware.superiorskyblock.utils.StringUtils;
 import com.bgsoftware.superiorskyblock.utils.key.KeyMap;
 import com.bgsoftware.superiorskyblock.utils.registry.Registry;
 import com.bgsoftware.superiorskyblock.utils.upgrades.UpgradeValue;
+import com.google.common.base.Preconditions;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -31,6 +35,7 @@ import java.util.Set;
 public final class UpgradesHandler extends AbstractHandler implements UpgradesManager {
 
     private final Registry<String, SUpgrade> upgrades = Registry.createRegistry();
+    private final Registry<String, UpgradeCostLoader> upgradeCostLoaders = Registry.createRegistry();
 
     public UpgradesHandler(SuperiorSkyblockPlugin plugin){
         super(plugin);
@@ -52,7 +57,24 @@ public final class UpgradesHandler extends AbstractHandler implements UpgradesMa
             for(String _level : upgrades.getConfigurationSection(upgradeName).getKeys(false)){
                 ConfigurationSection levelSection = upgrades.getConfigurationSection(upgradeName + "." + _level);
                 int level = Integer.parseInt(_level);
-                double price = levelSection.getDouble("price");
+
+                String priceType = levelSection.getString("price-type", "money");
+                UpgradeCostLoader costLoader = getUpgradeCostLoader(priceType);
+
+                if(costLoader == null){
+                    SuperiorSkyblockPlugin.log("&cUpgrade by name " + upgrade.getName() + " (level " + level + ") has invalid price-type. Skipping...");
+                    continue;
+                }
+
+                UpgradeCost upgradeCost;
+
+                try{
+                    upgradeCost = costLoader.loadCost(levelSection);
+                }catch (UpgradeCostLoadException ex){
+                    SuperiorSkyblockPlugin.log("&cUpgrade by name " + upgrade.getName() + " (level " + level + ") failed to initialize because: " + ex.getMessage() + ". Skipping...");
+                    continue;
+                }
+
                 List<String> commands = levelSection.getStringList("commands");
                 String permission = levelSection.getString("permission", "");
                 Set<Pair<String, String>> requirements = new HashSet<>();
@@ -111,7 +133,7 @@ public final class UpgradesHandler extends AbstractHandler implements UpgradesMa
                         }catch (NumberFormatException ignored){}
                     }
                 }
-                upgrade.addUpgradeLevel(level, new SUpgradeLevel(level, price, commands, permission, requirements,
+                upgrade.addUpgradeLevel(level, new SUpgradeLevel(level, upgradeCost, commands, permission, requirements,
                         cropGrowth, spawnerRates, mobDrops, teamLimit, warpsLimit, coopLimit, borderSize, blockLimits,
                         entityLimits, generatorRates, islandEffects, bankLimit, rolesLimits));
             }
@@ -121,6 +143,7 @@ public final class UpgradesHandler extends AbstractHandler implements UpgradesMa
 
     @Override
     public SUpgrade getUpgrade(String upgradeName){
+        Preconditions.checkNotNull(upgradeName, "upgradeName parameter cannot be null.");
         return upgrades.get(upgradeName.toLowerCase());
     }
 
@@ -136,12 +159,32 @@ public final class UpgradesHandler extends AbstractHandler implements UpgradesMa
 
     @Override
     public boolean isUpgrade(String upgradeName){
+        Preconditions.checkNotNull(upgradeName, "upgradeName parameter cannot be null.");
         return upgrades.containsKey(upgradeName.toLowerCase());
     }
 
     @Override
     public Collection<Upgrade> getUpgrades() {
         return Collections.unmodifiableCollection(upgrades.values());
+    }
+
+    @Override
+    public void registerUpgradeCostLoader(String id, UpgradeCostLoader costLoader) {
+        id = id.toLowerCase();
+        Preconditions.checkArgument(!upgradeCostLoaders.containsKey(id), "A loader with the id " + id + " already exists.");
+        upgradeCostLoaders.add(id, costLoader);
+    }
+
+    @Override
+    public Collection<UpgradeCostLoader> getUpgradesCostLoaders() {
+        return Collections.unmodifiableCollection(upgradeCostLoaders.values());
+    }
+
+    @Nullable
+    @Override
+    public UpgradeCostLoader getUpgradeCostLoader(String id) {
+        Preconditions.checkNotNull(id, "id parameter cannot be null.");
+        return upgradeCostLoaders.get(id.toLowerCase());
     }
 
 }

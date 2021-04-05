@@ -80,17 +80,21 @@ public final class CmdAdminResetWorld implements IAdminIslandCommand {
             // Sending the players that are in that world to the main island.
             // If the world that will be reset is the normal world, they will be teleported to spawn.
             for(SuperiorPlayer superiorPlayer : island.getAllPlayersInside()){
+                assert superiorPlayer.getWorld() != null;
                 if(superiorPlayer.getWorld().equals(world))
                     superiorPlayer.teleport(island);
             }
 
             // Resetting the chunks
             List<ChunkPosition> chunkPositions = IslandUtils.getChunkCoords(island, world, true, true);
-            for(int i = 0; i < chunkPositions.size() - 1; i++)
-                IslandUtils.deleteChunk(island, chunkPositions.get(i), null);
+            
+            if(!chunkPositions.isEmpty()) {
+                for (int i = 0; i < chunkPositions.size() - 1; i++)
+                    IslandUtils.deleteChunk(island, chunkPositions.get(i), null);
 
-            IslandUtils.deleteChunk(island, chunkPositions.get(chunkPositions.size() - 1),
-                    () -> island.calcIslandWorth(null));
+                IslandUtils.deleteChunk(island, chunkPositions.get(chunkPositions.size() - 1),
+                        () -> island.calcIslandWorth(null));
+            }
 
             island.setSchematicGenerate(environment, false);
         });

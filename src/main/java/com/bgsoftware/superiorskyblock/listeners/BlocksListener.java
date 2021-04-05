@@ -26,6 +26,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Entity;
@@ -61,6 +62,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -69,6 +71,10 @@ import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
 public final class BlocksListener implements Listener {
+
+    private static final BlockFace[] NEARBY_BLOCKS = new BlockFace[] {
+            BlockFace.UP, BlockFace.NORTH, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST
+    };
 
     public static BlocksListener IMP;
     private final SuperiorSkyblockPlugin plugin;
@@ -629,6 +635,7 @@ public final class BlocksListener implements Listener {
     }
 
     public boolean onSignPlace(SuperiorPlayer superiorPlayer, Island island, Location warpLocation, String[] lines, boolean message){
+        assert superiorPlayer.getLocation() != null;
         warpLocation.setYaw(superiorPlayer.getLocation().getYaw());
 
         if(lines[0].equalsIgnoreCase(plugin.getSettings().signWarpLine)){
@@ -640,19 +647,27 @@ public final class BlocksListener implements Listener {
                 return true;
             }
 
-            String warpName = StringUtils.stripColors(lines[1].trim());
+            String warpName = IslandUtils.getWarpName(StringUtils.stripColors(lines[1].trim()));
             boolean privateFlag = lines[2].equalsIgnoreCase("private");
 
-            if(warpName.replace(" ", "").isEmpty() || island.getWarp(warpName) != null){
-                if(message)
-                    Locale.WARP_ALREADY_EXIST.send(superiorPlayer);
-                for (int i = 0; i < 4; i++)
+            if(warpName.isEmpty() || island.getWarp(warpName) != null){
+                if(message) {
+                    if(warpName.isEmpty())
+                        Locale.WARP_ILLEGAL_NAME.send(superiorPlayer);
+                    else
+                        Locale.WARP_ALREADY_EXIST.send(superiorPlayer);
+                }
+
+                for (int i = 0; i < 4; i++) {
                     lines[i] = "";
+                }
             }
             else {
                 List<String> signWarp = plugin.getSettings().signWarp;
+
                 for (int i = 0; i < signWarp.size(); i++)
                     lines[i] = signWarp.get(i).replace("{0}", warpName);
+
                 IslandWarp islandWarp = island.createWarp(warpName, warpLocation, null);
                 islandWarp.setPrivateFlag(privateFlag);
                 if(message)
@@ -731,9 +746,24 @@ public final class BlocksListener implements Listener {
 
         island.handleBlockBreak(block);
 
+        EnumMap<BlockFace, Key> nearbyBlocks = new EnumMap<>(BlockFace.class);
+
+        for(BlockFace nearbyFace : NEARBY_BLOCKS){
+            Key nearbyBlock = Key.of(block.getRelative(nearbyFace));
+            if(!nearbyBlock.getGlobalKey().equals("AIR"))
+                nearbyBlocks.put(nearbyFace, nearbyBlock);
+        }
+
         Executor.sync(() -> {
             if(plugin.getNMSAdapter().isChunkEmpty(block.getChunk()))
                 ChunksTracker.markEmpty(island, block, true);
+
+            for(BlockFace nearbyFace : NEARBY_BLOCKS){
+                Key nearbyBlock = Key.of(block.getRelative(nearbyFace));
+                Key oldNearbyBlock = nearbyBlocks.getOrDefault(nearbyFace, ConstantKeys.AIR);
+                if(oldNearbyBlock != ConstantKeys.AIR && !nearbyBlock.equals(oldNearbyBlock))
+                    island.handleBlockBreak(oldNearbyBlock, 1);
+            }
         }, 2L);
     }
 

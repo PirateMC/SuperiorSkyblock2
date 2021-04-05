@@ -8,6 +8,7 @@ import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.handlers.MissionsHandler;
 import com.bgsoftware.superiorskyblock.utils.FileUtils;
 import com.bgsoftware.superiorskyblock.utils.menus.MenuConverter;
+import com.bgsoftware.superiorskyblock.utils.missions.MissionUtils;
 import com.bgsoftware.superiorskyblock.utils.registry.Registry;
 import com.bgsoftware.superiorskyblock.wrappers.SoundWrapper;
 import org.bukkit.Material;
@@ -33,10 +34,9 @@ public final class MenuIslandMissions extends PagedSuperiorMenu<Mission<?>> {
         super("menuIslandMissions", superiorPlayer);
         if(superiorPlayer != null) {
             this.missions = plugin.getMissions().getIslandMissions().stream()
-                    .filter(mission -> (!mission.isOnlyShowIfRequiredCompleted() || plugin.getMissions().hasAllRequiredMissions(superiorPlayer, mission) &&
-                            (!removeCompleted || superiorPlayer.getIsland().canCompleteMissionAgain(mission))))
+                    .filter(mission -> MissionUtils.canDisplayMission(mission, superiorPlayer, removeCompleted))
                     .collect(Collectors.toList());
-            if(sortByCompletion)
+            if(sortByCompletion && superiorPlayer.getIsland() != null)
                 this.missions.sort(Comparator.comparingInt(this::getCompletionStatus));
         }
     }
@@ -44,12 +44,16 @@ public final class MenuIslandMissions extends PagedSuperiorMenu<Mission<?>> {
     @Override
     protected void onPlayerClick(InventoryClickEvent event, Mission<?> mission) {
         Island island = superiorPlayer.getIsland();
+
+        if(island == null)
+            return;
+
         boolean completed = !island.canCompleteMissionAgain(mission);
         boolean canComplete = plugin.getMissions().canComplete(superiorPlayer, mission);
 
         SoundWrapper sound = (SoundWrapper) getData(completed ? "sound-completed" : canComplete ? "sound-can-complete" : "sound-not-completed");
         if(sound != null)
-            sound.playSound(superiorPlayer.asPlayer());
+            sound.playSound(event.getWhoClicked());
 
         if(canComplete && plugin.getMissions().hasAllRequiredMissions(superiorPlayer, mission)){
             plugin.getMissions().rewardMission(mission, superiorPlayer, false, false, result -> {
@@ -116,7 +120,8 @@ public final class MenuIslandMissions extends PagedSuperiorMenu<Mission<?>> {
     }
 
     private int getCompletionStatus(Mission<?> mission){
-        return !superiorPlayer.getIsland().canCompleteMissionAgain(mission) ? 2 :
+        return superiorPlayer.getIsland() == null ? 0 :
+                !superiorPlayer.getIsland().canCompleteMissionAgain(mission) ? 2 :
                 plugin.getMissions().canComplete(superiorPlayer, mission) ? 1 : 0;
     }
 

@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'SuperiorSkyblock'
-version = "1.5.2"
+version = "1.6.0"
 
 subprojects {
     apply plugin: 'java'
@@ -16,6 +16,10 @@ subprojects {
         maven { url 'https://repo.bg-software.com/repository/nms/' }
         maven { url 'https://repo.bg-software.com/repository/common/' }
         maven { url 'https://repo.bg-software.com/repository/public-libs/' }
+    }
+
+    dependencies {
+        compileOnly "com.bgsoftware.common.reflection:ReflectionUtils:latest"
     }
 
     shadowJar {
@@ -63,6 +67,8 @@ dependencies {
     implementation project(":API")
 
     implementation 'com.bgsoftware.common.config:CommentedConfiguration:latest'
+    implementation 'com.bgsoftware.common.updater:Updater:latest'
+    implementation 'com.bgsoftware.common.reflection:ReflectionUtils:latest'
 
     implementation 'com.zaxxer:HikariCP:latest'
     implementation 'org.slf4j:SLF4J:latest'
@@ -78,6 +84,7 @@ dependencies {
     compileOnly 'net.coreprotect:CoreProtect-6:latest'
     compileOnly 'com.songoda:EpicSpawners-6:latest'
     compileOnly 'com.earth2me:Essentials-2.16:latest'
+    compileOnly 'com.boydti:FastAsyncWorldEdit:latest'
     compileOnly 'me.jet315:JetsMinions:latest'
     compileOnly 'me.robin:LeaderHeads:latest'
     compileOnly 'net.luckperms:LuckPerms:latest'
@@ -89,7 +96,8 @@ dependencies {
     compileOnly 'dev.rosewood:RoseStacker:latest'
     compileOnly 'net.brcdev:ShopGUIPlus-1.20:latest'
     compileOnly 'de.candc:SilkSpawners:latest'
-    compileOnly 'skinsrestorer:SkinsRestorer:latest'
+    compileOnly 'net.skinsrestorer:SkinsRestorer:latest'
+    compileOnly 'net.skinsrestorer:SkinsRestorer14:latest'
     compileOnly 'me.mrcookieslime:Slimefun4:latest'
     compileOnly 'me.mrcookieslime:Slimefun4-Dev:latest'
     compileOnly 'de.myzelyam:SuperVanish:latest'
@@ -97,6 +105,7 @@ dependencies {
     compileOnly 'org.kitteh:VanishNoPacket:latest'
     compileOnly 'net.milkbowl:Vault:latest'
     compileOnly 'com.bgsoftware:WildStackerAPI:latest'
+    compileOnly 'com.grinderwolf:SlimeWorldManager:latest'
 
     compileOnly "com.onarandombox.multiversecore:Multiverse-Core:4.2.2"
 //    compileOnly "com.sk89q.worldedit:worldedit-core:7.2.0"
@@ -114,10 +123,11 @@ jar {
 
 processResources {
     outputs.upToDateWhen {false}
+    String versionNumber = System.getenv("BUILD_NUMBER") == null ? version : version + "-DEVb" + System.getenv("BUILD_NUMBER")
     eachFile { details ->
         if (details.name.contentEquals('plugin.yml')) {
             filter { String line ->
-                line.replace('${project.version}', version)
+                line.replace('${project.version}', versionNumber)
             }
         }
     }
@@ -142,15 +152,15 @@ shadowJar {
     configurations = [project.configurations.getByName("runtimeClasspath")]
 }
 
+clean {
+    delete file('./archive/')
+}
+
 build {
     dependsOn shadowJar
-    dependsOn publish
+    dependsOn clean
 }
+
 publish.shouldRunAfter shadowJar
 shadowJar.shouldRunAfter build
-
-publishing {
-    repositories {
-        mavenLocal()
-    }
-}
+build.shouldRunAfter subprojects.build

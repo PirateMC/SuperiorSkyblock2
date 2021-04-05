@@ -98,6 +98,7 @@ COMMAND_ARGUMENT_ALL_ISLANDS: '*'
 COMMAND_ARGUMENT_ALL_PLAYERS: '*'
 COMMAND_ARGUMENT_AMOUNT: quantité
 COMMAND_ARGUMENT_BIOME: biome
+COMMAND_ARGUMENT_COMMAND: 'command...'
 COMMAND_ARGUMENT_DISCORD: discord
 COMMAND_ARGUMENT_EFFECT: effet-de-potion
 COMMAND_ARGUMENT_EMAIL: email
@@ -162,6 +163,7 @@ COMMAND_DESCRIPTION_ADMIN_BYPASS: Activer/Désactiver le mode bypass.
 COMMAND_DESCRIPTION_ADMIN_CHEST: Ouvrir le stockage de l'île spécifiée.
 COMMAND_DESCRIPTION_ADMIN_CLEAR_GENERATOR: Réinitialiser le taux des générateurs pour l'île spécifié.
 COMMAND_DESCRIPTION_ADMIN_CLOSE: Fermer une île au public.
+COMMAND_DESCRIPTION_ADMIN_CMD_ALL: 'Execute a command for all members of islands.'
 COMMAND_DESCRIPTION_ADMIN_COUNT: Vérifier le nombre de blocs sur lîle spécifiée.
 COMMAND_DESCRIPTION_ADMIN_DEMOTE: Dégrader un membre de l'île d'un joueur.
 COMMAND_DESCRIPTION_ADMIN_DEPOSIT: Déposer de l'argent sur le compte de l'île d'un joueur.
@@ -320,6 +322,8 @@ GENERATOR_CLEARED_NAME: '&e&lIle | &7Nettoyage des taux des générateurs pour l
 GENERATOR_CLEARED_ALL: '&e&lIle | &7Nettoyage des taux des générateurs de toutes les îles.'
 GENERATOR_UPDATED: '&e&lIle | &7Taux du générateur modifié sur {0} pour l''île de {1}.'
 GENERATOR_UPDATED_NAME: '&e&lIle | &7Taux du générateur modifié sur {0} pour l''île de {1}.'
+GLOBAL_COMMAND_EXECUTED: '&e&lIsland | &7Successfully executed the command on {0}''s island members!'
+GLOBAL_COMMAND_EXECUTED_NAME: '&e&lIsland | &7Successfully executed the command on the island members of {0}!'
 GENERATOR_UPDATED_ALL: '&e&lIle | &7Taux du générateur modifié sur {0} pour toutes les îles.'
 GLOBAL_MESSAGE_SENT: '&e&lIle | &7Message envoyé à tous les membres de l''île de {0} !'
 GLOBAL_MESSAGE_SENT_NAME: '&e&lIle | &7Message envoyé à tous les membres de l''île {0} !'
@@ -468,9 +472,11 @@ ISLAND_INFO_WORTH: '&e&lIle | &7Valeur: {0}'
 ISLAND_OPENED: '&e&lIle | &7L''île est désormais ouverte au public.'
 ISLAND_PREVIEW_CANCEL_DISTANCE: '&e&lPrévisualisation | &7Vous vous êtes trop éloigné(e). La prévisualisation à donc été désactivée.'
 ISLAND_PREVIEW_CANCEL: '&e&lPrévisualisation | &7Vous avez annulé(e) la prévisualisation.'
+ISLAND_PREVIEW_CONFIRM_TEXT: 'CONFIRMER'
+ISLAND_PREVIEW_CANCEL_TEXT: 'ANNULER'
 ISLAND_PREVIEW_START: |
   &e&lPrévisualisation | &7Vous avez débuté la prévisualisation de l'île {0}.
-  &e&lPrévisualisation | &7Tapez &a&lCONFIRM &7pour séléctionner cette île, ou &c&lCANCEL &7pour annuler la prévisualisation.
+  &e&lPrévisualisation | &7Tapez &a&lCONFIRMER &7pour séléctionner cette île, ou &c&lANNULER &7pour annuler la prévisualisation.
   &e&lPrévisualisation | &7Si vous quittez la zone de l'île, la prévisualisation sera désactivée.
 ISLAND_PROTECTED: '&c&lErreur | &7Cette île est protégée.'
 ISLAND_TEAM_STATUS_FOOTER: ''
@@ -682,6 +688,7 @@ WARP_CATEGORY_ICON_NEW_LORE: |
 WARP_CATEGORY_ICON_NEW_NAME: '&e&lWarps | &7Enter a name (Type "-cancel" to cancel):'
 WARP_CATEGORY_ICON_NEW_TYPE: '&e&lWarps | &7Enter a new material type (Type "-cancel" to cancel):'
 WARP_CATEGORY_ICON_UPDATED: '&e&lWarps | &7Successfully updated the category''s icon.'
+WARP_CATEGORY_ILLEGAL_NAME: '&c&lError | &7You can only use alphabetical letters, numbers and ''_'' for warp category names.'
 WARP_CATEGORY_SLOT: '&e&lWarps | &7Enter a new slot (Type "-cancel" to cancel):'
 WARP_CATEGORY_SLOT_ALREADY_TAKEN: '&c&lError | &7This slot is already taken by another category.'
 WARP_CATEGORY_SLOT_SUCCESS: '&e&lWarps | &7Successfully changed the category''s slot to {0}.'
@@ -694,6 +701,7 @@ WARP_ICON_NEW_LORE: |
 WARP_ICON_NEW_NAME: '&e&lWarps | &7Enter a name (Type "-cancel" to cancel):'
 WARP_ICON_NEW_TYPE: '&e&lWarps | &7Enter a new material type (Type "-cancel" to cancel):'
 WARP_ICON_UPDATED: '&e&lWarps | &7Successfully updated the warp''s icon.'
+WARP_ILLEGAL_NAME: '&c&lError | &7You can only use alphabetical letters, numbers and ''_'' for warp names.'
 WARP_LOCATION_UPDATE: '&e&lWarps | &7Successfully updated the warp''s location to your location.'
 WARP_PUBLIC_UPDATE: '&e&lWarps | &7Successfully opened the warp to the public.'
 WARP_PRIVATE_UPDATE: '&e&lWarps | &7Successfully closed the warp to the public.'

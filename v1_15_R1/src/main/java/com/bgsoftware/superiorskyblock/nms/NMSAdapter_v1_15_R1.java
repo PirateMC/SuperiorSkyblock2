@@ -1,10 +1,10 @@
 package com.bgsoftware.superiorskyblock.nms;
 
+import com.bgsoftware.common.reflection.ReflectField;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.utils.key.Key;
-import com.bgsoftware.superiorskyblock.utils.reflections.ReflectField;
 import com.bgsoftware.superiorskyblock.utils.tags.CompoundTag;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
@@ -85,6 +85,14 @@ public final class NMSAdapter_v1_15_R1 implements NMSAdapter {
         BlockPosition blockPosition = new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
         TileEntityMobSpawner mobSpawner = (TileEntityMobSpawner)((CraftWorld) location.getWorld()).getHandle().getTileEntity(blockPosition);
         return mobSpawner.getSpawner().spawnDelay;
+    }
+
+    @Override
+    public void setSpawnerDelay(CreatureSpawner creatureSpawner, int spawnDelay) {
+        Location location = creatureSpawner.getLocation();
+        BlockPosition blockPosition = new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        TileEntityMobSpawner mobSpawner = (TileEntityMobSpawner)((CraftWorld) location.getWorld()).getHandle().getTileEntity(blockPosition);
+        mobSpawner.getSpawner().spawnDelay = spawnDelay;
     }
 
     @Override

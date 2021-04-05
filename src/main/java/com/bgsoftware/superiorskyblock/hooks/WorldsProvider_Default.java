@@ -5,6 +5,7 @@ import com.bgsoftware.superiorskyblock.api.hooks.WorldsProvider;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.handlers.SettingsHandler;
 import com.bgsoftware.superiorskyblock.wrappers.SBlockPosition;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import org.bukkit.Bukkit;
 import org.bukkit.Difficulty;
@@ -14,12 +15,14 @@ import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
 import org.bukkit.block.BlockFace;
 
+import java.util.EnumMap;
 import java.util.Set;
 import java.util.UUID;
 
 public final class WorldsProvider_Default implements WorldsProvider {
 
     private final Set<SBlockPosition> servedPositions = Sets.newHashSet();
+    private final EnumMap<World.Environment, World> islandWorlds = new EnumMap<>(World.Environment.class);
     private final SuperiorSkyblockPlugin plugin;
 
     public WorldsProvider_Default(SuperiorSkyblockPlugin plugin){
@@ -29,7 +32,7 @@ public final class WorldsProvider_Default implements WorldsProvider {
     @Override
     public void prepareWorlds() {
         SettingsHandler settingsHandler = new SettingsHandler(plugin);
-        Difficulty difficulty = Difficulty.valueOf(settingsHandler.worldsDifficulty);
+        Difficulty difficulty = Difficulty.valueOf(settingsHandler.worldsDifficulty.toUpperCase());
         loadWorld(settingsHandler.islandWorldName, difficulty, World.Environment.NORMAL);
         if(settingsHandler.netherWorldEnabled)
             loadWorld(settingsHandler.netherWorldName, difficulty, World.Environment.NETHER);
@@ -39,33 +42,21 @@ public final class WorldsProvider_Default implements WorldsProvider {
 
     @Override
     public World getIslandsWorld(Island island, World.Environment environment) {
-        String worldName = "";
-
-        switch (environment){
-            case NORMAL:
-                worldName = plugin.getSettings().islandWorldName;
-                break;
-            case NETHER:
-                if(isNetherEnabled())
-                    worldName = plugin.getSettings().netherWorldName;
-                break;
-            case THE_END:
-                if(isEndEnabled())
-                    worldName = plugin.getSettings().endWorldName;
-                break;
-        }
-
-        return worldName.isEmpty() ? null : Bukkit.getWorld(worldName);
+        Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
+        return islandWorlds.get(environment);
     }
 
     @Override
     public boolean isIslandsWorld(World world) {
+        Preconditions.checkNotNull(world, "world parameter cannot be null.");
         World islandsWorld = getIslandsWorld(null, world.getEnvironment());
         return islandsWorld != null && world.getUID().equals(islandsWorld.getUID());
     }
 
     @Override
     public Location getNextLocation(Location previousLocation, int islandsHeight, int maxIslandSize, UUID islandOwner, UUID islandUUID) {
+        Preconditions.checkNotNull(previousLocation, "previousLocation parameter cannot be null.");
+
         Location location = previousLocation.clone();
         location.setY(islandsHeight);
         BlockFace islandFace = getIslandFace(location);
@@ -104,8 +95,8 @@ public final class WorldsProvider_Default implements WorldsProvider {
 
     @Override
     public void finishIslandCreation(Location islandLocation, UUID islandOwner, UUID islandUUID) {
-        if(islandLocation != null)
-            servedPositions.remove(SBlockPosition.of(islandLocation));
+        Preconditions.checkNotNull(islandLocation, "islandLocation parameter cannot be null.");
+        servedPositions.remove(SBlockPosition.of(islandLocation));
     }
 
     @Override
@@ -153,6 +144,7 @@ public final class WorldsProvider_Default implements WorldsProvider {
 
         World world = WorldCreator.name(worldName).type(WorldType.FLAT).environment(environment).generator(plugin.getGenerator()).createWorld();
         world.setDifficulty(difficulty);
+        islandWorlds.put(environment, world);
 
         if(Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core")){
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import " + worldName + " normal -g " + plugin.getName());

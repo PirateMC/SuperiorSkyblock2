@@ -5,12 +5,17 @@ import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.objects.Pair;
 import com.bgsoftware.superiorskyblock.utils.StringUtils;
+import com.bgsoftware.superiorskyblock.utils.key.ConstantKeys;
 import com.bgsoftware.superiorskyblock.utils.key.Key;
 import com.bgsoftware.superiorskyblock.utils.legacy.Materials;
+import com.bgsoftware.superiorskyblock.utils.threads.Executor;
+import com.google.common.base.Preconditions;
 import com.songoda.epicspawners.EpicSpawners;
 import com.songoda.epicspawners.api.events.SpawnerBreakEvent;
 import com.songoda.epicspawners.api.events.SpawnerChangeEvent;
 import com.songoda.epicspawners.api.events.SpawnerPlaceEvent;
+import com.songoda.epicspawners.spawners.spawner.Spawner;
+import com.songoda.epicspawners.spawners.spawner.SpawnerData;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
@@ -34,20 +39,24 @@ public final class BlocksProvider_EpicSpawners implements BlocksProvider {
 
     @Override
     public Pair<Integer, String> getSpawner(Location location) {
+        Preconditions.checkNotNull(location, "location parameter cannot be null.");
+
         int blockCount = -1;
+        String entityType = null;
+
         if(Bukkit.isPrimaryThread()){
-            blockCount = instance.getSpawnerManager().getSpawnerFromWorld(location).getFirstStack().getStackSize();
+            Spawner spawner = instance.getSpawnerManager().getSpawnerFromWorld(location);
+            blockCount = spawner.getFirstStack().getStackSize();
+            entityType = spawner.getIdentifyingName();
         }
-        return new Pair<>(blockCount, null);
+
+        return new Pair<>(blockCount, entityType);
     }
 
     @Override
     public String getSpawnerType(ItemStack itemStack) {
-        try {
-            return instance.getSpawnerManager().getSpawnerData(itemStack).getEntities().get(0).name();
-        }catch (Exception ex){
-            return "PIG";
-        }
+        Preconditions.checkNotNull(itemStack, "itemStack parameter cannot be null.");
+        return instance.getSpawnerManager().getSpawnerData(itemStack).getIdentifyingName();
     }
 
     @SuppressWarnings("unused")
@@ -62,16 +71,33 @@ public final class BlocksProvider_EpicSpawners implements BlocksProvider {
             if(island == null)
                 return;
 
-            Key blockKey = Key.of(Materials.SPAWNER.toBukkitType() + ":" + e.getSpawner().getIdentifyingName().toUpperCase().replace(' ', '_'));
+            SpawnerData spawnerData = e.getSpawner().getFirstStack().getSpawnerData();
+
+            Key spawnerKey = Key.of(Materials.SPAWNER.toBukkitType() + ":" + e.getSpawner().getIdentifyingName());
             int increaseAmount = e.getSpawner().getFirstStack().getStackSize();
 
-            if(island.hasReachedBlockLimit(blockKey, increaseAmount)){
+            if(spawnerData.isCustom()) {
+                // Custom spawners are egg spawners. Therefore, we want to remove one egg spawner from the counts and
+                // replace it with the custom spawner. We subtract the spawner 1 tick later, so it will be registered
+                // before removing it.
+                Executor.sync(() -> island.handleBlockBreak(ConstantKeys.EGG_MOB_SPAWNER, 1), 1L);
+            }
+            else{
+                // Vanilla spawners are listened in the vanilla listeners as well, and therefore 1 spawner is already
+                // being counted by the other listeners. We need to subtract 1 so the counts will be adjusted correctly.
+                increaseAmount--;
+            }
+
+            if(increaseAmount <= 0)
+                return;
+
+            if(island.hasReachedBlockLimit(spawnerKey, increaseAmount)){
                 e.setCancelled(true);
-                Locale.REACHED_BLOCK_LIMIT.send(e.getPlayer(), StringUtils.format(blockKey.toString()));
+                Locale.REACHED_BLOCK_LIMIT.send(e.getPlayer(), StringUtils.format(spawnerKey.toString()));
             }
 
             else{
-                island.handleBlockPlace(blockKey, increaseAmount - 1);
+                island.handleBlockPlace(spawnerKey, increaseAmount);
             }
         }
 
@@ -82,7 +108,7 @@ public final class BlocksProvider_EpicSpawners implements BlocksProvider {
             if(island == null)
                 return;
 
-            Key blockKey = Key.of(Materials.SPAWNER.toBukkitType() + ":" + e.getSpawner().getIdentifyingName().toUpperCase().replace(' ', '_'));
+            Key blockKey = Key.of(Materials.SPAWNER.toBukkitType() + ":" + e.getSpawner().getIdentifyingName());
 
             int increaseAmount = e.getStackSize() - e.getOldStackSize();
 
@@ -103,8 +129,13 @@ public final class BlocksProvider_EpicSpawners implements BlocksProvider {
         @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
         public void onSpawnerUnstack(SpawnerBreakEvent e){
             Island island = plugin.getGrid().getIslandAt(e.getSpawner().getLocation());
-            if(island != null)
-                island.handleBlockBreak(e.getSpawner().getLocation().getBlock(), e.getSpawner().getFirstStack().getStackSize());
+
+            if(island == null)
+                return;
+
+            Key blockKey = Key.of(Materials.SPAWNER.toBukkitType() + ":" + e.getSpawner().getIdentifyingName());
+
+            island.handleBlockBreak(blockKey, e.getSpawner().getFirstStack().getStackSize());
         }
 
     }

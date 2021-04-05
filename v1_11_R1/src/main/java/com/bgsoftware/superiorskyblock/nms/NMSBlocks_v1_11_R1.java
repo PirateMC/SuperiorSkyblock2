@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.nms;
 
+import com.bgsoftware.common.reflection.ReflectField;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.generator.WorldGenerator;
@@ -10,7 +11,6 @@ import com.bgsoftware.superiorskyblock.utils.chunks.ChunksTracker;
 import com.bgsoftware.superiorskyblock.utils.key.Key;
 import com.bgsoftware.superiorskyblock.utils.key.KeyMap;
 import com.bgsoftware.superiorskyblock.utils.objects.CalculatedChunk;
-import com.bgsoftware.superiorskyblock.utils.reflections.ReflectField;
 import com.bgsoftware.superiorskyblock.utils.tags.CompoundTag;
 import com.bgsoftware.superiorskyblock.utils.threads.Executor;
 import com.google.common.collect.Maps;
@@ -271,8 +271,13 @@ public final class NMSBlocks_v1_11_R1 implements NMSBlocks {
         runActionOnChunk(chunkPosition.getWorld(), chunkCoords, true, onFinish, chunk -> {
             Arrays.fill(chunk.getSections(), Chunk.a);
 
-            for(int i = 0; i < chunk.entitySlices.length; i++)
+            for(int i = 0; i < chunk.entitySlices.length; i++) {
+                chunk.entitySlices[i].forEach(entity -> {
+                    if(!(entity instanceof EntityHuman))
+                        entity.dead = true;
+                });
                 chunk.entitySlices[i] = new UnsafeList<>();
+            }
 
             new HashSet<>(chunk.tileEntities.keySet()).forEach(chunk.world::s);
             chunk.tileEntities.clear();

@@ -1,10 +1,10 @@
 package com.bgsoftware.superiorskyblock.nms;
 
+import com.bgsoftware.common.reflection.ReflectField;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.utils.key.Key;
-import com.bgsoftware.superiorskyblock.utils.reflections.ReflectField;
 import com.bgsoftware.superiorskyblock.utils.tags.CompoundTag;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
@@ -81,24 +81,39 @@ public final class NMSAdapter_v1_12_R1 implements NMSAdapter {
     }
 
     @Override
+    public void setSpawnerDelay(CreatureSpawner creatureSpawner, int spawnDelay) {
+        Location location = creatureSpawner.getLocation();
+        TileEntityMobSpawner mobSpawner = (TileEntityMobSpawner)((CraftWorld) location.getWorld())
+                .getTileEntityAt(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        mobSpawner.getSpawner().spawnDelay = spawnDelay;
+    }
+
+    @Override
     public void setWorldBorder(SuperiorPlayer superiorPlayer, Island island) {
         try {
             if(!plugin.getSettings().worldBordersEnabled)
                 return;
 
+            Player player = superiorPlayer.asPlayer();
+
+            if(player == null)
+                return;
+
+            WorldServer worldServer = ((CraftWorld) player.getWorld()).getHandle();
+
             WorldBorder worldBorder;
 
             if(!superiorPlayer.hasWorldBorderEnabled() || island == null || (!plugin.getSettings().spawnWorldBorder && island.isSpawn())){
-                worldBorder = ((CraftWorld) superiorPlayer.getWorld()).getHandle().getWorldBorder();
+                worldBorder = worldServer.getWorldBorder();
             }
 
             else {
                 worldBorder = new WorldBorder();
 
-                worldBorder.world = ((CraftWorld) superiorPlayer.getWorld()).getHandle();
+                worldBorder.world = worldServer;
                 worldBorder.setSize((island.getIslandSize() * 2) + 1);
 
-                org.bukkit.World.Environment environment = superiorPlayer.getWorld().getEnvironment();
+                org.bukkit.World.Environment environment = player.getWorld().getEnvironment();
 
                 Location center = island.getCenter(environment);
                 worldBorder.setCenter(center.getX(), center.getZ());
@@ -114,15 +129,17 @@ public final class NMSAdapter_v1_12_R1 implements NMSAdapter {
             }
 
             PacketPlayOutWorldBorder packetPlayOutWorldBorder = new PacketPlayOutWorldBorder(worldBorder, PacketPlayOutWorldBorder.EnumWorldBorderAction.INITIALIZE);
-            ((CraftPlayer) superiorPlayer.asPlayer()).getHandle().playerConnection.sendPacket(packetPlayOutWorldBorder);
+            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packetPlayOutWorldBorder);
         } catch (NullPointerException ignored) {}
     }
 
     @Override
     public void setSkinTexture(SuperiorPlayer superiorPlayer) {
-        EntityPlayer entityPlayer = ((CraftPlayer) superiorPlayer.asPlayer()).getHandle();
-        Optional<Property> optional = entityPlayer.getProfile().getProperties().get("textures").stream().findFirst();
-        optional.ifPresent(property -> setSkinTexture(superiorPlayer, property));
+        superiorPlayer.runIfOnline(player -> {
+            EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
+            Optional<Property> optional = entityPlayer.getProfile().getProperties().get("textures").stream().findFirst();
+            optional.ifPresent(property -> setSkinTexture(superiorPlayer, property));
+        });
     }
 
     @Override

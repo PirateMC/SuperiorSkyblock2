@@ -3,6 +3,11 @@ package com.bgsoftware.superiorskyblock.raiding;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.raiding.util.BlockVectorUtils;
+import com.bgsoftware.wildstacker.api.WildStackerAPI;
+import com.bgsoftware.wildstacker.api.handlers.SystemManager;
+import com.bgsoftware.wildstacker.api.objects.StackedBarrel;
+import com.bgsoftware.wildstacker.api.objects.StackedObject;
+import com.bgsoftware.wildstacker.api.objects.StackedSpawner;
 import com.boydti.fawe.object.mask.AirMask;
 import com.boydti.fawe.object.mask.LiquidMask;
 import com.sk89q.worldedit.EditSession;
@@ -16,15 +21,17 @@ import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.session.ClipboardHolder;
+import org.bukkit.ChunkSnapshot;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 
-import java.util.UUID;
+import java.util.*;
+
+//TODO Move copy code to IslandCopy class
 
 public final class RaidIsland {
-    private final UUID owner;
     private final Location location;
     private final CuboidRegion region;
     private boolean flip;
@@ -32,7 +39,6 @@ public final class RaidIsland {
     private final Island island;
 
     RaidIsland(Island island, Location location) {
-        this.owner = island.getOwner().getUniqueId();
         this.location = location;
         this.island = island;
         region = getIslandRegion(island);
@@ -50,7 +56,6 @@ public final class RaidIsland {
 
     private CuboidRegion getIslandRegion(Island island) {
         Location center = island.getCenter(World.Environment.NORMAL);
-        SuperiorSkyblockPlugin.raidDebug("The radius is " + island.getIslandSize());
         CuboidRegion region = CuboidRegion.fromCenter(BlockVectorUtils.fromLocation(center), island.getIslandSize());
         region.setWorld(BukkitAdapter.adapt(center.getWorld()));
         return region;
@@ -60,7 +65,7 @@ public final class RaidIsland {
         this.flip = flip;
     }
 
-    private BlockArrayClipboard copyIsland() {
+    private BlockArrayClipboard copyIslandBlocks() {
         BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
         try (EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(region.getWorld(), -1)) {
             ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(session, region, clipboard, region.getMinimumPoint());
@@ -72,7 +77,32 @@ public final class RaidIsland {
         return clipboard;
     }
 
-    private void pasteIsland(BlockArrayClipboard clipboard) {
+    private Set<StackedObject> getWildStackerBlocks() {
+        Set<StackedObject> wildStackerBlocks = new HashSet<>();
+        SystemManager systemManager = WildStackerAPI.getWildStacker().getSystemManager();
+        island.getAllChunks().forEach(chunk -> {
+            ChunkSnapshot snapshot = chunk.getChunkSnapshot();
+            for (int x = 0; x < 16; x++)
+                for (int z = 0; z < 16; z++)
+                    for (int y = 0; y < snapshot.getHighestBlockYAt(x, z); y++) {
+                        Block block = chunk.getBlock(x, y, z);
+                        if (systemManager.isStackedBarrel(block)) {
+                            wildStackerBlocks.add(systemManager.getStackedBarrel(block));
+                        } else if (systemManager.isStackedSpawner(block)) {
+                            wildStackerBlocks.add(systemManager.getStackedSpawner(block.getLocation()));
+                        } else {
+                            //TODO Empty else clause
+                        }
+                    }
+        });
+        return wildStackerBlocks;
+    }
+
+    private IslandCopy copyIsland() {
+        return new IslandCopy(copyIslandBlocks(), getWildStackerBlocks());
+    }
+
+    private void pasteIslandBlocks(BlockArrayClipboard clipboard) {
         try (EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(location.getWorld()), -1)) {
             ClipboardHolder holder = new ClipboardHolder(clipboard);
             //TODO Fix flipping functionality
@@ -94,9 +124,50 @@ public final class RaidIsland {
         }
     }
 
+    private Map<Location, StackedObject> getStackedBlockOffsets(Set<StackedObject> stackedBlocks) {
+        Map<Location, StackedObject> stackedBlockOffsets = new HashMap<>();
+        Location center = island.getCenter(World.Environment.NORMAL);
+        stackedBlocks.forEach(stackedBlock -> {
+            int xOffset = stackedBlock.getLocation().getBlockX() - center.getBlockX();
+            int yOffset = stackedBlock.getLocation().getBlockY() - center.getBlockY();
+            int zOffset = stackedBlock.getLocation().getBlockZ() - center.getBlockZ();
+            stackedBlockOffsets.put(new Location(location.getWorld(), xOffset, yOffset, zOffset), stackedBlock);
+        });
+        return stackedBlockOffsets;
+    }
+
+    private void pasteIslandStackedBlocks(Set<StackedObject> stackedBlocks) {
+        Map<Location, StackedObject> stackedBlockOffsets = getStackedBlockOffsets(stackedBlocks);
+        SystemManager manager = WildStackerAPI.getWildStacker().getSystemManager();
+        stackedBlockOffsets.forEach((offset, stackedBlock) -> {
+            Block block = location.clone().add(
+                    island.getIslandSize() + offset.getBlockX(),
+                    island.getIslandSize() + offset.getBlockY(),
+                    island.getIslandSize() + offset.getBlockZ()
+            ).getBlock();
+            if (stackedBlock instanceof StackedBarrel) {
+                manager.getStackedBarrel(block).setStackAmount(stackedBlock.getStackAmount(), true);
+            } else if (stackedBlock instanceof StackedSpawner) {
+                SuperiorSkyblockPlugin.raidDebug("Block type: " + block.getType());
+//                block.setType(Material.GLOWSTONE);
+                StackedSpawner spawner = manager.getStackedSpawner(block.getLocation());
+                spawner.setStackAmount(stackedBlock.getStackAmount(), true);
+                spawner.setLinkedEntity(((StackedSpawner) stackedBlock).getLinkedEntity());
+            } else {
+                //TODO Empty else clause
+            }
+        });
+        SuperiorSkyblockPlugin.raidDebug("Finished pasting stacked blocks.");
+    }
+
+    private void pasteIsland(IslandCopy copy) {
+        pasteIslandBlocks(copy.getClipboard());
+        pasteIslandStackedBlocks(copy.getStackedBlocks());
+    }
+
     void copyPaste() {
-        BlockArrayClipboard clipboard = copyIsland();
-        pasteIsland(clipboard);
+        IslandCopy copy = copyIsland();
+        pasteIsland(copy);
     }
 
     void restore() {
@@ -107,12 +178,11 @@ public final class RaidIsland {
                     if (y <= SuperiorSkyblockPlugin.RAID_WORLD_WATER_LEVEL) block.setType(Material.WATER);
                     else block.setType(Material.AIR);
                 }
-
         SuperiorSkyblockPlugin.raidDebug("Restored raid island at " + location);
     }
 
     UUID getOwner() {
-        return owner;
+        return island.getOwner().getUniqueId();
     }
 
     Location getTeleportLocation() {

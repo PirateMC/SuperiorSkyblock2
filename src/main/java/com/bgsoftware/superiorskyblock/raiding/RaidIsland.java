@@ -129,19 +129,17 @@ public final class RaidIsland {
         Map<Location, Object> stackedBlockOffsets = new HashMap<>();
         Location center = island.getCenter(World.Environment.NORMAL);
         stackedBlocks.forEach(stackedBlock -> {
-            if (stackedBlock instanceof StackedObject) {
-                int xOffset = ((StackedObject) stackedBlock).getLocation().getBlockX() - center.getBlockX();
-                int yOffset = ((StackedObject) stackedBlock).getLocation().getBlockY() - center.getBlockY();
-                int zOffset = ((StackedObject) stackedBlock).getLocation().getBlockZ() - center.getBlockZ();
-                stackedBlockOffsets.put(new Location(location.getWorld(), xOffset, yOffset, zOffset), stackedBlock);
-            } else if (stackedBlock instanceof StackedBlocksHandler.StackedBlock) {
-                int xOffset = ((StackedBlocksHandler.StackedBlock) stackedBlock).getBlockPosition().getX() - center.getBlockX();
-                int yOffset = ((StackedBlocksHandler.StackedBlock) stackedBlock).getBlockPosition().getY() - center.getBlockY();
-                int zOffset = ((StackedBlocksHandler.StackedBlock) stackedBlock).getBlockPosition().getZ() - center.getBlockZ();
-                stackedBlockOffsets.put(new Location(location.getWorld(), xOffset, yOffset, zOffset), stackedBlock);
-            }
+            int xOffset = getLocationOfStackedObject(stackedBlock).getBlockX() - center.getBlockX();
+            int yOffset = getLocationOfStackedObject(stackedBlock).getBlockY() - center.getBlockY();
+            int zOffset = getLocationOfStackedObject(stackedBlock).getBlockZ() - center.getBlockZ();
+            stackedBlockOffsets.put(new Location(location.getWorld(), xOffset, yOffset, zOffset), stackedBlock);
         });
         return stackedBlockOffsets;
+    }
+
+    private Location getLocationOfStackedObject(Object stackedBlock) {
+        if (stackedBlock instanceof StackedObject) return ((StackedObject<?>) stackedBlock).getLocation();
+        else return ((StackedBlocksHandler.StackedBlock) stackedBlock).getBlockPosition().parse();
     }
 
     private void pasteIslandStackedBlocks(Set<Object> stackedBlocks) {

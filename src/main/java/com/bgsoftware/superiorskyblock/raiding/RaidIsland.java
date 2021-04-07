@@ -2,7 +2,9 @@ package com.bgsoftware.superiorskyblock.raiding;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
+import com.bgsoftware.superiorskyblock.handlers.StackedBlocksHandler;
 import com.bgsoftware.superiorskyblock.raiding.util.BlockVectorUtils;
+import com.bgsoftware.superiorskyblock.utils.chunks.ChunkPosition;
 import com.bgsoftware.wildstacker.api.WildStackerAPI;
 import com.bgsoftware.wildstacker.api.handlers.SystemManager;
 import com.bgsoftware.wildstacker.api.objects.StackedBarrel;
@@ -77,8 +79,8 @@ public final class RaidIsland {
         return clipboard;
     }
 
-    private Set<StackedObject> getWildStackerBlocks() {
-        Set<StackedObject> wildStackerBlocks = new HashSet<>();
+    private Set<Object> getStackedBlocks() {
+        Set<Object> stackedBlocks = new HashSet<>();
         SystemManager systemManager = WildStackerAPI.getWildStacker().getSystemManager();
         island.getAllChunks().forEach(chunk -> {
             ChunkSnapshot snapshot = chunk.getChunkSnapshot();
@@ -87,19 +89,18 @@ public final class RaidIsland {
                     for (int y = 0; y < snapshot.getHighestBlockYAt(x, z); y++) {
                         Block block = chunk.getBlock(x, y, z);
                         if (systemManager.isStackedBarrel(block)) {
-                            wildStackerBlocks.add(systemManager.getStackedBarrel(block));
+                            stackedBlocks.add(systemManager.getStackedBarrel(block));
                         } else if (systemManager.isStackedSpawner(block)) {
-                            wildStackerBlocks.add(systemManager.getStackedSpawner(block.getLocation()));
-                        } else {
-                            //TODO Empty else clause
+                            stackedBlocks.add(systemManager.getStackedSpawner(block.getLocation()));
                         }
                     }
+            stackedBlocks.addAll(SuperiorSkyblockPlugin.getPlugin().getGrid().getStackedBlocks(ChunkPosition.of(chunk)));
         });
-        return wildStackerBlocks;
+        return stackedBlocks;
     }
 
     private IslandCopy copyIsland() {
-        return new IslandCopy(copyIslandBlocks(), getWildStackerBlocks());
+        return new IslandCopy(copyIslandBlocks(), getStackedBlocks());
     }
 
     private void pasteIslandBlocks(BlockArrayClipboard clipboard) {
@@ -124,20 +125,27 @@ public final class RaidIsland {
         }
     }
 
-    private Map<Location, StackedObject> getStackedBlockOffsets(Set<StackedObject> stackedBlocks) {
-        Map<Location, StackedObject> stackedBlockOffsets = new HashMap<>();
+    private Map<Location, Object> getStackedBlockOffsets(Set<Object> stackedBlocks) {
+        Map<Location, Object> stackedBlockOffsets = new HashMap<>();
         Location center = island.getCenter(World.Environment.NORMAL);
         stackedBlocks.forEach(stackedBlock -> {
-            int xOffset = stackedBlock.getLocation().getBlockX() - center.getBlockX();
-            int yOffset = stackedBlock.getLocation().getBlockY() - center.getBlockY();
-            int zOffset = stackedBlock.getLocation().getBlockZ() - center.getBlockZ();
-            stackedBlockOffsets.put(new Location(location.getWorld(), xOffset, yOffset, zOffset), stackedBlock);
+            if (stackedBlock instanceof StackedObject) {
+                int xOffset = ((StackedObject) stackedBlock).getLocation().getBlockX() - center.getBlockX();
+                int yOffset = ((StackedObject) stackedBlock).getLocation().getBlockY() - center.getBlockY();
+                int zOffset = ((StackedObject) stackedBlock).getLocation().getBlockZ() - center.getBlockZ();
+                stackedBlockOffsets.put(new Location(location.getWorld(), xOffset, yOffset, zOffset), stackedBlock);
+            } else if (stackedBlock instanceof StackedBlocksHandler.StackedBlock) {
+                int xOffset = ((StackedBlocksHandler.StackedBlock) stackedBlock).getBlockPosition().getX() - center.getBlockX();
+                int yOffset = ((StackedBlocksHandler.StackedBlock) stackedBlock).getBlockPosition().getY() - center.getBlockY();
+                int zOffset = ((StackedBlocksHandler.StackedBlock) stackedBlock).getBlockPosition().getZ() - center.getBlockZ();
+                stackedBlockOffsets.put(new Location(location.getWorld(), xOffset, yOffset, zOffset), stackedBlock);
+            }
         });
         return stackedBlockOffsets;
     }
 
-    private void pasteIslandStackedBlocks(Set<StackedObject> stackedBlocks) {
-        Map<Location, StackedObject> stackedBlockOffsets = getStackedBlockOffsets(stackedBlocks);
+    private void pasteIslandStackedBlocks(Set<Object> stackedBlocks) {
+        Map<Location, Object> stackedBlockOffsets = getStackedBlockOffsets(stackedBlocks);
         SystemManager manager = WildStackerAPI.getWildStacker().getSystemManager();
         stackedBlockOffsets.forEach((offset, stackedBlock) -> {
             Block block = location.clone().add(
@@ -146,15 +154,13 @@ public final class RaidIsland {
                     island.getIslandSize() + offset.getBlockZ()
             ).getBlock();
             if (stackedBlock instanceof StackedBarrel) {
-                manager.getStackedBarrel(block).setStackAmount(stackedBlock.getStackAmount(), true);
+                manager.getStackedBarrel(block).setStackAmount(((StackedBarrel) stackedBlock).getStackAmount(), true);
             } else if (stackedBlock instanceof StackedSpawner) {
-                SuperiorSkyblockPlugin.raidDebug("Block type: " + block.getType());
-//                block.setType(Material.GLOWSTONE);
                 StackedSpawner spawner = manager.getStackedSpawner(block.getLocation());
-                spawner.setStackAmount(stackedBlock.getStackAmount(), true);
+                spawner.setStackAmount(((StackedSpawner) stackedBlock).getStackAmount(), true);
                 spawner.setLinkedEntity(((StackedSpawner) stackedBlock).getLinkedEntity());
-            } else {
-                //TODO Empty else clause
+            } else if (stackedBlock instanceof StackedBlocksHandler.StackedBlock) {
+                SuperiorSkyblockPlugin.getPlugin().getGrid().setBlockAmount(block, ((StackedBlocksHandler.StackedBlock) stackedBlock).getAmount());
             }
         });
         SuperiorSkyblockPlugin.raidDebug("Finished pasting stacked blocks.");

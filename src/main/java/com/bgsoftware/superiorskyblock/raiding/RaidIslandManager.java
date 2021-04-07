@@ -1,7 +1,7 @@
 package com.bgsoftware.superiorskyblock.raiding;
 
+import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
-import com.bgsoftware.superiorskyblock.api.objects.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -32,10 +32,13 @@ public final class RaidIslandManager {
         slots.forEach(RaidSlot::restore);
     }
 
-    public Pair<Location, Location> setupIslands(Island islandOne, Island islandTwo) {
-        World raidWorld = Bukkit.getWorld("RaidWorld");
+    public RaidSlot newRaidSlot(Island islandOne, Island islandTwo) {
+        World raidWorld = Bukkit.getWorld(SuperiorSkyblockPlugin.RAID_WORLD_NAME);
         Location locationOne = new Location(raidWorld, nextRaidLocationX, raidIslandY, nextRaidLocationZ);
         Location locationTwo = new Location(raidWorld, nextRaidLocationX, raidIslandY, nextRaidLocationZ + minimumSpacingBetweenIslands + islandOne.getIslandSize() + islandTwo.getIslandSize());
+
+        SuperiorSkyblockPlugin.raidDebug("Island one size is " + islandOne.getIslandSize());
+        SuperiorSkyblockPlugin.raidDebug("Island two size is " + islandTwo.getIslandSize());
 
         RaidIsland firstRaidIsland = new RaidIsland(islandOne, locationOne);
         firstRaidIsland.flip(false);
@@ -45,10 +48,11 @@ public final class RaidIslandManager {
         secondRaidIsland.flip(true);
         secondRaidIsland.copyPaste();
 
-        slots.add(new RaidSlot(firstRaidIsland, secondRaidIsland));
+        RaidSlot slot = new RaidSlot(firstRaidIsland, secondRaidIsland);
+        slots.add(slot);
         nextRaidLocationX += raidIslandSpacingX + lastIslandMaxSize;
         nextRaidLocationZ += raidIslandSpacingZ;
         lastIslandMaxSize = Integer.max(islandOne.getIslandSize(), islandTwo.getIslandSize());
-        return new Pair<>(locationOne, locationTwo);
+        return slot;
     }
 }

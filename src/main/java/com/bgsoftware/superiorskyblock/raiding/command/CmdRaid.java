@@ -3,11 +3,11 @@ package com.bgsoftware.superiorskyblock.raiding.command;
 import com.bgsoftware.superiorskyblock.Locale;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
-import com.bgsoftware.superiorskyblock.api.objects.Pair;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.commands.ISuperiorCommand;
 import com.bgsoftware.superiorskyblock.raiding.RaidInvitation;
 import com.bgsoftware.superiorskyblock.raiding.RaidInvitationHandler;
+import com.bgsoftware.superiorskyblock.raiding.RaidSlot;
 import com.bgsoftware.superiorskyblock.raiding.SuperiorRaid;
 import com.bgsoftware.superiorskyblock.utils.LocaleUtils;
 import net.md_5.bungee.api.ChatColor;
@@ -16,8 +16,6 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -143,43 +141,19 @@ public final class CmdRaid implements ISuperiorCommand {
             teamTwoMembers.put(superiorPlayer, superiorPlayer.asPlayer().getInventory().getContents());
         }
 
-        Pair<Location, Location> raidIslandLocations = plugin.getRaidIslandManager().setupIslands(teamOneIsland, teamTwoIsland);
-        final World raidWorld = raidIslandLocations.getKey().getWorld();
-        raidIslandLocations.getValue().setYaw(raidIslandLocations.getValue().getYaw());
-
-        Location teleportLocation = teamOneIsland.getTeleportLocation(World.Environment.NORMAL);
-        Location islandCenter = teamOneIsland.getCenter(World.Environment.NORMAL);
-        double xDiff = teleportLocation.getX() - islandCenter.getX();
-        double yDiff = teleportLocation.getY() - islandCenter.getY();
-        double zDiff = teleportLocation.getZ() - islandCenter.getZ();
-        double[] diffs1 = new double[]{xDiff, yDiff, zDiff};
-        teamOneMembers.keySet().forEach(member -> {
-            Location adjustedTeleportLocation = raidIslandLocations.getKey().add(diffs1[0], diffs1[1], diffs1[2]);
-            double y = raidWorld.getHighestBlockYAt(adjustedTeleportLocation.getBlockX(), adjustedTeleportLocation.getBlockZ());
-            member.teleport(new Location(raidWorld, adjustedTeleportLocation.getX(), y, adjustedTeleportLocation.getZ()).add(0.5, 0, 0.5));
-        });
-
-        teleportLocation = teamTwoIsland.getTeleportLocation(World.Environment.NORMAL);
-        islandCenter = teamTwoIsland.getCenter(World.Environment.NORMAL);
-        xDiff = teleportLocation.getX() - islandCenter.getX();
-        yDiff = teleportLocation.getY() - islandCenter.getY();
-        zDiff = teleportLocation.getZ() - islandCenter.getZ();
-        double[] diffs2 = new double[]{xDiff, yDiff, zDiff};
-        teamTwoMembers.keySet().forEach(member -> {
-            Location adjustedTeleportLocation = raidIslandLocations.getValue().subtract(diffs2[0], diffs2[1], diffs2[2]);
-            double y = raidWorld.getHighestBlockYAt(adjustedTeleportLocation.getBlockX(), adjustedTeleportLocation.getBlockZ());
-            member.teleport(new Location(raidWorld, adjustedTeleportLocation.getX(), y, adjustedTeleportLocation.getZ()).add(0.5, 0, 0.5));
-        });
+        RaidSlot raidSlot = plugin.getRaidIslandManager().newRaidSlot(teamOneIsland, teamTwoIsland);
+        teamOneMembers.keySet().forEach(member -> member.teleport(raidSlot.getFirstIslandTeleportLocation()));
+        teamTwoMembers.keySet().forEach(member -> member.teleport(raidSlot.getSecondIslandTeleportLocation()));
 
         SuperiorRaid superiorRaid = new SuperiorRaid();
         superiorRaid.setTeamOnePlayers(teamOneMembers);
         superiorRaid.setTeamTwoPlayers(teamTwoMembers);
-        superiorRaid.setTeamOneLocation(raidIslandLocations.getKey().clone());
-        superiorRaid.setTeamTwoLocation(raidIslandLocations.getValue().clone());
-        superiorRaid.setTeamOneMinLocation(raidIslandLocations.getKey().clone().add(-teamOneIsland.getIslandSize(), -teamOneIsland.getIslandSize(), -teamOneIsland.getIslandSize()));
-        superiorRaid.setTeamOneMaxLocation(raidIslandLocations.getKey().clone().add(teamOneIsland.getIslandSize(), teamOneIsland.getIslandSize(), teamOneIsland.getIslandSize()));
-        superiorRaid.setTeamTwoMinLocation(raidIslandLocations.getValue().clone().add(-teamTwoIsland.getIslandSize(), -teamTwoIsland.getIslandSize(), -teamTwoIsland.getIslandSize()));
-        superiorRaid.setTeamTwoMaxLocation(raidIslandLocations.getValue().clone().add(teamTwoIsland.getIslandSize(), teamTwoIsland.getIslandSize(), teamTwoIsland.getIslandSize()));
+        superiorRaid.setTeamOneLocation(raidSlot.getFirstIslandTeleportLocation().clone());
+        superiorRaid.setTeamTwoLocation(raidSlot.getSecondIslandTeleportLocation().clone());
+        superiorRaid.setTeamOneMinLocation(raidSlot.getFirstIslandTeleportLocation().clone().add(-teamOneIsland.getIslandSize(), -teamOneIsland.getIslandSize(), -teamOneIsland.getIslandSize()));
+        superiorRaid.setTeamOneMaxLocation(raidSlot.getFirstIslandTeleportLocation().clone().add(teamOneIsland.getIslandSize(), teamOneIsland.getIslandSize(), teamOneIsland.getIslandSize()));
+        superiorRaid.setTeamTwoMinLocation(raidSlot.getSecondIslandTeleportLocation().clone().add(-teamTwoIsland.getIslandSize(), -teamTwoIsland.getIslandSize(), -teamTwoIsland.getIslandSize()));
+        superiorRaid.setTeamTwoMaxLocation(raidSlot.getSecondIslandTeleportLocation().clone().add(teamTwoIsland.getIslandSize(), teamTwoIsland.getIslandSize(), teamTwoIsland.getIslandSize()));
 
         plugin.getRaidsHandler().startRaid(superiorRaid);
     }

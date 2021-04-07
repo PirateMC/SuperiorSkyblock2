@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.raiding;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import org.bukkit.Location;
 
 import java.util.UUID;
 
@@ -25,6 +26,14 @@ public final class RaidSlot {
 
     UUID getSecondIslandOwner() {
         return secondIsland.getOwner();
+    }
+
+    public Location getFirstIslandTeleportLocation() {
+        return firstIsland.getTeleportLocation();
+    }
+
+    public Location getSecondIslandTeleportLocation() {
+        return secondIsland.getTeleportLocation();
     }
 
     @Override

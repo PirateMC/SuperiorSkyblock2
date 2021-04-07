@@ -56,7 +56,6 @@ public class CmdRaidRestore implements ISuperiorCommand {
             return;
         }
         plugin.getRaidIslandManager().restoreRaidSlot(player.getUniqueId());
-        //TODO Make message more accurately reflect what happened
         SuperiorSkyblockPlugin.raidDebug("Island of " + player.getName() + " has been removed from raid world.");
     }
 

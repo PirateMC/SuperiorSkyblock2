@@ -174,9 +174,9 @@ public final class RaidIsland {
     }
 
     void restore() {
-        for (int x = (int) location.getX(); x < location.getX() + region.getWidth(); x++)
-            for (int z = (int) location.getZ(); z < location.getZ() + region.getLength(); z++)
-                for (int y = (int) location.getY(); y < location.getY() + region.getHeight(); y++) {
+        for (int x = location.getX(); x < location.getX() + region.getWidth(); x++)
+            for (int z = location.getZ(); z < location.getZ() + region.getLength(); z++)
+                for (int y = location.getY(); y < location.getY() + region.getHeight(); y++) {
                     Block block = world.getBlockAt(x, y, z);
                     if (y <= SuperiorSkyblockPlugin.RAID_WORLD_WATER_LEVEL) block.setType(Material.WATER);
                     else block.setType(Material.AIR);

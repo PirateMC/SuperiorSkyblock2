@@ -30,6 +30,7 @@ public final class RaidIslandManager {
 
     public void restoreAllSlots() {
         slots.forEach(RaidSlot::restore);
+        slots.clear();
     }
 
     public RaidSlot newRaidSlot(Island islandOne, Island islandTwo) {

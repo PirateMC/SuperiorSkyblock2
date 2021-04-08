@@ -18,7 +18,7 @@ public final class RaidIslandManager {
     private final int raidIslandSpacingX = 10000;
     private final int raidIslandSpacingZ = 0;
     private final int minimumSpacingBetweenIslands = 30;
-    private final int raidIslandY = 200;
+    private final int raidIslandY = 200 - 25;
 
     public RaidIslandManager() {
     }

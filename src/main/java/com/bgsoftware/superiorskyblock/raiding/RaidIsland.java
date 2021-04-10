@@ -107,10 +107,9 @@ public final class RaidIsland {
             ClipboardHolder holder = new ClipboardHolder(clipboard);
             //TODO Fix flipping functionality
 //            if (flip) {
-//                AffineTransform affineTransform = new AffineTransform().rotateY(180);
-//                AffineTransform affineTranslate = new AffineTransform().translate(-region.getWidth(), 0, -region.getLength());
-//                holder.setTransform(affineTransform.combine(affineTranslate));
-//                holder.setTransform(affineTransform);
+//                AffineTransform rotation = new AffineTransform().rotateY(180);
+//                AffineTransform translation = new AffineTransform().translate(-region.getWidth(), 0, -region.getLength());
+//                holder.setTransform(rotation.combine(translation));
 //                SuperiorSkyblockPlugin.raidDebug("Flipping island.");
 //            }
             Operation operation = holder

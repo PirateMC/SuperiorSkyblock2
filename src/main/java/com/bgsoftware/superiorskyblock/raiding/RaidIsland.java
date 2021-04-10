@@ -79,14 +79,17 @@ public final class RaidIsland {
     }
 
     private Set<Object> getStackedBlocks() {
+//        return this.getStackedBlocksAsync();
         Set<Object> stackedBlocks = new HashSet<>();
         SystemManager wildStackerSystemManager = WildStackerAPI.getWildStacker().getSystemManager();
         island.getAllChunks().forEach(chunk -> {
             ChunkSnapshot snapshot = chunk.getChunkSnapshot();
             for (int x = 0; x < 16; x++)
                 for (int z = 0; z < 16; z++)
+                    //TODO Change y scan height
                     for (int y = 0; y < snapshot.getHighestBlockYAt(x, z); y++) {
                         Block block = chunk.getBlock(x, y, z);
+                        if (block.getType() == Material.WATER || block.getType() == Material.AIR) continue;
                         if (wildStackerSystemManager.isStackedBarrel(block)) {
                             stackedBlocks.add(wildStackerSystemManager.getStackedBarrel(block));
                         } else if (wildStackerSystemManager.isStackedSpawner(block)) {
@@ -94,6 +97,30 @@ public final class RaidIsland {
                         }
                     }
             stackedBlocks.addAll(SuperiorSkyblockPlugin.getPlugin().getGrid().getStackedBlocks(ChunkPosition.of(chunk)));
+        });
+        return stackedBlocks;
+    }
+
+    private Set<Object> getStackedBlocksAsync() {
+        Set<Object> stackedBlocks = new HashSet<>();
+        Bukkit.getScheduler().runTaskAsynchronously(SuperiorSkyblockPlugin.getPlugin(), () -> {
+            SystemManager wildStackerSystemManager = WildStackerAPI.getWildStacker().getSystemManager();
+            island.getAllChunks().forEach(chunk -> {
+                ChunkSnapshot snapshot = chunk.getChunkSnapshot();
+                for (int x = 0; x < 16; x++)
+                    for (int z = 0; z < 16; z++)
+                        //TODO Change y scan height
+                        for (int y = 0; y < snapshot.getHighestBlockYAt(x, z); y++) {
+                            Block block = chunk.getBlock(x, y, z);
+                            if (block.getType() == Material.WATER || block.getType() == Material.AIR) continue;
+                            if (wildStackerSystemManager.isStackedBarrel(block)) {
+                                stackedBlocks.add(wildStackerSystemManager.getStackedBarrel(block));
+                            } else if (wildStackerSystemManager.isStackedSpawner(block)) {
+                                stackedBlocks.add(wildStackerSystemManager.getStackedSpawner(block.getLocation()));
+                            }
+                        }
+                stackedBlocks.addAll(SuperiorSkyblockPlugin.getPlugin().getGrid().getStackedBlocks(ChunkPosition.of(chunk)));
+            });
         });
         return stackedBlocks;
     }

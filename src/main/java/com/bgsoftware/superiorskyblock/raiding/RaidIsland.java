@@ -141,7 +141,7 @@ public final class RaidIsland {
         Location center = island.getCenter(World.Environment.NORMAL);
         stackedBlocks.forEach(stackedBlock -> {
             Location stackedBlockLocation = getLocationOfStackedObject(stackedBlock).subtract(center);
-            Vector stackedBlockVector = rotateAroundY(stackedBlockLocation.toVector(), getRotation() * 3.14 / 180);
+            Vector stackedBlockVector = rotateAroundY(stackedBlockLocation.toVector(), getRotation() * Math.PI / 180);
             stackedBlockOffsets.put(stackedBlockVector.toLocation(world).add(1, 0, 1), stackedBlock);
         });
         return stackedBlockOffsets;

@@ -44,7 +44,7 @@ public final class RaidIslandManager {
         SuperiorSkyblockPlugin.raidDebug("Island two size is " + islandTwo.getIslandSize());
 
         RaidIsland firstRaidIsland = new RaidIsland(islandOne, locationOne);
-        firstRaidIsland.flip(false);
+//        firstRaidIsland.flip(false);
         firstRaidIsland.copyPaste();
 
         RaidIsland secondRaidIsland = new RaidIsland(islandTwo, locationTwo);

@@ -18,7 +18,6 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.function.RegionMaskingFilter;
 import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
-import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.math.transform.AffineTransform;
@@ -112,10 +111,6 @@ public final class RaidIsland {
     }
 
     private Set<Object> getStackedBlocks() {
-        return this.getStackedBlocksAsync();
-    }
-
-    private Set<Object> getStackedBlocksAsync() {
         Set<Object> stackedBlocks = new HashSet<>();
         SystemManager wildStackerSystemManager = WildStackerAPI.getWildStacker().getSystemManager();
         island.getAllChunks().forEach(chunk -> {
@@ -174,13 +169,6 @@ public final class RaidIsland {
                 holder.setTransform(rotation.combine(translation));
             }
             SuperiorSkyblockPlugin.raidDebug("Flipping island.");
-            Operation operation = holder
-                    .createPaste(session)
-                    .to(BlockVector3.at(location.getX(), location.getY(), location.getZ()))
-                    .ignoreAirBlocks(true)
-                    .copyEntities(true)
-                    .build();
-            Operations.complete(operation);
             SuperiorSkyblockPlugin.raidDebug("Finished pasting at " + location);
         }
     }

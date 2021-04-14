@@ -155,11 +155,24 @@ public class RaidsHandler {
 
                     if (block.getType() == Material.AIR) continue;
 
-                    //TODO Check if it's a stacked block
-
-                    int value = SuperiorSkyblockPlugin.getPlugin().getBlockValues().getBlockWorth(Key.of(block)).intValue();
+                    int value = SuperiorSkyblockPlugin.getPlugin().getBlockValues().getBlockLevel(Key.of(block)).intValue();
 
                     if (value == 0) continue;
+
+                    int blockAmount = SuperiorSkyblockPlugin.getPlugin().getGrid().getBlockAmount(block);
+
+                    if (blockAmount != 1){
+
+                        for (int i = 0; i < blockAmount; i++){
+                            valueRemoved += value;
+
+                            blocksRemoved.add(new ItemStack(block.getType()));
+                            SuperiorSkyblockPlugin.getPlugin().getGrid().setBlockAmount(block, blockAmount-(i+1));
+
+                            if (valueRemoved >= lostValue) return blocksRemoved;
+
+                        }
+                    }
 
                     valueRemoved += value;
 

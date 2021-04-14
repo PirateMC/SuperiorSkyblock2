@@ -168,7 +168,7 @@ public class SuperiorRaid {
 
     public void handleBreak(SuperiorPlayer superiorPlayer, Block block){
 
-        BigDecimal value = plugin.getBlockValues().getBlockWorth(Key.of(block));
+        BigDecimal value = plugin.getBlockValues().getBlockLevel(Key.of(block));
 
         if (value.intValue() == 0) return;
 

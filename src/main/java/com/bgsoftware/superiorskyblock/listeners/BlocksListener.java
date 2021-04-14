@@ -9,6 +9,7 @@ import com.bgsoftware.superiorskyblock.Locale;
 import com.bgsoftware.superiorskyblock.hooks.BlocksProvider_RoseStacker;
 import com.bgsoftware.superiorskyblock.hooks.CoreProtectHook;
 import com.bgsoftware.superiorskyblock.menu.StackedBlocksDepositMenu;
+import com.bgsoftware.superiorskyblock.raiding.SuperiorRaid;
 import com.bgsoftware.superiorskyblock.utils.LocationUtils;
 import com.bgsoftware.superiorskyblock.utils.ServerVersion;
 import com.bgsoftware.superiorskyblock.utils.StringUtils;
@@ -296,7 +297,7 @@ public final class BlocksListener implements Listener {
             if(plugin.getGrid().getBlockAmount(e.getClickedBlock()) > 1) {
                 e.setCancelled(true);
                 if(e.getItem() == null)
-                    tryUnstack(e.getPlayer(), e.getClickedBlock(), plugin);
+                    tryUnstack(e.getPlayer(), e.getClickedBlock(), plugin, false);
             }
 
             if(e.getItem() != null && canStackBlocks(e.getPlayer(), e.getItem(), e.getClickedBlock(), null) &&
@@ -320,7 +321,7 @@ public final class BlocksListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockUnstack(BlockBreakEvent e){
-        if(tryUnstack(e.getPlayer(), e.getBlock(), plugin))
+        if(tryUnstack(e.getPlayer(), e.getBlock(), plugin, true))
             e.setCancelled(true);
     }
 
@@ -338,17 +339,27 @@ public final class BlocksListener implements Listener {
             e.getPlayer().openInventory(depositMenu.getInventory());
         }
         else {
+
+            SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(e.getPlayer());
+            SuperiorRaid raid = plugin.getRaidsHandler().getRaidByMember(superiorPlayer);
+
+            //Player is in raid
+            if (raid != null){
+                e.setCancelled(true);
+                return;
+            }
+
             recentlyClicked.add(e.getPlayer().getUniqueId());
             Executor.sync(() -> recentlyClicked.remove(e.getPlayer().getUniqueId()), 5L);
 
-            if (tryUnstack(e.getPlayer(), e.getClickedBlock(), plugin))
+            if (tryUnstack(e.getPlayer(), e.getClickedBlock(), plugin, false))
                 e.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockUnstack(EntityChangeBlockEvent e){
-        if(tryUnstack(null, e.getBlock(), plugin))
+        if(tryUnstack(null, e.getBlock(), plugin, false))
             e.setCancelled(true);
     }
 
@@ -467,7 +478,7 @@ public final class BlocksListener implements Listener {
         return true;
     }
 
-    public static boolean tryUnstack(Player player, Block block, SuperiorSkyblockPlugin plugin){
+    public static boolean tryUnstack(Player player, Block block, SuperiorSkyblockPlugin plugin, boolean isBreaking){
         int blockAmount = plugin.getGrid().getBlockAmount(block);
 
         if(blockAmount <= 1)
@@ -475,6 +486,10 @@ public final class BlocksListener implements Listener {
 
         // When sneaking, you'll break 64 from the stack. Otherwise, 1.
         int amount = player == null || !player.isSneaking() ? 1 : 64, leftAmount;
+
+        if (isBreaking && plugin.getRaidsHandler().getRaidByMember(plugin.getPlayers().getSuperiorPlayer(player)) != null){
+            amount = 1;
+        }
 
         // Fix amount so it won't be more than the stack's amount
         amount = Math.min(amount, blockAmount);

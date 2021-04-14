@@ -162,15 +162,13 @@ public final class RaidIsland {
         try (EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(world), -1)) {
             ClipboardHolder holder = new ClipboardHolder(clipboard);
             applyRegionRotation(holder);
-            SuperiorSkyblockPlugin.raidDebug("Flipping island.");
             Operation operation = holder
                     .createPaste(session)
                     .to(BlockVector3.at(location.getX(), location.getY(), location.getZ()))
                     .ignoreAirBlocks(true)
-//                    .copyEntities(true)
                     .build();
             Operations.complete(operation);
-            SuperiorSkyblockPlugin.raidDebug("Finished pasting at " + location);
+            SuperiorSkyblockPlugin.raidDebug("Finished placing raid island blocks at " + location);
         }
     }
 
@@ -193,7 +191,7 @@ public final class RaidIsland {
                 SuperiorSkyblockPlugin.getPlugin().getGrid().setBlockAmount(block, ((StackedBlocksHandler.StackedBlock) stackedBlock).getAmount());
             }
         });
-        SuperiorSkyblockPlugin.raidDebug("Finished pasting stacked blocks.");
+        SuperiorSkyblockPlugin.raidDebug("Finished loading stacked blocks.");
     }
 }
 
@@ -214,10 +212,9 @@ class IslandCopier {
         BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
         try (EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(region.getWorld(), -1)) {
             ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(session, region, clipboard, region.getMinimumPoint());
-//            forwardExtentCopy.setCopyingEntities(true);
             forwardExtentCopy.setFilterFunction(new RegionMaskingFilter(session, new LiquidMask(session).inverse().tryCombine(new AirMask(session).inverse()), blockVector3 -> true));
             Operations.complete(forwardExtentCopy);
-            SuperiorSkyblockPlugin.raidDebug("Finished copying.");
+            SuperiorSkyblockPlugin.raidDebug("Finished copying blocks to clipboard.");
         }
         return clipboard;
     }

@@ -155,6 +155,8 @@ public class RaidsHandler {
 
                     if (block.getType() == Material.AIR) continue;
 
+                    //TODO Check if it's a stacked block
+
                     int value = SuperiorSkyblockPlugin.getPlugin().getBlockValues().getBlockWorth(Key.of(block)).intValue();
 
                     if (value == 0) continue;

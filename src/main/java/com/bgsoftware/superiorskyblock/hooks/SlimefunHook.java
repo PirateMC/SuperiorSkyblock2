@@ -82,7 +82,7 @@ public final class SlimefunHook implements ProtectionModule, Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onAndroidMiner(AndroidMineEvent e){
         SuperiorSkyblockPlugin.debug("Action: Android Break, Block: " + e.getBlock().getLocation() + ", Type: " + e.getBlock().getType());
-        if(BlocksListener.tryUnstack(null, e.getBlock(), plugin))
+        if(BlocksListener.tryUnstack(null, e.getBlock(), plugin, false))
             e.setCancelled(true);
         else
             BlocksListener.handleBlockBreak(plugin, e.getBlock());

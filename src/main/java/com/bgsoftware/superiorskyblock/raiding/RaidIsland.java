@@ -30,9 +30,12 @@ import org.bukkit.util.Vector;
 
 import java.util.*;
 
+//TODO Remove current flipping implementation in favor of better one
+
 public final class RaidIsland {
     private final World world;
     private final BlockVector3 location;
+    private final Location center;
     private final CuboidRegion region;
     private final Vector teleportOffset;
     private final Island island;
@@ -42,6 +45,8 @@ public final class RaidIsland {
         this.location = location;
         this.island = island;
         world = Bukkit.getWorld(SuperiorSkyblockPlugin.RAID_WORLD_NAME);
+        center = new Location(world, location.getBlockX() + island.getIslandSize(), location.getBlockY() +
+                island.getIslandSize(), location.getBlockZ() + island.getIslandSize());
         region = getIslandRegion(island);
         teleportOffset = getTeleportLocationOffsetFromCenter(island);
     }
@@ -60,13 +65,9 @@ public final class RaidIsland {
     }
 
     Location getTeleportLocation() {
-        Location teleportLocation = new Location(world, location.getBlockX(), location.getBlockY(), location.getBlockZ());
-        rotateAroundY(teleportOffset, getRotation());
-        teleportLocation.add(
-                island.getIslandSize() + teleportOffset.getBlockX(),
-                island.getIslandSize() + teleportOffset.getBlockY(),
-                island.getIslandSize() + teleportOffset.getBlockZ()
-        );
+        Vector rotatedTeleportOffset = VectorUtils.rotateAroundY(teleportOffset, Math.toRadians(getRotation()));
+        Location teleportLocation = center.clone().add(rotatedTeleportOffset.getBlockX() + 1.5, rotatedTeleportOffset.getBlockY(),
+                rotatedTeleportOffset.getBlockZ() + 1.5);
         teleportLocation.setYaw(teleportLocation.getYaw() + getRotation());
         SuperiorSkyblockPlugin.raidDebug("Teleported player to " + teleportLocation);
         return teleportLocation;
@@ -88,22 +89,11 @@ public final class RaidIsland {
     }
 
     private BlockArrayClipboard copyIslandBlocks() {
-        BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
-        try (EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(region.getWorld(), -1)) {
-            ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(session, region, clipboard, region.getMinimumPoint());
-            forwardExtentCopy.setCopyingEntities(true);
-            forwardExtentCopy.setFilterFunction(new RegionMaskingFilter(session, new LiquidMask(session).inverse().tryCombine(new AirMask(session).inverse()), blockVector3 -> true));
-            Operations.complete(forwardExtentCopy);
-            SuperiorSkyblockPlugin.raidDebug("Finished copying.");
-        }
-        return clipboard;
+        return IslandCopier.copyBlocks(region);
     }
 
     private CuboidRegion getIslandRegion(Island island) {
-        Location center = island.getCenter(World.Environment.NORMAL);
-        CuboidRegion region = CuboidRegion.fromCenter(BlockVectorUtils.fromLocation(center), island.getIslandSize());
-        region.setWorld(BukkitAdapter.adapt(center.getWorld()));
-        return region;
+        return IslandHelper.getRegionOf(island);
     }
 
     private Location getLocationOfStackedObject(Object stackedBlock) {
@@ -112,10 +102,6 @@ public final class RaidIsland {
     }
 
     private Set<Object> getStackedBlocks() {
-        return this.getStackedBlocksAsync();
-    }
-
-    private Set<Object> getStackedBlocksAsync() {
         Set<Object> stackedBlocks = new HashSet<>();
         SystemManager wildStackerSystemManager = WildStackerAPI.getWildStacker().getSystemManager();
         island.getAllChunks().forEach(chunk -> {
@@ -141,7 +127,7 @@ public final class RaidIsland {
         Location center = island.getCenter(World.Environment.NORMAL);
         stackedBlocks.forEach(stackedBlock -> {
             Location stackedBlockLocation = getLocationOfStackedObject(stackedBlock).subtract(center);
-            Vector stackedBlockVector = rotateAroundY(stackedBlockLocation.toVector(), getRotation() * Math.PI / 180);
+            Vector stackedBlockVector = VectorUtils.rotateAroundY(stackedBlockLocation.toVector(), getRotation() * Math.PI / 180);
             stackedBlockOffsets.put(stackedBlockVector.toLocation(world).add(1, 0, 1), stackedBlock);
         });
         return stackedBlockOffsets;
@@ -178,7 +164,7 @@ public final class RaidIsland {
                     .createPaste(session)
                     .to(BlockVector3.at(location.getX(), location.getY(), location.getZ()))
                     .ignoreAirBlocks(true)
-                    .copyEntities(true)
+//                    .copyEntities(true)
                     .build();
             Operations.complete(operation);
             SuperiorSkyblockPlugin.raidDebug("Finished pasting at " + location);
@@ -206,8 +192,45 @@ public final class RaidIsland {
         });
         SuperiorSkyblockPlugin.raidDebug("Finished pasting stacked blocks.");
     }
+}
 
-    private Vector rotateAroundY(Vector vector, double angle) {
+class IslandCopy {
+    private final BlockArrayClipboard clipboard;
+
+    IslandCopy(BlockArrayClipboard clipboard) {
+        this.clipboard = clipboard;
+    }
+
+    BlockArrayClipboard getClipboard() {
+        return clipboard;
+    }
+}
+
+class IslandCopier {
+    public static BlockArrayClipboard copyBlocks(CuboidRegion region) {
+        BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
+        try (EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(region.getWorld(), -1)) {
+            ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(session, region, clipboard, region.getMinimumPoint());
+//            forwardExtentCopy.setCopyingEntities(true);
+            forwardExtentCopy.setFilterFunction(new RegionMaskingFilter(session, new LiquidMask(session).inverse().tryCombine(new AirMask(session).inverse()), blockVector3 -> true));
+            Operations.complete(forwardExtentCopy);
+            SuperiorSkyblockPlugin.raidDebug("Finished copying.");
+        }
+        return clipboard;
+    }
+}
+
+class IslandHelper {
+    public static CuboidRegion getRegionOf(Island island) {
+        Location center = island.getCenter(World.Environment.NORMAL);
+        CuboidRegion region = CuboidRegion.fromCenter(BlockVectorUtils.fromLocation(center), island.getIslandSize());
+        region.setWorld(BukkitAdapter.adapt(center.getWorld()));
+        return region;
+    }
+}
+
+class VectorUtils {
+    public static Vector rotateAroundY(Vector vector, double angle) {
         double angleCos = Math.cos(angle);
         double angleSin = Math.sin(angle);
         double x = angleCos * vector.getX() + angleSin * vector.getZ();

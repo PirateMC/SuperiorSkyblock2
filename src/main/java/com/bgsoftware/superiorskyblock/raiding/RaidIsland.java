@@ -66,8 +66,8 @@ public final class RaidIsland {
 
     Location getTeleportLocation() {
         Vector rotatedTeleportOffset = VectorUtils.rotateAroundY(teleportOffset, Math.toRadians(getRotation()));
-        Location teleportLocation = center.clone().add(rotatedTeleportOffset.getBlockX() + 1.5, rotatedTeleportOffset.getBlockY(),
-                rotatedTeleportOffset.getBlockZ() + 1.5);
+        Location teleportLocation = center.clone().add(rotatedTeleportOffset.getBlockX() + 1, rotatedTeleportOffset.getBlockY(),
+                rotatedTeleportOffset.getBlockZ() + 1);
         teleportLocation.setYaw(teleportLocation.getYaw() + getRotation());
         SuperiorSkyblockPlugin.raidDebug("Teleported player to " + teleportLocation);
         return teleportLocation;

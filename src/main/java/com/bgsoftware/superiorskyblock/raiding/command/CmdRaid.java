@@ -129,7 +129,7 @@ public final class CmdRaid implements ISuperiorCommand {
 
         Map<SuperiorPlayer, ItemStack[]> teamOneMembers = new HashMap<>(), teamTwoMembers = new HashMap<>();
 
-        for (SuperiorPlayer superiorPlayer : teamOneIsland.getIslandMembers(true)){
+        for (SuperiorPlayer superiorPlayer : teamOneIsland.getIslandMembers(true)) {
             if (!superiorPlayer.isOnline()) continue;
 
             teamOneMembers.put(superiorPlayer, superiorPlayer.asPlayer().getInventory().getContents());
@@ -141,27 +141,45 @@ public final class CmdRaid implements ISuperiorCommand {
             teamTwoMembers.put(superiorPlayer, superiorPlayer.asPlayer().getInventory().getContents());
         }
 
-        RaidSlot raidSlot = plugin.getRaidIslandManager().newRaidSlot(teamOneIsland, teamTwoIsland);
-        teamOneMembers.keySet().forEach(member -> member.teleport(raidSlot.getFirstIslandTeleportLocation()));
-        teamTwoMembers.keySet().forEach(member -> member.teleport(raidSlot.getSecondIslandTeleportLocation()));
+        //TODO Return island generation time estimation based on island size
+        RaidSlot raidSlot = plugin.getRaidIslandManager().generateNewRaidSlotAsynchronously(teamOneIsland, teamTwoIsland);
 
-        SuperiorRaid superiorRaid = new SuperiorRaid();
-        superiorRaid.setTeamOnePlayers(teamOneMembers);
-        superiorRaid.setTeamTwoPlayers(teamTwoMembers);
-        superiorRaid.setTeamOneLocation(raidSlot.getFirstIslandTeleportLocation().clone());
-        superiorRaid.setTeamTwoLocation(raidSlot.getSecondIslandTeleportLocation().clone());
-        superiorRaid.setTeamOneMinLocation(raidSlot.getFirstIslandTeleportLocation().clone().add(-teamOneIsland.getIslandSize(), -teamOneIsland.getIslandSize(), -teamOneIsland.getIslandSize()));
-        superiorRaid.setTeamOneMaxLocation(raidSlot.getFirstIslandTeleportLocation().clone().add(teamOneIsland.getIslandSize(), teamOneIsland.getIslandSize(), teamOneIsland.getIslandSize()));
-        superiorRaid.setTeamTwoMinLocation(raidSlot.getSecondIslandTeleportLocation().clone().add(-teamTwoIsland.getIslandSize(), -teamTwoIsland.getIslandSize(), -teamTwoIsland.getIslandSize()));
-        superiorRaid.setTeamTwoMaxLocation(raidSlot.getSecondIslandTeleportLocation().clone().add(teamTwoIsland.getIslandSize(), teamTwoIsland.getIslandSize(), teamTwoIsland.getIslandSize()));
+        //TODO Move messages to lang file
+        sendMessageToMultiple(ChatColor.YELLOW + "Generating raid islands...", commandSender, invitationSender);
+        Bukkit.getScheduler().runTaskAsynchronously(SuperiorSkyblockPlugin.getPlugin(), () -> {
+            for (int i = 3; i > 0; i--) {
+                int timeLeft = i * 10;
+                sendMessageToMultiple(String.format(ChatColor.YELLOW + "Raid starting in %d seconds....", timeLeft), commandSender, invitationSender);
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
-        plugin.getRaidsHandler().startRaid(superiorRaid);
+        // Teleport players to the raid island in 30 seconds to
+        // allow raid islands to finish generating.
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            teamOneMembers.keySet().forEach(member -> member.teleport(raidSlot.getFirstIslandTeleportLocation()));
+            teamTwoMembers.keySet().forEach(member -> member.teleport(raidSlot.getSecondIslandTeleportLocation()));
+            SuperiorRaid superiorRaid = new SuperiorRaid();
+            superiorRaid.setTeamOnePlayers(teamOneMembers);
+            superiorRaid.setTeamTwoPlayers(teamTwoMembers);
+            superiorRaid.setTeamOneLocation(raidSlot.getFirstIslandTeleportLocation().clone());
+            superiorRaid.setTeamTwoLocation(raidSlot.getSecondIslandTeleportLocation().clone());
+            superiorRaid.setTeamOneMinLocation(raidSlot.getFirstIslandTeleportLocation().clone().add(-teamOneIsland.getIslandSize(), -teamOneIsland.getIslandSize(), -teamOneIsland.getIslandSize()));
+            superiorRaid.setTeamOneMaxLocation(raidSlot.getFirstIslandTeleportLocation().clone().add(teamOneIsland.getIslandSize(), teamOneIsland.getIslandSize(), teamOneIsland.getIslandSize()));
+            superiorRaid.setTeamTwoMinLocation(raidSlot.getSecondIslandTeleportLocation().clone().add(-teamTwoIsland.getIslandSize(), -teamTwoIsland.getIslandSize(), -teamTwoIsland.getIslandSize()));
+            superiorRaid.setTeamTwoMaxLocation(raidSlot.getSecondIslandTeleportLocation().clone().add(teamTwoIsland.getIslandSize(), teamTwoIsland.getIslandSize(), teamTwoIsland.getIslandSize()));
+            plugin.getRaidsHandler().startRaid(superiorRaid);
+        }, 20 * 30);
     }
 
     private void declineInvitation(Player invitationSender, Player commandSender) {
         if (RaidInvitationHandler.removeInvitation(invitationSender.getUniqueId(), commandSender.getUniqueId())) {
             commandSender.sendMessage(Locale.RAID_INVITATION_DECLINED.getMessage(LocaleUtils.getLocale(commandSender)));
-            invitationSender.sendMessage(Locale.RAID_INVITATION_DECLINED_OTHER.getMessage(LocaleUtils.getLocale(invitationSender), commandSender));
+            invitationSender.sendMessage(Locale.RAID_INVITATION_DECLINED_OTHER.getMessage(LocaleUtils.getLocale(invitationSender), commandSender.getName()));
         } else {
             commandSender.sendMessage(Locale.NO_PENDING_RAID_INVITATIONS.getMessage(LocaleUtils.getLocale(commandSender)));
         }
@@ -207,6 +225,11 @@ public final class CmdRaid implements ISuperiorCommand {
     @Override
     public List<String> tabComplete(SuperiorSkyblockPlugin plugin, CommandSender sender, String[] args) {
         return Collections.emptyList();
+    }
+
+    private void sendMessageToMultiple(String message, CommandSender commandSender, CommandSender... senders) {
+        commandSender.sendMessage(message);
+        Arrays.stream(senders).forEach(sender -> sender.sendMessage(message));
     }
 }
 

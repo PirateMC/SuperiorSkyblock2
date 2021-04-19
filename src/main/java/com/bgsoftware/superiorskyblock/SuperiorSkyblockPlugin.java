@@ -53,7 +53,7 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
     private static final ReflectField<SuperiorSkyblock> PLUGIN = new ReflectField<>(SuperiorSkyblockAPI.class, SuperiorSkyblock.class, "plugin");
     private static SuperiorSkyblockPlugin plugin;
     public static final String RAID_WORLD_NAME = "RaidWorld";
-    public static final int RAID_WORLD_WATER_LEVEL = 197;
+    public static final int RAID_WORLD_WATER_LEVEL = 60;
 
     private final Updater updater = new Updater(this, "superiorskyblock2");
 
@@ -240,7 +240,8 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
                 }
             }
         } else {
-            manager.addWorld("RaidWorld", World.Environment.NORMAL, "", WorldType.NORMAL, true, "CleanroomGenerator:197|water");
+            //TODO Finish making adjustments for new water height of around 70
+            manager.addWorld("RaidWorld", World.Environment.NORMAL, "", WorldType.NORMAL, true, "CleanroomGenerator:" + RAID_WORLD_WATER_LEVEL + "|water");
             try {
                 if (manager.getMVWorld("RaidWorld").setPropertyValue("keepInventory", "true")) {
                     raidDebug("keepInventory was successfully set to true in the raid world.");

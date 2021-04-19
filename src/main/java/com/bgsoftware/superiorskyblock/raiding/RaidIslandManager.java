@@ -2,9 +2,6 @@ package com.bgsoftware.superiorskyblock.raiding;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
-import com.sk89q.worldedit.math.BlockVector3;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
 
 import java.util.UUID;
 
@@ -15,10 +12,10 @@ public final class RaidIslandManager {
     private int lastIslandMaxSize = 0;
     private int nextRaidLocationX = 0;
     private int nextRaidLocationZ = 0;
-    private final int raidIslandSpacingX = 10000;
+    private final int raidIslandSpacingX = 1000;
     private final int raidIslandSpacingZ = 0;
     private final int minimumSpacingBetweenIslands = 30;
-    private final int raidIslandY = 200 - 25;
+    private final int raidIslandY = SuperiorSkyblockPlugin.RAID_WORLD_WATER_LEVEL + 3;
 
     public RaidIslandManager() {
     }
@@ -33,23 +30,23 @@ public final class RaidIslandManager {
         slots.clear();
     }
 
-    public RaidSlot newRaidSlot(Island islandOne, Island islandTwo) {
-        World raidWorld = Bukkit.getWorld(SuperiorSkyblockPlugin.RAID_WORLD_NAME);
-
-        //TODO Implementation
-        BlockVector3 locationOne = BlockVector3.at(nextRaidLocationX, raidIslandY, nextRaidLocationZ);
-        BlockVector3 locationTwo = BlockVector3.at(nextRaidLocationX, raidIslandY, nextRaidLocationZ + minimumSpacingBetweenIslands + islandOne.getIslandSize() + islandTwo.getIslandSize());
-
+    public RaidSlot generateNewRaidSlotAsynchronously(Island islandOne, Island islandTwo) {
         SuperiorSkyblockPlugin.raidDebug("Island one size is " + islandOne.getIslandSize());
         SuperiorSkyblockPlugin.raidDebug("Island two size is " + islandTwo.getIslandSize());
 
-        RaidIsland firstRaidIsland = new RaidIsland(islandOne, locationOne);
-//        firstRaidIsland.flip(false);
-        firstRaidIsland.copyPaste();
+        RaidIsland firstRaidIsland = new RaidIsland.RaidIslandBuilder()
+                .setSourceIsland(islandOne)
+                .setLocation(nextRaidLocationX, raidIslandY, nextRaidLocationZ)
+                .setCopyMethod(CopyMethod.CHUNKS)
+                .setDirection(Direction.NORTH)
+                .build();
 
-        RaidIsland secondRaidIsland = new RaidIsland(islandTwo, locationTwo);
-        secondRaidIsland.flip(true);
-        secondRaidIsland.copyPaste();
+        RaidIsland secondRaidIsland = new RaidIsland.RaidIslandBuilder()
+                .setSourceIsland(islandTwo)
+                .setLocation(nextRaidLocationX, raidIslandY, nextRaidLocationZ + minimumSpacingBetweenIslands + islandOne.getIslandSize() + islandTwo.getIslandSize())
+                .setCopyMethod(CopyMethod.CHUNKS)
+                .setDirection(Direction.SOUTH)
+                .build();
 
         RaidSlot slot = new RaidSlot(firstRaidIsland, secondRaidIsland);
         slots.add(slot);

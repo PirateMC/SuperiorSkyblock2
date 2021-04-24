@@ -1,6 +1,6 @@
 package com.bgsoftware.superiorskyblock.raiding;
 
-enum Direction {
+public enum Direction {
     NORTH(Math.toRadians(0)),
     SOUTH(Math.toRadians(180));
 

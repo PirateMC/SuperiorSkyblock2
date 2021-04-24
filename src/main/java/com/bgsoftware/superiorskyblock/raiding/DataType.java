@@ -1,6 +1,6 @@
 package com.bgsoftware.superiorskyblock.raiding;
 
-enum DataType {
+public enum DataType {
     LOCATION_DESTINATION,
     DIRECTION,
     STACKED_BLOCK_OBJECT,

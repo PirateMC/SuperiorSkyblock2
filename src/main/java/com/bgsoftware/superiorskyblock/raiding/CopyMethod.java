@@ -1,5 +1,5 @@
 package com.bgsoftware.superiorskyblock.raiding;
 
-enum CopyMethod {
+public enum CopyMethod {
     CHUNKS
 }

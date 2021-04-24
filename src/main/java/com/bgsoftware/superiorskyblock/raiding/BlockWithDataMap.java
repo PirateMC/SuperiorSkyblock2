@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-class BlockWithDataMap extends HashMap<Block, Map<DataType, Object>> {
+public class BlockWithDataMap extends HashMap<Block, Map<DataType, Object>> {
 
     public void attachDirectionData(Direction direction) {
         forEach((block, data) -> data.put(DataType.DIRECTION, direction));

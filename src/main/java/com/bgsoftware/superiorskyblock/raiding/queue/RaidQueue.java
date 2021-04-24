@@ -1,8 +1,10 @@
-package com.bgsoftware.superiorskyblock.raiding;
+package com.bgsoftware.superiorskyblock.raiding.queue;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
+import com.bgsoftware.superiorskyblock.raiding.SuperiorRaid;
+import com.bgsoftware.superiorskyblock.raiding.island.RaidSlot;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;

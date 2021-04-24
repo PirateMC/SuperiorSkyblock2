@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorskyblock.raiding;
+package com.bgsoftware.superiorskyblock.raiding.island;
 
 public enum DataType {
     LOCATION_DESTINATION,

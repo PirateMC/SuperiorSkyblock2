@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorskyblock.raiding;
+package com.bgsoftware.superiorskyblock.raiding.island;
 
 import java.util.HashSet;
 import java.util.Optional;

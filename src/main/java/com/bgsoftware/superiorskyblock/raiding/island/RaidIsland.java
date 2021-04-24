@@ -1,7 +1,8 @@
-package com.bgsoftware.superiorskyblock.raiding;
+package com.bgsoftware.superiorskyblock.raiding.island;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
+import com.bgsoftware.superiorskyblock.raiding.exception.NoTeleportLocationException;
 import com.bgsoftware.superiorskyblock.raiding.util.BlockVectorUtils;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import org.bukkit.*;

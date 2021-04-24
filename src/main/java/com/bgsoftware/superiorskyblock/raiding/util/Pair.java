@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorskyblock.raiding;
+package com.bgsoftware.superiorskyblock.raiding.util;
 
 public class Pair<K, V> {
     private final K key;

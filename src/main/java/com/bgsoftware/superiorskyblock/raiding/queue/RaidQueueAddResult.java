@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorskyblock.raiding;
+package com.bgsoftware.superiorskyblock.raiding.queue;
 
 public class RaidQueueAddResult {
     private boolean success;

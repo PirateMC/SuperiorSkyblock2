@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorskyblock.raiding;
+package com.bgsoftware.superiorskyblock.raiding.invites;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import org.bukkit.Bukkit;

@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorskyblock.raiding;
+package com.bgsoftware.superiorskyblock.raiding.island;
 
 public enum Direction {
     NORTH(Math.toRadians(0)),

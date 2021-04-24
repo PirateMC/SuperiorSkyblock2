@@ -1,7 +1,9 @@
-package com.bgsoftware.superiorskyblock.raiding;
+package com.bgsoftware.superiorskyblock.raiding.queue;
 
 //TODO Type is similar to RaidInvitation
 // Create more abstract type
+
+import com.bgsoftware.superiorskyblock.raiding.util.Pair;
 
 import java.util.UUID;
 

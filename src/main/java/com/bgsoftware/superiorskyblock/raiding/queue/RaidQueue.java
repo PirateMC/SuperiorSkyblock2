@@ -26,7 +26,8 @@ public class RaidQueue {
 
     //TODO Resolve possible capacity restrictions
     private final Queue<RaidQueueEntry> raidQueue = new ConcurrentLinkedQueue<>();
-    private final RaidQueueEntry[] currentElement = new RaidQueueEntry[1];
+    //    private final RaidQueueEntry[] currentElement = new RaidQueueEntry[1];
+    public static volatile boolean isGenerating = false;
 
     public RaidQueue() {
         Bukkit.getScheduler().runTaskTimer(SuperiorSkyblockPlugin.getPlugin(), () -> {
@@ -34,18 +35,11 @@ public class RaidQueue {
                 SuperiorSkyblockPlugin.raidDebug("There are no elements in the queue. Do nothing.");
                 return;
             }
-            RaidQueueEntry firstEntry = raidQueue.element();
-            if (currentElement[0] == null) {
-                SuperiorSkyblockPlugin.raidDebug("There is no cached element. Setting to value in queue.");
-                currentElement[0] = firstEntry;
-                startRaid(firstEntry);
-                // The first element was removed from the queue
-            } else if (!(currentElement[0].equals(firstEntry))) {
-                SuperiorSkyblockPlugin.raidDebug("The first element in the queue isn't equal to the cached element. Start raid.");
-                currentElement[0] = firstEntry;
-                startRaid(firstEntry);
+            if (!isGenerating) {
+                isGenerating = true;
+                startRaid(raidQueue.element());
             } else {
-                SuperiorSkyblockPlugin.raidDebug("First element in queue is equal to cached element. Do nothing.");
+                SuperiorSkyblockPlugin.raidDebug("Currently generating island.");
             }
         }, 20, 20);
     }
@@ -61,7 +55,9 @@ public class RaidQueue {
     }
 
     public void remove() {
-        raidQueue.remove();
+        if (!raidQueue.isEmpty())
+            raidQueue.remove();
+        isGenerating = false;
     }
 
     private void startRaid(RaidQueueEntry raidQueueEntry) {

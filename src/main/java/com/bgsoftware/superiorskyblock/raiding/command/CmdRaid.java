@@ -3,12 +3,8 @@ package com.bgsoftware.superiorskyblock.raiding.command;
 import com.bgsoftware.superiorskyblock.Locale;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
-import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.commands.ISuperiorCommand;
-import com.bgsoftware.superiorskyblock.raiding.RaidInvitation;
-import com.bgsoftware.superiorskyblock.raiding.RaidInvitationHandler;
-import com.bgsoftware.superiorskyblock.raiding.RaidSlot;
-import com.bgsoftware.superiorskyblock.raiding.SuperiorRaid;
+import com.bgsoftware.superiorskyblock.raiding.*;
 import com.bgsoftware.superiorskyblock.utils.LocaleUtils;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -18,10 +14,12 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 public final class CmdRaid implements ISuperiorCommand {
 
@@ -108,8 +106,10 @@ public final class CmdRaid implements ISuperiorCommand {
             RaidInvitation invitation = new RaidInvitation(commandSender.getUniqueId(), invitee.getUniqueId());
             if (RaidInvitationHandler.addInvitation(invitation))
                 sender.sendMessage(Locale.RAID_INVITATION_SENT.getMessage(LocaleUtils.getLocale(sender)));
-            else
+            else {
                 sender.sendMessage(Locale.PLAYER_ALREADY_INVITED_TO_RAID.getMessage(LocaleUtils.getLocale(commandSender)));
+                return;
+            }
 
             TextComponent[] messageComponents = createInvitationMessageComponents(sender.getName(), senderIsland);
             invitee.spigot().sendMessage(messageComponents);
@@ -124,56 +124,70 @@ public final class CmdRaid implements ISuperiorCommand {
             return;
         }
 
-        Island teamOneIsland = plugin.getGrid().getIsland(invitation.getSenderUuid());
-        Island teamTwoIsland = plugin.getGrid().getIsland(invitation.getInviteeUuid());
-
-        Map<SuperiorPlayer, ItemStack[]> teamOneMembers = new HashMap<>(), teamTwoMembers = new HashMap<>();
-
-        for (SuperiorPlayer superiorPlayer : teamOneIsland.getIslandMembers(true)) {
-            if (!superiorPlayer.isOnline()) continue;
-
-            teamOneMembers.put(superiorPlayer, superiorPlayer.asPlayer().getInventory().getContents());
+        RaidQueue raidQueue = SuperiorSkyblockPlugin.getPlugin().getRaidQueue();
+        RaidQueueEntry raidQueueEntry = new RaidQueueEntry(commandSender.getUniqueId(), invitationSender.getUniqueId());
+        if (raidQueue.contains(raidQueueEntry)) {
+            sendMessageToMultiple(ChatColor.YELLOW + "You are already in the queue.", commandSender, invitationSender);
+            return;
+        }
+        RaidQueueAddResult result = SuperiorSkyblockPlugin.getPlugin().getRaidQueue().add(raidQueueEntry);
+        if (!result.wasSuccessful()) {
+            sendMessageToMultiple(ChatColor.RED + "Unable to add you to the queue at this time.", invitationSender, commandSender);
+            return;
         }
 
-        for (SuperiorPlayer superiorPlayer : teamTwoIsland.getIslandMembers(true)) {
-            if (!superiorPlayer.isOnline()) continue;
+        sendMessageToMultiple(ChatColor.GREEN + "You are in position " + result.getSize() + " of the queue.", invitationSender, commandSender);
 
-            teamTwoMembers.put(superiorPlayer, superiorPlayer.asPlayer().getInventory().getContents());
-        }
-
-        //TODO Return island generation time estimation based on island size
-        RaidSlot raidSlot = plugin.getRaidIslandManager().generateNewRaidSlotAsynchronously(teamOneIsland, teamTwoIsland);
-
-        //TODO Move messages to lang file
-        sendMessageToMultiple(ChatColor.YELLOW + "Generating raid islands...", commandSender, invitationSender);
-        Bukkit.getScheduler().runTaskAsynchronously(SuperiorSkyblockPlugin.getPlugin(), () -> {
-            for (int i = 3; i > 0; i--) {
-                int timeLeft = i * 10;
-                sendMessageToMultiple(String.format(ChatColor.YELLOW + "Raid starting in %d seconds....", timeLeft), commandSender, invitationSender);
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        // Teleport players to the raid island in 30 seconds to
-        // allow raid islands to finish generating.
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            teamOneMembers.keySet().forEach(member -> member.teleport(raidSlot.getFirstIslandTeleportLocation()));
-            teamTwoMembers.keySet().forEach(member -> member.teleport(raidSlot.getSecondIslandTeleportLocation()));
-            SuperiorRaid superiorRaid = new SuperiorRaid();
-            superiorRaid.setTeamOnePlayers(teamOneMembers);
-            superiorRaid.setTeamTwoPlayers(teamTwoMembers);
-            superiorRaid.setTeamOneLocation(raidSlot.getFirstIslandTeleportLocation().clone());
-            superiorRaid.setTeamTwoLocation(raidSlot.getSecondIslandTeleportLocation().clone());
-            superiorRaid.setTeamOneMinLocation(raidSlot.getFirstIslandTeleportLocation().clone().add(-teamOneIsland.getIslandSize(), -teamOneIsland.getIslandSize(), -teamOneIsland.getIslandSize()));
-            superiorRaid.setTeamOneMaxLocation(raidSlot.getFirstIslandTeleportLocation().clone().add(teamOneIsland.getIslandSize(), teamOneIsland.getIslandSize(), teamOneIsland.getIslandSize()));
-            superiorRaid.setTeamTwoMinLocation(raidSlot.getSecondIslandTeleportLocation().clone().add(-teamTwoIsland.getIslandSize(), -teamTwoIsland.getIslandSize(), -teamTwoIsland.getIslandSize()));
-            superiorRaid.setTeamTwoMaxLocation(raidSlot.getSecondIslandTeleportLocation().clone().add(teamTwoIsland.getIslandSize(), teamTwoIsland.getIslandSize(), teamTwoIsland.getIslandSize()));
-            plugin.getRaidsHandler().startRaid(superiorRaid);
-        }, 20 * 30);
+//        Island teamOneIsland = plugin.getGrid().getIsland(invitation.getSenderUuid());
+//        Island teamTwoIsland = plugin.getGrid().getIsland(invitation.getInviteeUuid());
+//
+//        Map<SuperiorPlayer, ItemStack[]> teamOneMembers = new HashMap<>(), teamTwoMembers = new HashMap<>();
+//
+//        for (SuperiorPlayer superiorPlayer : teamOneIsland.getIslandMembers(true)) {
+//            if (!superiorPlayer.isOnline()) continue;
+//
+//            teamOneMembers.put(superiorPlayer, superiorPlayer.asPlayer().getInventory().getContents());
+//        }
+//
+//        for (SuperiorPlayer superiorPlayer : teamTwoIsland.getIslandMembers(true)) {
+//            if (!superiorPlayer.isOnline()) continue;
+//
+//            teamTwoMembers.put(superiorPlayer, superiorPlayer.asPlayer().getInventory().getContents());
+//        }
+//
+//        //TODO Return island generation time estimation based on island size
+//        RaidSlot raidSlot = plugin.getRaidIslandManager().generateNewRaidSlotAsynchronously(teamOneIsland, teamTwoIsland);
+//
+//        //TODO Move messages to lang file
+//        sendMessageToMultiple(ChatColor.YELLOW + "Generating raid islands...", commandSender, invitationSender);
+//        Bukkit.getScheduler().runTaskAsynchronously(SuperiorSkyblockPlugin.getPlugin(), () -> {
+//            for (int i = 3; i > 0; i--) {
+//                int timeLeft = i * 10;
+//                sendMessageToMultiple(String.format(ChatColor.YELLOW + "Raid starting in %d seconds....", timeLeft), commandSender, invitationSender);
+//                try {
+//                    Thread.sleep(10000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//
+//        // Teleport players to the raid island in 30 seconds to
+//        // allow raid islands to finish generating.
+//        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+//            teamOneMembers.keySet().forEach(member -> member.teleport(raidSlot.getFirstIslandTeleportLocation()));
+//            teamTwoMembers.keySet().forEach(member -> member.teleport(raidSlot.getSecondIslandTeleportLocation()));
+//            SuperiorRaid superiorRaid = new SuperiorRaid();
+//            superiorRaid.setTeamOnePlayers(teamOneMembers);
+//            superiorRaid.setTeamTwoPlayers(teamTwoMembers);
+//            superiorRaid.setTeamOneLocation(raidSlot.getFirstIslandTeleportLocation().clone());
+//            superiorRaid.setTeamTwoLocation(raidSlot.getSecondIslandTeleportLocation().clone());
+//            superiorRaid.setTeamOneMinLocation(raidSlot.getFirstIslandTeleportLocation().clone().add(-teamOneIsland.getIslandSize(), -teamOneIsland.getIslandSize(), -teamOneIsland.getIslandSize()));
+//            superiorRaid.setTeamOneMaxLocation(raidSlot.getFirstIslandTeleportLocation().clone().add(teamOneIsland.getIslandSize(), teamOneIsland.getIslandSize(), teamOneIsland.getIslandSize()));
+//            superiorRaid.setTeamTwoMinLocation(raidSlot.getSecondIslandTeleportLocation().clone().add(-teamTwoIsland.getIslandSize(), -teamTwoIsland.getIslandSize(), -teamTwoIsland.getIslandSize()));
+//            superiorRaid.setTeamTwoMaxLocation(raidSlot.getSecondIslandTeleportLocation().clone().add(teamTwoIsland.getIslandSize(), teamTwoIsland.getIslandSize(), teamTwoIsland.getIslandSize()));
+//            plugin.getRaidsHandler().startRaid(superiorRaid);
+//        }, 20 * 30);
     }
 
     private void declineInvitation(Player invitationSender, Player commandSender) {
@@ -232,4 +246,3 @@ public final class CmdRaid implements ISuperiorCommand {
         Arrays.stream(senders).forEach(sender -> sender.sendMessage(message));
     }
 }
-

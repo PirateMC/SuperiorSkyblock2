@@ -16,6 +16,7 @@ import com.bgsoftware.superiorskyblock.listeners.*;
 import com.bgsoftware.superiorskyblock.metrics.Metrics;
 import com.bgsoftware.superiorskyblock.nms.*;
 import com.bgsoftware.superiorskyblock.raiding.RaidIslandManager;
+import com.bgsoftware.superiorskyblock.raiding.RaidQueue;
 import com.bgsoftware.superiorskyblock.raiding.handlers.RaidsHandler;
 import com.bgsoftware.superiorskyblock.tasks.CalcTask;
 import com.bgsoftware.superiorskyblock.upgrades.loaders.PlaceholdersUpgradeCostLoader;
@@ -70,6 +71,7 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
     private final DataHandler dataHandler = new DataHandler(this);
     private final FactoriesHandler factoriesHandler = new FactoriesHandler();
     private final RaidsHandler raidsHandler = new RaidsHandler();
+    private final RaidQueue raidQueue = new RaidQueue();
     private static MultiverseCore multiverseCore = null;
 
     // Raiding
@@ -498,6 +500,10 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
 
     public RaidIslandManager getRaidIslandManager() {
         return raidIslandManager;
+    }
+
+    public RaidQueue getRaidQueue() {
+        return raidQueue;
     }
 
     @Override

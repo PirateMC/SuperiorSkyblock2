@@ -71,7 +71,8 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
     private final DataHandler dataHandler = new DataHandler(this);
     private final FactoriesHandler factoriesHandler = new FactoriesHandler();
     private final RaidsHandler raidsHandler = new RaidsHandler();
-    private final RaidQueue raidQueue = new RaidQueue();
+    //TODO Initialize RaidQueue here, then set ticking true later
+    private RaidQueue raidQueue;
     private static MultiverseCore multiverseCore = null;
 
     // Raiding
@@ -254,6 +255,8 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
                 e.printStackTrace();
             }
         }
+
+        raidQueue = new RaidQueue();
     }
 
     @Override

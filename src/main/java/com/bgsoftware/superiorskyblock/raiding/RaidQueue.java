@@ -36,6 +36,7 @@ public class RaidQueue {
             if (currentElement[0] == null) {
                 SuperiorSkyblockPlugin.raidDebug("There is no cached element. Setting to value in queue.");
                 currentElement[0] = firstEntry;
+                startRaid(firstEntry);
                 // The first element was removed from the queue
             } else if (!(currentElement[0].equals(firstEntry))) {
                 SuperiorSkyblockPlugin.raidDebug("The first element in the queue isn't equal to the cached element. Start raid.");

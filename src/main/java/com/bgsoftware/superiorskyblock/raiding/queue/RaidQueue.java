@@ -32,7 +32,6 @@ public class RaidQueue {
     public RaidQueue() {
         Bukkit.getScheduler().runTaskTimer(SuperiorSkyblockPlugin.getPlugin(), () -> {
             if (raidQueue.isEmpty()) {
-                SuperiorSkyblockPlugin.raidDebug("There are no elements in the queue. Do nothing.");
                 return;
             }
             if (!isGenerating) {

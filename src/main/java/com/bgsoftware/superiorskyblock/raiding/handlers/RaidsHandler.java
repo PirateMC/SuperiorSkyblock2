@@ -5,6 +5,8 @@ import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
+import com.bgsoftware.superiorskyblock.raiding.CooldownType;
+import com.bgsoftware.superiorskyblock.raiding.RaidCooldownHandler;
 import com.bgsoftware.superiorskyblock.raiding.SuperiorRaid;
 import com.bgsoftware.superiorskyblock.utils.LocaleUtils;
 import com.sk89q.worldedit.math.BlockVector3;
@@ -88,12 +90,17 @@ public final class RaidsHandler {
         if (isDraw) {
             resetMembers(raid, winnersIsland, Locale.RAID_DRAW);
             resetMembers(raid, losersIsland, Locale.RAID_DRAW);
+            RaidCooldownHandler.addNewCooldown(winnersIsland, CooldownType.DRAW);
+            RaidCooldownHandler.addNewCooldown(losersIsland, CooldownType.DRAW);
             return;
         }
 
         resetMembers(raid, winnersIsland, Locale.RAID_WIN);
         resetMembers(raid, losersIsland, Locale.RAID_LOSE);
+        RaidCooldownHandler.addNewCooldown(winnersIsland, CooldownType.WIN);
+        RaidCooldownHandler.addNewCooldown(losersIsland, CooldownType.LOSS);
 
+        //TODO Take island UUID instead of island owner UUID when restoring raid slot
         SuperiorSkyblockPlugin.getPlugin().getRaidIslandManager().restoreRaidSlot(winnersIsland.getOwner().getUniqueId());
 
         List<ItemStack> winnings = breakValuableBlocks(losersIsland);

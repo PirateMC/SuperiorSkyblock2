@@ -17,6 +17,15 @@ raids:
   #In seconds
   duration: 300
 
+  # Cool downs (in seconds) after winning, losing, and drawing, in a raid.
+  cooldown:
+    # The default value is 10 minutes for winning and drawing.
+    # The default value for losing is 30 minutes.
+    after-win: 600
+    after-loss: 1800
+    after-draw: 600
+
+
 # All settings related to the database of the plugin.
 database:
   # Choose between SQLite (localhost database) and MySQL (remote database)

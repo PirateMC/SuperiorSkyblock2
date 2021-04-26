@@ -4,6 +4,7 @@ import com.bgsoftware.superiorskyblock.Locale;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.commands.ISuperiorCommand;
+import com.bgsoftware.superiorskyblock.raiding.RaidCooldownHandler;
 import com.bgsoftware.superiorskyblock.raiding.invites.RaidInvitation;
 import com.bgsoftware.superiorskyblock.raiding.invites.RaidInvitationHandler;
 import com.bgsoftware.superiorskyblock.raiding.queue.RaidQueue;
@@ -70,6 +71,7 @@ public final class CmdRaid implements ISuperiorCommand {
             return;
         }
 
+        //TODO Move toggle option to its own class
         if (sender.isOp() && args[1].equalsIgnoreCase("toggle")) {
             SuperiorSkyblockPlugin.setRaidingEnabled(!SuperiorSkyblockPlugin.isRaidingEnabled());
             sender.sendMessage(SuperiorSkyblockPlugin.isRaidingEnabled() ? ChatColor.GREEN + "Enabled island raiding." : ChatColor.RED + "Disabled island raiding.");
@@ -79,6 +81,7 @@ public final class CmdRaid implements ISuperiorCommand {
         String arg = args[1];
         Player commandSender = (Player) sender;
         Player invitee = Bukkit.getPlayer(arg);
+
         if (invitee == null) {
             if (args.length == 3) {
                 Player invitationSender = Bukkit.getPlayer(args[2]);
@@ -93,12 +96,14 @@ public final class CmdRaid implements ISuperiorCommand {
             }
         } else {
             if (commandSender.getUniqueId().equals(invitee.getUniqueId())) {
+                //TODO Send more specific message
                 commandSender.sendMessage(Locale.INVALID_INVITATION_TARGET.getMessage(LocaleUtils.getLocale(commandSender)));
                 return;
             }
             // Ensure both players have an island
             Island senderIsland = plugin.getGrid().getIsland(commandSender.getUniqueId());
             Island inviteeIsland = plugin.getGrid().getIsland(invitee.getUniqueId());
+
             if (senderIsland == null) {
                 commandSender.sendMessage(Locale.PLAYER_NOT_ISLAND_OWNER.getMessage(LocaleUtils.getLocale(commandSender), commandSender.getName()));
                 return;
@@ -107,6 +112,20 @@ public final class CmdRaid implements ISuperiorCommand {
                 commandSender.sendMessage(Locale.PLAYER_NOT_ISLAND_OWNER.getMessage(LocaleUtils.getLocale(invitee), invitee.getName()));
                 return;
             }
+
+            // Check if sender or invitee islands have a cooldown
+            if (RaidCooldownHandler.isCoolingDown(senderIsland)) {
+                commandSender.sendMessage(Locale.RAID_COOLDOWN_ACTIVE.getMessage(
+                        LocaleUtils.getLocale(commandSender),
+                        RaidCooldownHandler.getCooldownOf(senderIsland)
+                ));
+                return;
+            }
+            if (RaidCooldownHandler.isCoolingDown(inviteeIsland)) {
+                commandSender.sendMessage(Locale.RAID_COOLDOWN_ACTIVE_OTHER.getMessage(LocaleUtils.getLocale(commandSender)));
+                return;
+            }
+
             RaidInvitation invitation = new RaidInvitation(commandSender.getUniqueId(), invitee.getUniqueId());
             if (RaidInvitationHandler.addInvitation(invitation))
                 sender.sendMessage(Locale.RAID_INVITATION_SENT.getMessage(LocaleUtils.getLocale(sender)));
@@ -121,7 +140,7 @@ public final class CmdRaid implements ISuperiorCommand {
     }
 
     private void acceptInvitation(Player invitationSender, Player commandSender, SuperiorSkyblockPlugin plugin) {
-        RaidInvitation invitation = handleInvitation(invitationSender.getUniqueId(), commandSender.getUniqueId());
+        RaidInvitation invitation = getAndRemoveInvitationOf(invitationSender.getUniqueId(), commandSender.getUniqueId());
 
         if (invitation == null) {
             commandSender.sendMessage(Locale.NO_PENDING_RAID_INVITATIONS.getMessage(LocaleUtils.getLocale(commandSender)));
@@ -134,7 +153,7 @@ public final class CmdRaid implements ISuperiorCommand {
             sendMessageToMultiple(ChatColor.YELLOW + "You are already in the queue.", commandSender, invitationSender);
             return;
         }
-        RaidQueueAddResult result = SuperiorSkyblockPlugin.getPlugin().getRaidQueue().add(raidQueueEntry);
+        RaidQueueAddResult result = raidQueue.add(raidQueueEntry);
         if (!result.wasSuccessful()) {
             sendMessageToMultiple(ChatColor.RED + "Unable to add you to the queue at this time.", invitationSender, commandSender);
             return;
@@ -203,7 +222,7 @@ public final class CmdRaid implements ISuperiorCommand {
         }
     }
 
-    private RaidInvitation handleInvitation(UUID sender, UUID invitee) {
+    private RaidInvitation getAndRemoveInvitationOf(UUID sender, UUID invitee) {
         RaidInvitation invitation = RaidInvitationHandler.getInvitation(sender, invitee);
         if (invitation == null) return null;
         RaidInvitationHandler.removeInvitationsOfSender(sender);

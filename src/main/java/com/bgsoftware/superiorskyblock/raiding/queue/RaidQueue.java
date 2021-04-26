@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class RaidQueue {
+public final class RaidQueue {
 
     private final Queue<RaidQueueEntry> raidQueue = new ConcurrentLinkedQueue<>();
 

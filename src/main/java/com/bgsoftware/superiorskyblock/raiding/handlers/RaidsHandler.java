@@ -20,16 +20,16 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class RaidsHandler {
+public final class RaidsHandler {
 
     private final List<SuperiorRaid> raids = new ArrayList<>();
 
-    public void startRaid(SuperiorRaid superiorRaid){
+    public void startRaid(SuperiorRaid superiorRaid) {
         raids.add(superiorRaid);
 
         superiorRaid.startRaid();
 
-        new BukkitRunnable(){
+        new BukkitRunnable() {
 
             @Override
             public void run() {

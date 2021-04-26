@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import java.util.Collections;
 import java.util.List;
 
-public class CmdRaidRestore implements ISuperiorCommand {
+public final class CmdRaidRestore implements ISuperiorCommand {
 
     @Override
     public List<String> getAliases() {

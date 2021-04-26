@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
 
-public class RaidInvitationHandler {
+public final class RaidInvitationHandler {
 
     private static Set<RaidInvitation> raidInvitations = new HashSet<>();
 

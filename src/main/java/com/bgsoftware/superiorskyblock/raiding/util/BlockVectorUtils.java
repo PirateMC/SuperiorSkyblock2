@@ -4,7 +4,7 @@ import com.sk89q.worldedit.math.BlockVector3;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
-public class BlockVectorUtils {
+public final class BlockVectorUtils {
     public static BlockVector3 fromLocation(Location location) {
         return BlockVector3.at(location.getX(), location.getY(), location.getZ());
     }

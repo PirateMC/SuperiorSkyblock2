@@ -16,26 +16,13 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-//TODO Raid Queue
-// * When a raid invitation is accepted, add the invitee and sender to the raid queue
-// * Have loop repeatedly grab elements from front of queue and create raid slots
-// from entries
-// * Remove generated entry from queue
-
 public class RaidQueue {
 
-    //TODO Resolve possible capacity restrictions
     private final Queue<RaidQueueEntry> raidQueue = new ConcurrentLinkedQueue<>();
-    //    private final RaidQueueEntry[] currentElement = new RaidQueueEntry[1];
-    public static volatile boolean isGenerating = false;
 
     public RaidQueue() {
         Bukkit.getScheduler().runTaskTimer(SuperiorSkyblockPlugin.getPlugin(), () -> {
-            if (raidQueue.isEmpty()) {
-                return;
-            }
-            if (!isGenerating) {
-                isGenerating = true;
+            if (!raidQueue.isEmpty() && !SuperiorSkyblockPlugin.getPlugin().getRaidIslandManager().isGeneratingSlot()) {
                 startRaid(raidQueue.element());
             } else {
                 SuperiorSkyblockPlugin.raidDebug("Currently generating island.");
@@ -56,7 +43,6 @@ public class RaidQueue {
     public void remove() {
         if (!raidQueue.isEmpty())
             raidQueue.remove();
-        isGenerating = false;
     }
 
     private void startRaid(RaidQueueEntry raidQueueEntry) {

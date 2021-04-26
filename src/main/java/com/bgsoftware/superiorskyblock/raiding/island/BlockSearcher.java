@@ -9,7 +9,7 @@ import org.bukkit.block.Block;
 import java.util.*;
 import java.util.stream.Collectors;
 
-class BlockSearcher {
+public final class BlockSearcher {
 
     public static void searchForSolidBlocks(Collection<Chunk> chunks, BlockWithDataMap destination) {
         Material stationaryWater = Material.getMaterial("LEGACY_STATIONARY_WATER");

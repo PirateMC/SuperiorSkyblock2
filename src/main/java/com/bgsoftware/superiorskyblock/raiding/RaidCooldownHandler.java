@@ -3,7 +3,6 @@ package com.bgsoftware.superiorskyblock.raiding;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashSet;
@@ -33,12 +32,9 @@ public final class RaidCooldownHandler {
     }
 
     public static void startTimer() {
-        timer = Bukkit.getScheduler().runTaskTimer(SuperiorSkyblockPlugin.getPlugin(), new BukkitRunnable() {
-            @Override
-            public void run() {
-                raidCooldowns.forEach(RaidCooldown::decrement);
-                raidCooldowns.removeIf(RaidCooldown::hasExpired);
-            }
+        timer = Bukkit.getScheduler().runTaskTimer(SuperiorSkyblockPlugin.getPlugin(), () -> {
+            raidCooldowns.forEach(RaidCooldown::decrement);
+            raidCooldowns.removeIf(RaidCooldown::hasExpired);
         }, timerDelayInTicks, timerDelayInTicks);
     }
 

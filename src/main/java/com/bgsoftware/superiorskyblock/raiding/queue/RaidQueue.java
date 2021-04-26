@@ -24,8 +24,9 @@ public final class RaidQueue {
         Bukkit.getScheduler().runTaskTimer(SuperiorSkyblockPlugin.getPlugin(), () -> {
             if (!raidQueue.isEmpty() && !SuperiorSkyblockPlugin.getPlugin().getRaidIslandManager().isGeneratingSlot()) {
                 startRaid(raidQueue.element());
-            } else {
-                SuperiorSkyblockPlugin.raidDebug("Currently generating island.");
+            }
+            if (SuperiorSkyblockPlugin.getPlugin().getRaidIslandManager().isGeneratingSlot()) {
+                SuperiorSkyblockPlugin.raidDebug("Generating slot...");
             }
         }, 20, 20);
     }

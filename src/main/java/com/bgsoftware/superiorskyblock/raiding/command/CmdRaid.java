@@ -88,7 +88,7 @@ public final class CmdRaid implements ISuperiorCommand {
                 if (arg.equalsIgnoreCase("accept")) {
                     commandSender.sendMessage(ChatColor.GREEN + "Invitation accepted.");
                     invitationSender.sendMessage(ChatColor.GREEN + commandSender.getName() + " has accepted your invitation.");
-                    acceptInvitation(invitationSender, commandSender, plugin);
+                    acceptInvitation(invitationSender, commandSender);
                 } else if (arg.equalsIgnoreCase("deny")) declineInvitation(invitationSender, commandSender);
                 else sender.sendMessage(Locale.INVALID_PLAYER.getMessage(LocaleUtils.getLocale(sender), arg));
             } else {
@@ -139,7 +139,7 @@ public final class CmdRaid implements ISuperiorCommand {
         }
     }
 
-    private void acceptInvitation(Player invitationSender, Player commandSender, SuperiorSkyblockPlugin plugin) {
+    private void acceptInvitation(Player invitationSender, Player commandSender) {
         RaidInvitation invitation = getAndRemoveInvitationOf(invitationSender.getUniqueId(), commandSender.getUniqueId());
 
         if (invitation == null) {
@@ -149,10 +149,13 @@ public final class CmdRaid implements ISuperiorCommand {
 
         RaidQueue raidQueue = SuperiorSkyblockPlugin.getPlugin().getRaidQueue();
         RaidQueueEntry raidQueueEntry = new RaidQueueEntry(commandSender.getUniqueId(), invitationSender.getUniqueId());
-        if (raidQueue.contains(raidQueueEntry)) {
-            sendMessageToMultiple(ChatColor.YELLOW + "You are already in the queue.", commandSender, invitationSender);
+
+        if (raidQueue.containsUuid(invitationSender.getUniqueId())
+                || raidQueue.containsUuid(commandSender.getUniqueId())) {
+            sendMessageToMultiple(ChatColor.YELLOW + "You or the other player are already in the queue.", commandSender, invitationSender);
             return;
         }
+
         RaidQueueAddResult result = raidQueue.add(raidQueueEntry);
         if (!result.wasSuccessful()) {
             sendMessageToMultiple(ChatColor.RED + "Unable to add you to the queue at this time.", invitationSender, commandSender);

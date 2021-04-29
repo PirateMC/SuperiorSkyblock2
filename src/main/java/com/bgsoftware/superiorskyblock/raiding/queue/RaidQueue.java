@@ -10,10 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class RaidQueue {
@@ -23,7 +20,7 @@ public final class RaidQueue {
     public RaidQueue() {
         Bukkit.getScheduler().runTaskTimer(SuperiorSkyblockPlugin.getPlugin(), () -> {
             if (!raidQueue.isEmpty() && !SuperiorSkyblockPlugin.getPlugin().getRaidIslandManager().isGeneratingSlot()) {
-                startRaid(raidQueue.element());
+                startRaid(raidQueue.poll());
             }
             if (SuperiorSkyblockPlugin.getPlugin().getRaidIslandManager().isGeneratingSlot()) {
                 SuperiorSkyblockPlugin.raidDebug("Generating slot...");
@@ -39,6 +36,10 @@ public final class RaidQueue {
 
     public boolean contains(RaidQueueEntry entry) {
         return raidQueue.contains(entry);
+    }
+
+    public boolean containsUuid(UUID uuid) {
+        return raidQueue.stream().anyMatch(entry -> entry.getKey().equals(uuid) || entry.getValue().equals(uuid));
     }
 
     public void remove() {

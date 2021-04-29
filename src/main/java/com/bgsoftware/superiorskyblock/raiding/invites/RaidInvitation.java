@@ -31,7 +31,7 @@ public final class RaidInvitation {
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof RaidInvitation)) return false;
-        return ((RaidInvitation) obj).senderUuid.equals(senderUuid)
-                && ((RaidInvitation) obj).inviteeUuid.equals(inviteeUuid);
+        return ((RaidInvitation) obj).senderUuid.equals(this.senderUuid)
+                && ((RaidInvitation) obj).inviteeUuid.equals(this.inviteeUuid);
     }
 }

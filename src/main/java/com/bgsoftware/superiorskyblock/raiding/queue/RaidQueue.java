@@ -10,35 +10,20 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-//TODO Raid Queue
-// * When a raid invitation is accepted, add the invitee and sender to the raid queue
-// * Have loop repeatedly grab elements from front of queue and create raid slots
-// from entries
-// * Remove generated entry from queue
+public final class RaidQueue {
 
-public class RaidQueue {
-
-    //TODO Resolve possible capacity restrictions
     private final Queue<RaidQueueEntry> raidQueue = new ConcurrentLinkedQueue<>();
-    //    private final RaidQueueEntry[] currentElement = new RaidQueueEntry[1];
-    public static volatile boolean isGenerating = false;
 
     public RaidQueue() {
         Bukkit.getScheduler().runTaskTimer(SuperiorSkyblockPlugin.getPlugin(), () -> {
-            if (raidQueue.isEmpty()) {
-                return;
+            if (!raidQueue.isEmpty() && !SuperiorSkyblockPlugin.getPlugin().getRaidIslandManager().isGeneratingSlot()) {
+                startRaid(raidQueue.poll());
             }
-            if (!isGenerating) {
-                isGenerating = true;
-                startRaid(raidQueue.element());
-            } else {
-                SuperiorSkyblockPlugin.raidDebug("Currently generating island.");
+            if (SuperiorSkyblockPlugin.getPlugin().getRaidIslandManager().isGeneratingSlot()) {
+                SuperiorSkyblockPlugin.raidDebug("Generating slot...");
             }
         }, 20, 20);
     }
@@ -53,10 +38,13 @@ public class RaidQueue {
         return raidQueue.contains(entry);
     }
 
+    public boolean containsUuid(UUID uuid) {
+        return raidQueue.stream().anyMatch(entry -> entry.getKey().equals(uuid) || entry.getValue().equals(uuid));
+    }
+
     public void remove() {
         if (!raidQueue.isEmpty())
             raidQueue.remove();
-        isGenerating = false;
     }
 
     private void startRaid(RaidQueueEntry raidQueueEntry) {

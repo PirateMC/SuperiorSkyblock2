@@ -596,6 +596,10 @@ PURGE_CLEAR: '&e&lIsland | &7Successfully cleared all the queued islands to be p
 PURGED_ISLANDS: |-
   &e&lIsland | &7{0} islands will be purged when server restarts.
   &e&lIsland | &7You can cancel it anytime using /is admin purge cancel.
+RAID_COOLDOWN_ACTIVE: "&c&lRaiding | You need time to recuperate. You may raid again in {0}."
+RAID_COOLDOWN_ACTIVE_OTHER: "&c&lRaiding | That island needs more time to recuperate before raiding again."
+RAID_COOLDOWN_STARTED: "&e&lRaiding | &eCool downs started."
+RAID_COOLDOWN_STOPPED: "&e&lRaiding | &eCool downs stopped."
 RAID_COUNTDOWN: "&e&lCountdown: {0}"
 RAID_DRAW: "&e&lIt's a draw!"
 RAID_INVITATION_DECLINED: '&e&lRaiding | &cInvitation declined.'
@@ -606,6 +610,7 @@ RAID_START_COUNTDOWN: '&e&lRaid starting in {0}'
 RAID_START: '&e&lRaid started!'
 RAID_RESPAWN_COUNTDOWN: '&e&lRespawning in {0}'
 RAID_RESPAWN: '&e&lRespawned!'
+RAID_UNKNOWN_COOLDOWN_OPTION: "&e&lRaiding | &eUnknown cool down option {0}."
 RAID_WIN: '&a&lCongrats, here is your winnings!'
 RANKUP_SUCCESS: '&e&lIsland | &7Successfully updated the level of the upgrade {0} for {1}''s island.'
 RANKUP_SUCCESS_ALL: '&e&lIsland | &7Successfully updated the level of the upgrade {0} for all the islands.'

@@ -96,6 +96,8 @@ public final class RaidIsland {
                     }
 
                     public RaidIsland build() {
+                        RaidIslandManager raidIslandManager = SuperiorSkyblockPlugin.getPlugin().getRaidIslandManager();
+                        raidIslandManager.setGeneratingSlot(true);
                         final BlockWithDataMap sourceIslandBlockWithDataMap = new BlockWithDataMap();
                         Bukkit.getScheduler().runTaskAsynchronously(SuperiorSkyblockPlugin.getPlugin(), () -> {
                             SuperiorSkyblockPlugin.raidDebug("Getting island chunks...");
@@ -127,6 +129,7 @@ public final class RaidIsland {
                             SuperiorSkyblockPlugin.raidDebug("Copying island to raid location...");
                             sourceIslandBlockWithDataMap.copyToLocation(locationVector.toLocation(Bukkit.getWorld(SuperiorSkyblockPlugin.RAID_WORLD_NAME)));
                             SuperiorSkyblockPlugin.raidDebug("Done copying island to raid location.");
+                            raidIslandManager.setGeneratingSlot(false);
                         });
                         return new RaidIsland(
                                 sourceIslandBlockWithDataMap,
@@ -137,6 +140,7 @@ public final class RaidIsland {
                                 copyMethod
                         );
                     }
+
                 }
             }
         }

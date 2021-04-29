@@ -15,6 +15,7 @@ import com.bgsoftware.superiorskyblock.handlers.*;
 import com.bgsoftware.superiorskyblock.listeners.*;
 import com.bgsoftware.superiorskyblock.metrics.Metrics;
 import com.bgsoftware.superiorskyblock.nms.*;
+import com.bgsoftware.superiorskyblock.raiding.RaidCooldownHandler;
 import com.bgsoftware.superiorskyblock.raiding.handlers.RaidsHandler;
 import com.bgsoftware.superiorskyblock.raiding.island.RaidIslandManager;
 import com.bgsoftware.superiorskyblock.raiding.queue.RaidQueue;
@@ -257,6 +258,8 @@ public final class SuperiorSkyblockPlugin extends JavaPlugin implements Superior
         }
 
         raidQueue = new RaidQueue();
+
+        RaidCooldownHandler.startTimer();
     }
 
     @Override

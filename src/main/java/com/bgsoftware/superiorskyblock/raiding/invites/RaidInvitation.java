@@ -2,7 +2,7 @@ package com.bgsoftware.superiorskyblock.raiding.invites;
 
 import java.util.UUID;
 
-public class RaidInvitation {
+public final class RaidInvitation {
     private UUID senderUuid;
     private UUID inviteeUuid;
     private long timeLeft = 60;
@@ -31,7 +31,7 @@ public class RaidInvitation {
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof RaidInvitation)) return false;
-        return ((RaidInvitation) obj).senderUuid.equals(senderUuid)
-                && ((RaidInvitation) obj).inviteeUuid.equals(inviteeUuid);
+        return ((RaidInvitation) obj).senderUuid.equals(this.senderUuid)
+                && ((RaidInvitation) obj).inviteeUuid.equals(this.inviteeUuid);
     }
 }

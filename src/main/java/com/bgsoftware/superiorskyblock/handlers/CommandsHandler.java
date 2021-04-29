@@ -8,7 +8,6 @@ import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.commands.*;
 import com.bgsoftware.superiorskyblock.raiding.command.CmdRaid;
-import com.bgsoftware.superiorskyblock.raiding.command.CmdRaidRestore;
 import com.bgsoftware.superiorskyblock.utils.FileUtils;
 import com.bgsoftware.superiorskyblock.utils.LocaleUtils;
 import com.bgsoftware.superiorskyblock.utils.StringUtils;
@@ -111,7 +110,6 @@ public final class CommandsHandler extends AbstractHandler implements CommandsMa
         registerCommand(new CmdWarps(), false);
         registerCommand(new CmdWithdraw(), false);
         registerCommand(new CmdRaid(), false);
-        registerCommand(new CmdRaidRestore(), false);
 
         loadCommands();
     }

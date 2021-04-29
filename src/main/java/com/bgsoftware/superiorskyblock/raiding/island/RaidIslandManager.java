@@ -16,18 +16,9 @@ public final class RaidIslandManager {
     private final int raidIslandSpacingZ = 0;
     private final int minimumSpacingBetweenIslands = 30;
     private final int raidIslandY = SuperiorSkyblockPlugin.RAID_WORLD_WATER_LEVEL + 3;
+    private volatile boolean isGeneratingSlot = false;
 
     public RaidIslandManager() {
-    }
-
-    public void restoreRaidSlot(UUID ownerUuid) {
-        slots.getSlotOfIslandOwner(ownerUuid).ifPresent(RaidSlot::restore);
-        slots.removeSlotOfOwner(ownerUuid);
-    }
-
-    public void restoreAllSlots() {
-        slots.forEach(RaidSlot::restore);
-        slots.clear();
     }
 
     public RaidSlot generateNewRaidSlotAsynchronously(Island islandOne, Island islandTwo) {
@@ -54,5 +45,23 @@ public final class RaidIslandManager {
         nextRaidLocationZ += raidIslandSpacingZ;
         lastIslandMaxSize = Integer.max(islandOne.getIslandSize(), islandTwo.getIslandSize());
         return slot;
+    }
+
+    public boolean isGeneratingSlot() {
+        return isGeneratingSlot;
+    }
+
+    public void restoreAllSlots() {
+        slots.forEach(RaidSlot::restore);
+        slots.clear();
+    }
+
+    public void restoreRaidSlot(UUID ownerUuid) {
+        slots.getSlotOfIslandOwner(ownerUuid).ifPresent(RaidSlot::restore);
+        slots.removeSlotOfOwner(ownerUuid);
+    }
+
+    public void setGeneratingSlot(boolean isGeneratingSlot) {
+        this.isGeneratingSlot = isGeneratingSlot;
     }
 }

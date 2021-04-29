@@ -7,7 +7,7 @@ import com.bgsoftware.superiorskyblock.raiding.util.Pair;
 
 import java.util.UUID;
 
-public class RaidQueueEntry extends Pair<UUID, UUID> {
+public final class RaidQueueEntry extends Pair<UUID, UUID> {
 
     public RaidQueueEntry(UUID sender, UUID receiver) {
         super(sender, receiver);
